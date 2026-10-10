@@ -6,7 +6,7 @@
   "scripts": {
     "test": "node --test tests/*.test.cjs",
     "package": "node scripts/package.mjs",
-    "check": "node --check js/models.js && node --check js/content.js && node --check js/diagrams.js && node --check js/app.js"
+    "check": "node --check js/models.js && node --check js/pid.js && node --check js/content.js && node --check js/diagrams.js && node --check js/workspace.js && node --check js/app.js"
   },
   "devDependencies": {
     "jsdom": "^26.1.0"

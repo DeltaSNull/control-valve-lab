@@ -3,7 +3,7 @@
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const colors={command:'#2d62be',travel:'#158069',pressure:'#b77915',flow:'#bb4b2a',muted:'#93a28b'};
   function plot(lines,opts={}) {
-    const w=Math.max(280,Math.min(900,opts.width??600)),h=270,l=64,r=18,t=30,b=58,pw=w-l-r,ph=h-t-b;
+    const w=Math.max(280,Math.min(900,opts.width??600)),h=Math.max(140,opts.height??270),l=64,r=18,t=30,b=58,pw=w-l-r,ph=h-t-b;
     const xd=opts.xDomain??[0,100],yd=opts.yDomain??[0,100];
     const sx=x=>l+(x-xd[0])/(xd[1]-xd[0])*pw,sy=y=>t+ph-(y-yd[0])/(yd[1]-yd[0])*ph;
     const fmt=v=>Math.abs(v)>=100?Math.round(v):Number(v.toFixed(1));

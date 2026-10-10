@@ -4,7 +4,7 @@ import {fileURLToPath} from 'node:url';
 const base=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 let html=await readFile(path.join(base,'index.html'),'utf8');
 const css=await readFile(path.join(base,'styles.css'),'utf8');
-const files=['models','content','diagrams','app'];
+const files=['models','pid','content','diagrams','workspace','app'];
 const scripts=await Promise.all(files.map(f=>readFile(path.join(base,`js/${f}.js`),'utf8')));
 html=html.replace('<link rel="stylesheet" href="styles.css">',`<style>\n${css}\n</style>`);
 html=html.replace(/\s*<script defer src="js\/[^\"]+"><\/script>/g,'');

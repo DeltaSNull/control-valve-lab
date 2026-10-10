@@ -80,5 +80,6 @@
     {title:'SAMSON valve signature / EXPERTplus',url:'https://www.samson.de/document/e8389ben.pdf',topic:'Signature analysis, friction and comparison with a reference.'},
     {title:'Flowserve Logix',url:'https://www.flowserve.com/products/brands/logix/',topic:'An example of digital positioners beyond Fisher; capabilities vary by device.'}
   ];
+  sources.push({title:'Honeywell Advanced Process Manager · AP09-600 §8.14.1',url:'https://skoge.folk.ntnu.no/puublications_others/apc-papers/honeywell3000-AP09-600.pdf',topic:'Manufacturer manual hosted by NTNU: A/B/C term placement, ideal versus interactive forms, action and anti-windup. Lab implements an ideal teaching form.'},{title:'Skogestad · SIMC model reduction and tuning',url:'https://skoge.folk.ntnu.no/publications/2003/tuningPID/mic-version/mic.pdf',topic:'Primary paper: FOPDT-based PI tuning and desired closed-loop response time.'});
   root.ValveContent={components,friction,styles,trims,cases,answerOptions,glossary,sources};
 })(typeof globalThis!=='undefined'?globalThis:this);

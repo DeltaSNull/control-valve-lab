@@ -55,8 +55,32 @@ Normal and excessive gain/damping settings are selected to teach load correction
 
 Each constructed case deliberately isolates a mechanism. Packing/backlash cases use the friction lab with an illustrative command-pressure proxy. Supply and tuning cases use the reduced-order positioner. The oversized case uses a Cv=400 linear valve at low travel. The process-disturbance case changes differential pressure at constant command and travel.
 
-No process PID loop is simulated. No generated trace proves a unique field diagnosis. Full-stroke tests and small-step regulation assess different behaviors.
+The separate PID lab below simulates a normalized process loop. These diagnostic cases remain independently constructed. No generated trace proves a unique field diagnosis. Full-stroke tests and small-step regulation assess different behaviors.
 
 ## Verification
 
 Use `npm test` for numerical and DOM integration coverage, `npm run check` for JavaScript syntax, and `npm run package` for the standalone build. Browser visual/touch verification remains an explicitly reported limitation in this environment.
+
+## Phone workspace, demos and recording
+
+The observation selector chooses one live plot/diagram. Operate, Setup and Learn have independent panel visibility; original controls/IDs are relocated rather than cloned. On phones, only the lower control panel scrolls in portrait. Short landscape viewports use a sticky observation and page scrolling. Browser/device rendering is not yet verified.
+
+Scripted demos run only after the user presses Run demo. They reset an example, narrate its stages and stop. The PID demo preserves process settings, selected defect and (in Apply tuning) controller tuning. Navigation, backgrounding, Pause and Custom cancel automation. Plot selection does not cancel it. Static examples animate illustrative input changes; diagnosis reveals a selected constructed case.
+
+Friction and positioner integrate/record every 0.05 simulated seconds, with 8,000-sample histories (~400 seconds), independent of animation refresh rate. A full 160-second slow sweep is retained. Plot redraw is throttled to roughly 150 ms. PID samples every 0.1 simulated seconds and permits 1/4/8/16× acceleration; its 20,000-sample history is bounded at ~2,000 simulated seconds. Paused positioner parameter changes do not advance simulated time; Run/resume applies the dynamics. Friction manual steps remain explicit 0.1-second model samples; Hold & settle runs continuing dynamics.
+
+## PID controller and process
+
+`js/pid.js` implements a reduced noninteractive/ideal controller with Honeywell-style A/B/C term placement, not vendor firmware. For reverse action, error = SP−measured PV, P input = beta×SP−PV, D input = gamma×SP−PV. A uses beta=gamma=1; B beta=1,gamma=0; C beta=gamma=0. Direct action reverses these signs. OP = bias + Kc×P + integral + Kc×filtered-D. Kc is %OP/%PV. Integral increments Kc×error×dt/Ti. Ti/Td enter in minutes and are multiplied by 60 internally; zero disables the term.
+
+The derivative uses backward Euler: Dnew = [(Td/16)×Dold + Td×(Dinput−previous-Dinput)]/(Td/16+dt). Conditional integration blocks outward integral increments at the 0/100% OP limits. Manual tracking resets derivative history and integral, setting bias so the initial Auto output equals the current Manual output even at nonzero error. Subsequent integration continues responding to that error. Equation/tuning changes similarly track the current output. SP does not track PV in Manual.
+
+The self-regulating process has normalized span, true PV and measured PV. Target true PV = 50 + K×(delayed actual travel−50) + additive load. PV follows an exact exponential first-order update with tau. A time queue delays actual travel by theta. Healthy valve lag is 0.4 s; slow-valve lag 6 s; stiction uses 4 pp static/1.2 pp sliding thresholds; backlash uses a 6 pp play band; limited travel is capped at 55%. Deterministic summed sine noise affects measured PV only. OP, travel and PV are separate. This process does not calculate Cv or liquid flow and does not model integrating, inverse-response, runaway or multivariable processes.
+
+## Recorded step fit and starting-point tuning
+
+Identification consumes recorded measured PV, OP, time and (when available) travel. It uses the preceding 5 seconds for baseline, final 5 seconds for endpoint, signed gain delta-PV/delta-OP, and interpolated 28.3/63.2% crossings. Tau = 1.5×(t63−t28); delay = max(0,t28−tau/3). The small normal valve lag is consequently included in the effective OP-to-PV model.
+
+Rejection gates: step <0.5 pp; fewer than 5 baseline/30 response samples; multiple post-step OP values; response <0.3 pp; baseline split-window drift >max(0.2 pp,2% of response); end travel error >max(2 pp,40% of OP step); invalid crossing order; final/prior-five-second mean difference >1.2% of response; or less than delay+4×tau of response. These are declared teaching heuristics, not a statistical identification package. Process/defect/load changes invalidate an existing test/estimate. Stiction, backlash and noise can still distort an accepted fit, so a defect caveat remains visible.
+
+SIMC PI recommendation: lambdaEff=max(user lambda, fitted delay,0.1 s); Kc=tau/[abs(K)×(lambdaEff+delay)], Ti=min[tau,4×(lambdaEff+delay)]/60 minutes, Td=0. Positive fitted gain selects Reverse; negative selects Direct. The user deliberately transfers the estimate. Tuning presets are illustrative: PI Kc2/Ti20s/Td0; aggressive Kc8/Ti4.8s/Td0; derivative comparison Kc2/Ti20s/Td3s. They are starting experiments, not field recommendations.

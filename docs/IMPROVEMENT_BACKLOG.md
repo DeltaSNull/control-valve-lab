@@ -2,7 +2,25 @@
 
 Reviewed application: `8752422f0c453121baa9046d7ce04af40e877cd5`.
 Review date: 2026-10-09, America/Chicago.
-Status: all entries below are **OPEN / proposed**. This documentation pass implements none of them.
+Status updated 2026-10-10: original findings below remain review evidence. Current implementation is the phone/PID pass (see handoff); statuses are:
+
+| ID | Current status | Evidence / remaining work |
+| --- | --- | --- |
+| CVL-001 | Implemented | Fixed 0.05 s recording, 8,000-sample bound; complete slow-sweep DOM tests at 30/120 Hz. |
+| CVL-002 | Partially implemented | Explicit demo/custom/pause/run; paused positioner changes no longer advance 0.02 s. Friction steps remain explicit samples; usability/device QA pending. |
+| CVL-003 | Open | Actual phone/browser QA unavailable. |
+| CVL-004 | Partially implemented | Toggle choices expose aria-pressed; panel state and demo status added. Screen reader/SVG and chart-data review still needed. |
+| CVL-005 | Open | Detailed trim drawings unchanged. |
+| CVL-006 | Open | Linked force/travel/Cv experiment still proposed. |
+| CVL-007 | Partially implemented | One-button narrated demos in all seven modules; prediction activities not added. |
+| CVL-008 | Open | Positioner characterization/configuration lessons unchanged. |
+| CVL-009 | Implemented within current scope | FOPDT PID/step lab, A/B/C ideal form, OP/SP/manual/auto, load and valve defects; integrating processes and series PID remain future work. |
+| CVL-010 | Partially implemented | Fixed-clock DOM tests, PID model and fit rejection tests. Original pressure-balance assertion and expanded visual tests remain. |
+| CVL-011 | Partially implemented | Pure PID and shared workspace extracted; existing app.js remains compact and needs formatting/refactoring. |
+| CVL-012 | Open | Both targets are explicitly synchronized this pass; automated cross-host revision labeling still proposed. |
+| CVL-013 | Partially implemented | Push-state module navigation supports history. PWA/offline/scenario sharing/export remain proposed. |
+
+Application changes are authorized by the user's 2026-10-10 phone/PID request. See docs/AGENT_HANDOFF.md for tested behavior and limits.
 
 Priority means work order: **P1** = next pass; **P2** = next quality/learning pass; **P3** = optional expansion. It does not mean every recommendation is a production defect. Evidence classes distinguish a reproduced behavior, a source observation, a validation gap, and a proposed feature.
 

@@ -9,11 +9,13 @@ This is an educational engineering app, maintained in DeltaSNull/control-valve-l
 - When implementing an entry, preserve its ID, record the commit and verification evidence, and update its status. Keep unresolved browser/device checks visible.
 
 ## Architecture
-- Buildless index.html loads four classic deferred scripts in order: models, content, diagrams, app.
+- Buildless index.html loads six classic deferred scripts in order: models, pid, content, diagrams, workspace, app.
 - js/models.js contains pure numerical models and exports the same API to Node and the browser.
+- js/pid.js contains pure controller, process, recorded-step identification and SIMC PI models; UI time parameters are minutes.
+- js/workspace.js partitions existing module content into a persistent observation and Operate/Setup/Learn controls.
 - js/content.js holds original educational explanations, glossary, cases, and primary references.
 - js/diagrams.js renders original SVG schematics and plots.
-- js/app.js owns controls, module state, and one animation loop; navigation pauses simulations.
+- js/app.js owns controls, seven module states, scripted demos and one fixed-step animation loop; navigation/background/custom pauses or cancels demos.
 - scripts/package.mjs produces dist/index.html as a self-contained downloadable/hostable app. Do not edit generated dist directly.
 
 ## Engineering correctness
@@ -38,3 +40,6 @@ Keep all controls keyboard-accessible and touch-friendly. Respect reduced motion
 
 ## Hosting
 GitHub is the primary maintainable source. GitHub Pages can serve the root index.html and assets after the owner enables main / root in Settings → Pages. The self-contained dist/index.html is also a deployment target. A private Sites preview may use .openai/hosting.json; preserve its project ID if present.
+
+## Phone/PID pass (2026-10-10)
+Run demo is deterministic and ends automatically. Custom cancels automation; preserve user control changes and keep the observation selector independent of automation. Shared workspace relocates live DOM nodes (never clones control IDs). All dynamic simulations must use fixed simulated intervals, not animation frame count. PID fits must come from recorded measured PV and OP, not hidden process constants. Process/defect/load changes invalidate the fit. Reject drifting baselines, insufficient settling, multiple OP changes and large end travel mismatch. A/B/C refer to Honeywell term placement in the explicitly declared noninteractive/ideal teaching form. Do not present these settings as a firmware emulator or series-form conversion.

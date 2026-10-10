@@ -11,7 +11,7 @@ function boot(hash='#anatomy') {
   const dom=new JSDOM(fs.readFileSync(path.join(__dirname,'../index.html'),'utf8'),{url:'https://example.test/'+hash,runScripts:'outside-only',pretendToBeVisual:true});
   const w=dom.window; w.matchMedia=()=>({matches:false,addEventListener(){}});
   w.HTMLDialogElement.prototype.showModal=function(){this.open=true;};w.HTMLDialogElement.prototype.close=function(){this.open=false;};
-  for(const file of ['models','content','diagrams','app']) vm.runInContext(fs.readFileSync(path.join(__dirname,`../js/${file}.js`),'utf8'),dom.getInternalVMContext());
+  for(const file of ['models','pid','content','diagrams','workspace','app']) vm.runInContext(fs.readFileSync(path.join(__dirname,`../js/${file}.js`),'utf8'),dom.getInternalVMContext());
   return dom;
 }
 function click(w,selector){const el=w.document.querySelector(selector);assert.ok(el,selector);el.click();}

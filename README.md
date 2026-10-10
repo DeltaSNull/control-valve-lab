@@ -10,6 +10,11 @@ An interactive control-valve field guide for process control engineers, instrume
 4. **Trims & styles:** globe, segmented-ball, butterfly and eccentric-plug schematics; capacity, balance, seats, noise, and cavitation/flashing.
 5. **Positioners & DVCs:** I/P-only versus travel feedback; load, air limits, restricted delivery, hunting, configuration and diagnostics.
 6. **Read the symptoms:** six simulated cases with hypotheses, explanations, alternatives and discriminating evidence.
+7. **PID & step testing:** manual OP step recording, measured FOPDT fit, SIMC PI starting point, Honeywell-style A/B/C in ideal form, manual/auto, SP/load changes, tuning presets and six defect choices.
+
+On phones, one selected plot stays above a separately scrolling **Operate / Setup / Learn** panel. **Run demo** starts a scripted, self-ending example; **Custom** stops automation. The **Observe** selector changes plots without stopping the demonstration. In dynamic Custom mode, press Run/resume or a step action to evolve the simulation.
+
+PID workflow: **Step test → Run demo → Use estimate → Apply tuning**. Choose a defect in either stage. In Apply tuning, use Auto and move SP, or run the SP/load demo. Kc is %OP/%PV; Ti and Td are minutes. With Td=0, A and B are PI-equivalent; the derivative preset exposes their SP-response difference.
 
 ## Open it
 
@@ -40,6 +45,8 @@ npm run package
 ```
 
 The tests cover liquid pressure balance and units, characteristic boundaries and monotonicity, the equal-percentage ratio, breakaway friction, reversal backlash, lag settling, load rejection, pneumatic saturation, module navigation, control readouts, reset, dialogs, and simulation lifecycle.
+
+Numerical and DOM tests include controller term placement, tracked transfers, anti-windup, measured step identification/rejection, defect motion, demo cancellation, workspace controls and slow sweeps at different refresh rates. Actual phone rendering/touch QA remains unverified.
 
 Files are intentionally separated by responsibility. Change the source files and regenerate `dist/index.html`; do not hand-edit generated HTML.
 
