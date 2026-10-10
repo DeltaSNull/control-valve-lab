@@ -41,3 +41,22 @@ test('switching a running simulation stops its loop and reset returns baseline',
   click(w,'[data-module="flow"]');assert.equal(w.ValveLab.getState().friction.running,false);assert.equal(w.ValveLab.getState().positioner.running,false);
   click(w,'[data-module="friction"]');click(w,'[data-action="reset"]');assert.equal(w.ValveLab.getState().friction.command,50);assert.equal(w.ValveLab.getState().friction.history.length,1);d.window.close();
 });
+test('displayed flow numbers preserve the pressure budget: valve ΔP + other losses = total',()=>{
+  const d=boot('#flow'),w=d.window,num=id=>Number.parseFloat(w.document.getElementById(id).textContent);
+  for(const [travel,k] of [['50','0.003'],['90','0.01'],['20','0']]){
+    input(w,'flow-travel',travel);input(w,'flow-resistance',k);
+    const total=w.ValveLab.getState().flow.dp;
+    assert.ok(Math.abs(num('flow-valve-dp')+num('flow-pipe-dp')-total)<=.06,`travel ${travel}, K ${k}`);
+  }
+  d.window.close();
+});
+test('clicking the active module does not add a duplicate history entry',()=>{
+  const d=boot('#flow'),w=d.window,before=w.history.length;
+  click(w,'nav [data-module="flow"]');assert.equal(w.history.length,before);
+  click(w,'nav [data-module="trim"]');assert.equal(w.history.length,before+1);d.window.close();
+});
+test('paused positioner changes tell the learner how to see the dynamic response',()=>{
+  const d=boot('#positioner'),w=d.window;input(w,'position-load','2');
+  assert.match(w.document.getElementById('position-status').textContent,/paused · Run \/ resume/);
+  assert.equal(w.ValveLab.getState().positioner.time,0,'paused edits must not advance simulated time');d.window.close();
+});

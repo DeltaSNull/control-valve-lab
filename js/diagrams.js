@@ -3,20 +3,31 @@
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const colors={command:'#2d62be',travel:'#158069',pressure:'#b77915',flow:'#bb4b2a',muted:'#93a28b'};
   function plot(lines,opts={}) {
-    const w=Math.max(280,Math.min(900,opts.width??600)),h=Math.max(140,opts.height??270),l=64,r=18,t=30,b=58,pw=w-l-r,ph=h-t-b;
+    // Compact phone plots use tighter margins and fewer y ticks so labels stay legible.
+    const w=Math.max(280,Math.min(900,opts.width??600)),h=Math.max(140,opts.height??270),compact=h<220,l=64,r=18,t=compact?24:30,b=compact?42:58,pw=w-l-r,ph=h-t-b;
     const xd=opts.xDomain??[0,100],yd=opts.yDomain??[0,100];
     const sx=x=>l+(x-xd[0])/(xd[1]-xd[0])*pw,sy=y=>t+ph-(y-yd[0])/(yd[1]-yd[0])*ph;
     const fmt=v=>Math.abs(v)>=100?Math.round(v):Number(v.toFixed(1));
+    const yTicks=ph<100?2:4;
     let grid='';
-    for(let i=0;i<=4;i++) { const x=xd[0]+(xd[1]-xd[0])*i/4,y=yd[0]+(yd[1]-yd[0])*i/4;
-      grid+=`<path d="M${l} ${sy(y)}H${w-r}" stroke="#e3e8de"/><text x="${l-10}" y="${sy(y)+5}" text-anchor="end" font-size="14">${fmt(y)}</text><text x="${sx(x)}" y="${h-b+23}" text-anchor="middle" font-size="14">${fmt(x)}</text>`;
+    for(let i=0;i<=yTicks;i++) { const y=yd[0]+(yd[1]-yd[0])*i/yTicks;
+      grid+=`<path d="M${l} ${sy(y)}H${w-r}" stroke="#e3e8de"/><text x="${l-10}" y="${sy(y)+5}" text-anchor="end" font-size="14">${fmt(y)}</text>`;
+    }
+    for(let i=0;i<=4;i++) { const x=xd[0]+(xd[1]-xd[0])*i/4;
+      grid+=`<text x="${sx(x)}" y="${h-b+(compact?18:23)}" text-anchor="middle" font-size="14">${fmt(x)}</text>`;
     }
     const paths=lines.map((line,i)=>{
       const pts=line.points.filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y));
       return `<path d="${pts.map((p,j)=>`${j?'L':'M'}${sx(p.x).toFixed(2)} ${sy(p.y).toFixed(2)}`).join(' ')}" fill="none" stroke="${line.color??colors.travel}" stroke-width="${line.width??2.8}" ${line.dash?`stroke-dasharray="${line.dash}"`:''} stroke-linejoin="round"/><title>${esc(line.name??`Series ${i+1}`)}</title>`;
     }).join('');
+    // Numeric text alternative: screen readers get each series' endpoints and range without reading color.
+    const summary=[`Horizontal axis: ${opts.xLabel??'Input (%)'}, ${fmt(xd[0])} to ${fmt(xd[1])}. Vertical axis: ${opts.yLabel??'Output (%)'}.`,...lines.map((line,i)=>{
+      const ys=line.points.filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y));if(!ys.length)return '';
+      const lo=ys.reduce((m,p)=>Math.min(m,p.y),Infinity),hi=ys.reduce((m,p)=>Math.max(m,p.y),-Infinity),a=ys[0],z=ys.at(-1);
+      return `${line.name??`Series ${i+1}`}: ${fmt(a.y)} at ${fmt(a.x)} to ${fmt(z.y)} at ${fmt(z.x)}; range ${fmt(lo)} to ${fmt(hi)}.`;
+    }),...(opts.markers??[]).map(m=>`Marker at ${fmt(m.x)}, ${fmt(m.y)}.`)].filter(Boolean).join(' ');
     const markers=(opts.markers??[]).map(m=>`<circle cx="${sx(m.x)}" cy="${sy(m.y)}" r="5.5" fill="${m.color??colors.travel}" stroke="white" stroke-width="2"/>`).join('');
-    return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(opts.title??'Engineering plot')}"><title>${esc(opts.title??'Engineering plot')}</title><text x="${l}" y="17" font-size="14" font-weight="650">${esc(opts.yLabel??'Output (%)')}</text>${grid}<path d="M${l} ${t}V${h-b}H${w-r}" stroke="#a9b7a1" fill="none"/>${paths}${markers}<text x="${l+pw/2}" y="${h-10}" text-anchor="middle" font-size="14">${esc(opts.xLabel??'Input (%)')}</text></svg>`;
+    return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(opts.title??'Engineering plot')}"><title>${esc(opts.title??'Engineering plot')}</title><desc>${esc(summary)}</desc><text x="${l}" y="17" font-size="14" font-weight="650">${esc(opts.yLabel??'Output (%)')}</text>${grid}<path d="M${l} ${t}V${h-b}H${w-r}" stroke="#a9b7a1" fill="none"/>${paths}${markers}<text x="${l+pw/2}" y="${compact?h-4:h-10}" text-anchor="middle" font-size="14">${esc(opts.xLabel??'Input (%)')}</text></svg>`;
   }
   function valve(travel=40, selected='packing') {
     const x=Math.max(0,Math.min(100,travel)), lift=x*.55, d=196-lift, plug=478-lift;
