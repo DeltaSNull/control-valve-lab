@@ -28,6 +28,16 @@ PID workflow: **1 · Step test** (record, step OP, estimate) → **Use estimate 
 - For a single-file version, use `dist/index.html`; its CSS and JavaScript are embedded.
 - For an ordinary phone/browser link, enable GitHub Pages using the instructions below. Mobile file viewers may not execute JavaScript; use a hosted link for the intended experience.
 
+### Save it as an app
+
+From the hosted link, the lab can be saved like an app with a control-valve icon (the P&ID control-valve symbol: diaphragm actuator, stem and globe body):
+
+- **iPhone / iPad (Safari):** Share → **Add to Home Screen**. The icon is titled *Valve Lab*.
+- **Android (Chrome):** menu → **Add to Home screen** or **Install app**.
+- **Desktop (Chrome / Edge):** the install icon in the address bar, or menu → **Install Control Valve Lab**.
+
+It opens full-screen on the Start here page. It still needs the network the first time it opens; there is no offline cache. Icons live in `icons/` and are generated from one drawing by `npm run icons` (requires Playwright/Chromium); the PNGs are committed so builds do not need a browser.
+
 ## GitHub Pages
 
 The repository source is fully ready for Pages. Enabling hosting requires repository settings access, which is not exposed by the connected source-editing tool.

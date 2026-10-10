@@ -8,7 +8,8 @@
     "package": "node scripts/package.mjs",
     "check": "node --check js/models.js && node --check js/pid.js && node --check js/content.js && node --check js/diagrams.js && node --check js/workspace.js && node --check js/app.js",
     "format": "prettier --write js tests scripts styles.css",
-    "format:check": "prettier --check js tests scripts styles.css"
+    "format:check": "prettier --check js tests scripts styles.css",
+    "icons": "node scripts/icons.mjs"
   },
   "devDependencies": {
     "jsdom": "^26.1.0",

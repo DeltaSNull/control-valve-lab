@@ -6,7 +6,14 @@
   <meta name="theme-color" content="#143b32">
   <meta name="description" content="Explore control valve internals, stiction, hysteresis, Cv, trims and digital positioners through interactive engineering labs.">
   <title>Control Valve Lab — From signal to flow</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23143b32'/%3E%3Cpath d='M10 29h17V14h10v15h17v10H37v11H27V39H10z' fill='%23cfe58b'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0iIzE0M2IzMiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgMCkgc2NhbGUoMSkiPjxnIGZpbGw9IiNkOWVjOWYiPgogICAgPHBhdGggZD0iTTE2NCAyMDJhOTIgOTIgMCAwIDEgMTg0IDB6Ii8+CiAgICA8cmVjdCB4PSIxNjAiIHk9IjE5NiIgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxNiIgcng9IjUiLz4KICAgIDxyZWN0IHg9IjI0NiIgeT0iMjA2IiB3aWR0aD0iMjAiIGhlaWdodD0iMTI0Ii8+CiAgICA8cGF0aCBkPSJNMTE4IDI1NEwyNTYgMzI4TDExOCA0MDJ6TTM5NCAyNTRMMjU2IDMyOEwzOTQgNDAyeiIvPgogICAgPHJlY3QgeD0iNjQiIHk9IjMxNiIgd2lkdGg9IjYyIiBoZWlnaHQ9IjI0IiByeD0iNyIvPgogICAgPHJlY3QgeD0iMzg2IiB5PSIzMTYiIHdpZHRoPSI2MiIgaGVpZ2h0PSIyNCIgcng9IjciLz4KICA8L2c+PC9nPjwvc3ZnPgo=">
+  <link rel="apple-touch-icon" href="data:image/png;base64,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">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Valve Lab">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="application-name" content="Valve Lab">
   <style>
 /* Control Valve Lab — one visual system for every lesson.
    Sections: tokens · base · app frame · page header · lab layout · guide · controls ·
@@ -182,10 +189,15 @@ button[aria-pressed='true'] {
   font-size: 20px;
   line-height: 1.15;
 }
+.brand-icon svg {
+  width: 78%;
+  height: auto;
+  display: block;
+}
 .brand-icon {
   display: grid;
   place-items: center;
-  width: 38px;
+  width: 40px;
   height: 40px;
   background: var(--leaf);
   color: var(--green);
@@ -1880,7 +1892,7 @@ main:focus-visible {
 <body>
   <a class="skip" href="#main">Skip to the lab</a>
   <aside class="sidebar" aria-label="Learning modules">
-    <a class="brand" href="#home" data-module="home"><span class="brand-icon" aria-hidden="true">↗</span><span>Control Valve<span class="brand-sub">LEARNING LAB</span></span></a>
+    <a class="brand" href="#home" data-module="home"><span class="brand-icon" aria-hidden="true"><svg viewBox="52 96 408 320"><g fill="currentColor"><path d="M164 202a92 92 0 0 1 184 0z"/><rect x="160" y="196" width="192" height="16" rx="5"/><rect x="246" y="206" width="20" height="124"/><path d="M118 254L256 328L118 402zM394 254L256 328L394 402z"/><rect x="64" y="316" width="62" height="24" rx="7"/><rect x="386" y="316" width="62" height="24" rx="7"/></g></svg></span><span>Control Valve<span class="brand-sub">LEARNING LAB</span></span></a>
     <p class="nav-label">FROM SIGNAL TO FLOW</p>
     <nav id="module-nav" aria-label="Lessons">
       <a href="#home" data-module="home"><span aria-hidden="true">⌂</span>Start here</a>

@@ -18,7 +18,7 @@ Status updated 2026-10-10 (third pass: guided-lab redesign; second pass: browser
 | CVL-010 | Partially implemented | Fixed-clock DOM tests, PID model and fit rejection tests. 2026-10-10 (`5331694`): UI pressure-balance assertion, compact-plot, chart-summary and history tests. Expanded visual tests remain. |
 | CVL-011 | Implemented within current scope | Prettier formatting (`cd59d3a`); third pass replaces DOM relocation with one lesson template and moves lesson text to content.js. |
 | CVL-012 | Open | Both targets are explicitly synchronized this pass; automated cross-host revision labeling still proposed. |
-| CVL-013 | Partially implemented | Push-state module navigation supports history; re-clicking the active module no longer duplicates entries (`5331694`). PWA/offline/scenario sharing/export remain proposed. |
+| CVL-013 | Partially implemented | Push-state module navigation supports history; re-clicking the active module no longer duplicates entries (`5331694`). Fourth pass: web app manifest and control-valve icons make the hosted app installable (no offline cache). Offline/scenario sharing/export remain proposed. |
 
 Application changes are authorized by the user's 2026-10-10 phone/PID request. See docs/AGENT_HANDOFF.md for tested behavior and limits.
 

@@ -16,6 +16,16 @@ The phone/PID pass supersedes the six-module application baseline reviewed on Oc
 - Fixed 0.05 s friction/positioner samples preserve slow sweeps across animation refresh rates; bounded 8,000-sample histories. PID records at 0.1 s with configurable acceleration and a 20,000-sample bound.
 - Paused positioner input edits change parameters without advancing time. Run/resume applies dynamics. Friction manual steps remain explicitly sampled; Hold & settle evolves lag.
 
+## Fourth pass (2026-10-10): control-valve app icon
+
+User request: make the app look like a control valve when saved as an app.
+
+- Icon: the P&ID control-valve symbol (dome diaphragm actuator, stem, bow-tie globe body, pipe connections) in lime on the app's dark green. One drawing in `scripts/icons.mjs` produces `icons/icon.svg` (rounded tile, favicon/any), `maskable.svg` (full-bleed, 80% safe zone), `apple-touch.svg`, and PNGs 192/512 any, 192/512 maskable and 180 Apple (opaque). The in-app logo uses the same symbol.
+- `manifest.webmanifest`: Control Valve Lab / Valve Lab, standalone, start_url and scope `./`, theme #143b32. iOS tags: apple-touch-icon, app title, capable, status bar black.
+- Packaging: dist/index.html embeds the SVG favicon and Apple icon as data URIs; the manifest and its icons are copied into dist/ (the Sites preview serves dist/). CI now checks the whole dist folder is up to date.
+- Evidence: 61 tests (new `tests/install.test.cjs` checks manifest fields, icon files and PNG sizes/opacity, page links, and the dist copies). Chromium DevTools `Page.getInstallabilityErrors` and `Page.getAppManifest` over local HTTP for repo root and dist: no installability or manifest errors; all icons 200 with correct types. Previewed under iOS rounded, Android circle/squircle and 16–64 px sizes.
+- Not verified: actual Add to Home Screen on an iPhone or Android device, and desktop install UI. No service worker/offline cache was added.
+
 ## Third pass (2026-10-10): guided-lab redesign for a broad industry audience
 
 User request: make the app intuitive, simple and educational at management-level quality for everyone who deals with control valves daily.
@@ -72,13 +82,13 @@ Actual iPhone Safari, Android Chrome, desktop rendering, touch and screen-reader
 
 Repository: https://github.com/DeltaSNull/control-valve-lab . Existing owner-private Sites project is preserved by `.openai/hosting.json`: https://control-valve-lab.jac0b.chatgpt.site . GitHub and Sites have distinct commit histories; matching file trees matter. Source synchronization and publication are separate actions. The phone/PID pass is pushed to both targets; consult the pass's GitHub commit and Sites deployment result for provenance.
 
-GitHub Pages settings/live address remain unverified in this environment. The expected Pages URL is https://deltasnull.github.io/control-valve-lab/ after owner configuration. No PWA manifest, service worker, offline cache, or native app installation has been added. Source and standalone HTML remain buildless. Never commit source repository credentials.
+GitHub Pages is enabled: the "pages build and deployment" workflow succeeds on pushes to main. The expected URL is https://deltasnull.github.io/control-valve-lab/; it has not been opened from this environment. An installable web app manifest and icons exist; there is no service worker, offline cache, or native app. Source and standalone HTML remain buildless. Never commit source repository credentials.
 
 ## Next pass
 
 1. Real phone/device QA (CVL-003; headless Chromium layout already checked) and an actual screen-reader check of the chart `<desc>` summaries (CVL-004).
 2. Detailed trim sketches (CVL-005), linked force/travel/Cv teaching experiment (CVL-006).
 3. Optional module extraction of the now-formatted app.js (CVL-011), automate deployment revision labeling (CVL-012). Sites mirror has not been republished with this pass.
-4. Optional integrating processes/series PID, scenario sharing/export and PWA/offline remain extensions, not completed features.
+4. Optional integrating processes/series PID, scenario sharing/export and offline caching remain extensions. Installable manifest and icons exist (fourth pass); there is no service worker.
 
 Historical application baseline was GitHub `8752422f0c453121baa9046d7ce04af40e877cd5`, tree `7c74ef9055a5becf15c62c537065e6eaabe6705d`, with 23 tests. The hidden stem, absent seat/body partition and fixed-width phone plot defects were fixed before that baseline. Do not re-open those as uncorrected findings.
