@@ -2143,6 +2143,35 @@ main:focus-visible {
   .team-banner .button {
     width: 100%;
   }
+  .record table {
+    font-size: 13px;
+  }
+  .record th,
+  .record td {
+    padding: 8px 5px;
+  }
+  .record th[scope='row'] {
+    font-size: 13px;
+  }
+  .record td:last-child {
+    white-space: nowrap;
+  }
+}
+@media (max-width: 359px) {
+  .record {
+    padding: 12px;
+  }
+  .record table,
+  .record th[scope='row'] {
+    font-size: 12px;
+  }
+  .record td:last-child {
+    white-space: normal;
+  }
+  .record th,
+  .record td {
+    padding: 8px 3px;
+  }
 }
 
 /* ---- Print: lessons print as handouts; the training record prints on its own ---- */
