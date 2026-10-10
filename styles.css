@@ -45,6 +45,8 @@
 /* The app does not zoom: pan only (no pinch or double-tap zoom). */
 html {
   touch-action: pan-x pan-y;
+  /* Set by app.js on phones so focused controls never hide under the pinned live view. */
+  scroll-padding-top: var(--pinned-offset, 0px);
 }
 /* 16 px form text stops phones from zooming in when a field is tapped. */
 input,
@@ -1503,16 +1505,60 @@ dialog::backdrop {
   font-family: inherit;
   fill: #5b6d63;
 }
+.tap-chart svg {
+  cursor: crosshair;
+}
 .svg-part {
   cursor: pointer;
+  transition: opacity 0.2s;
 }
-.svg-part:hover,
-.svg-part.selected {
-  filter: drop-shadow(0 0 5px #a4c470);
+/* The selected part is outlined in orange and the rest of the valve steps back. */
+.valve-cutaway.has-selection .svg-part:not(.selected) {
+  opacity: 0.45;
+}
+.svg-part .hit {
+  fill: transparent;
+  stroke: none;
+}
+.svg-part:hover :is(path, rect, circle, ellipse):not(.hit),
+.svg-part:focus-visible :is(path, rect, circle, ellipse):not(.hit) {
+  stroke: #c87825;
+  stroke-width: 3px;
+}
+.svg-part.selected :is(path, rect, circle, ellipse):not(.hit) {
+  stroke: #c2410c;
+  stroke-width: 3.5px;
+}
+.valve-cutaway.has-selection .svg-part:not(.selected):is(:hover, :focus-visible) {
+  opacity: 0.85;
+}
+.svg-part:focus {
+  outline: none;
+}
+.callout path {
+  fill: none;
+  stroke: #c2410c;
+  stroke-width: 2.5;
+}
+.callout circle,
+.callout rect {
+  fill: #c2410c;
+}
+.callout text {
+  fill: #fff;
+  font-size: 19px;
+  font-weight: 700;
+  font-family: inherit;
 }
 .svg-label {
+  fill: none;
+  stroke: #a6b69b;
+  stroke-width: 1;
+}
+.svg-label text {
   font-size: 12px;
   fill: #4c6555;
+  stroke: none;
 }
 .flow-path {
   stroke-dasharray: 7 7;
@@ -1796,6 +1842,16 @@ main:focus-visible {
   }
   .observation-panel .diagram-stage svg {
     max-height: 27vh;
+  }
+  /* The valve cutaway gets extra height: its parts are the controls in this lesson. */
+  .observation-panel .diagram-stage svg.valve-cutaway {
+    max-height: 35vh;
+  }
+  .observation-panel .plot-caption.tap-hint {
+    display: block;
+    margin: 2px 0 0;
+    font-size: 11px !important;
+    line-height: 1.3;
   }
   .observation-panel .legend {
     font-size: 11px;

@@ -16,6 +16,17 @@ The phone/PID pass supersedes the six-module application baseline reviewed on Oc
 - Fixed 0.05 s friction/positioner samples preserve slow sweeps across animation refresh rates; bounded 8,000-sample histories. PID records at 0.1 s with configurable acceleration and a 20,000-sample bound.
 - Paused positioner input edits change parameters without advancing time. Run/resume applies dynamics. Friction manual steps remain explicitly sampled; Hold & settle evolves lag.
 
+## Sixth pass (2026-10-10): every control shows its effect
+
+Trigger: owner's phone screenshot. Selecting a part in lesson 01 did not visibly highlight it (a faint SVG drop-shadow that iOS barely renders), and phone labels were hidden while their leader lines still showed.
+
+- **Part selection:** selected part outlined in orange, others faded to 45%, an orange name tag with a pointer line (positions per part in `CALLOUTS`, `js/diagrams.js`), and the status line under the drawing shows the part's name and role. The generic label for the tagged part is dropped; labels and leader lines share `.svg-label` and hide together on phones.
+- **Tap targets:** every drawn part has invisible tap zones (≥44 viewBox units), ordered so nested parts win. On phones the cutaway uses a cropped viewBox and up to 35vh in the pinned view. Measured at 390×844: all 12 parts select by tap; areas grew 2–5× (packing 136→676 px²).
+- **Control audit (Playwright, every control in every lesson, does the visible live view change?):** found trim pressure-profile pills and friction "Signature axes" changed only a hidden view. They now switch the view (`showView`). Diagnosis answers and PID stage buttons give feedback beside the button by design.
+- **Charts as controls:** tapping the installed-flow or Cv chart sets travel at that x (hint stays visible on phones).
+- **Focus not obscured:** `--pinned-offset` drives `scroll-padding-top` on phones so scrolled/focused controls stay below the pinned live view.
+- Evidence: 75 tests pass; layout sweep (6 sizes × 9 pages, source and dist) clean; axe: only the documented `meta-viewport` zoom exception. Real-device touch remains unverified.
+
 ## Fifth pass (2026-10-10): no zoom, and build-out for management review
 
 User request: remove any zoom functionality and build the app out for management review (it supports a case for continued Claude subscriptions).

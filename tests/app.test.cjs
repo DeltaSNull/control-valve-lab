@@ -134,3 +134,43 @@ test('positioner changes run the simulation until the valve settles, then stop b
   w.ValveLab.pause();
   d.window.close();
 });
+test('choosing a part highlights it on the drawing and names it under the drawing', () => {
+  const d = boot('#anatomy'),
+    w = d.window;
+  click(w, 'button[data-component="seat"]');
+  assert.equal(w.document.querySelector('#valve-diagram .svg-part.selected').dataset.component, 'seat');
+  assert.equal(w.document.querySelector('#valve-diagram .callout text').textContent, 'Seat');
+  assert.match(w.document.getElementById('anatomy-status').textContent, /^Seat · The plug contacts the seat ring/);
+  w.document
+    .querySelector('#valve-diagram .svg-part[data-component="spring"] .hit')
+    .dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+  assert.equal(w.document.querySelector('button[data-component="spring"]').getAttribute('aria-pressed'), 'true');
+  d.window.close();
+});
+test('controls that only affect one view switch the live view to it', () => {
+  const d = boot('#trim'),
+    w = d.window,
+    shown = () => w.document.querySelector('[data-observation]:not([hidden])').dataset.observation;
+  assert.equal(shown(), '0');
+  click(w, '[data-profile="flashing"]');
+  assert.equal(shown(), '1', 'pressure profile shown');
+  click(w, '[data-style="ball"]');
+  assert.equal(shown(), '0', 'closure member shown');
+  click(w, '#module-nav [data-module="friction"]');
+  input(w, 'friction-view', 'pressure');
+  assert.equal(shown(), '1', 'signature shown');
+  d.window.close();
+});
+test('tapping a flow chart moves the valve to that travel', () => {
+  const d = boot('#flow'),
+    w = d.window,
+    svg = w.document.querySelector('#installed-chart svg'),
+    width = Number(svg.getAttribute('viewBox').split(' ')[2]);
+  svg.getBoundingClientRect = () => ({ left: 0, top: 0, width, height: 280 });
+  const x = 64 + (width - 82) * 0.75;
+  svg.dispatchEvent(new w.MouseEvent('click', { bubbles: true, clientX: x, clientY: 100 }));
+  assert.equal(w.ValveLab.getState().flow.travel, 75);
+  assert.equal(w.document.getElementById('flow-travel').value, '75');
+  assert.match(w.document.getElementById('flow-q').textContent, /^78\.0/);
+  d.window.close();
+});

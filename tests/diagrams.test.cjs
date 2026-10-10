@@ -97,3 +97,47 @@ test('plots carry a numeric text alternative with axes, series endpoints and mar
   assert.match(desc, /Marker at 50, 48.1/);
   d.window.close();
 });
+test('the selected part is outlined, named with a pointer tag, and every part has a generous tap zone', () => {
+  const parts = [
+    'packing',
+    'stem',
+    'plug',
+    'seat',
+    'cage',
+    'bonnet',
+    'diaphragm',
+    'spring',
+    'body',
+    'yoke',
+    'positioner',
+    'air'
+  ];
+  for (const part of parts) {
+    const d = new JSDOM(D.valve(40, part, 'Name ' + part)),
+      doc = d.window.document;
+    assert.ok(doc.querySelector('svg').classList.contains('has-selection'), part);
+    assert.ok(doc.querySelector(`.svg-part.selected[data-component="${part}"]`), part);
+    assert.equal(doc.querySelector('.callout text').textContent, 'Name ' + part, `${part} name tag`);
+    assert.ok(doc.querySelector('.callout path').getAttribute('d').startsWith('M'), `${part} pointer`);
+    const hit = doc.querySelector(`.svg-part[data-component="${part}"] .hit`);
+    assert.ok(hit && Number(hit.getAttribute('width')) >= 44, `${part} tap zone`);
+    d.window.close();
+  }
+});
+test('labels and their pointer lines share one group, and the tagged part is not labelled twice', () => {
+  const d = new JSDOM(D.valve(40, 'cage', 'Cage')),
+    doc = d.window.document;
+  const labels = [...doc.querySelectorAll('.svg-label text')].map(t => t.textContent);
+  assert.ok(!labels.includes('Cage'), 'generic Cage label replaced by the tag');
+  assert.ok(labels.includes('Packing'));
+  assert.equal(doc.querySelectorAll('.svg-label path').length, labels.filter(l => !/INLET|OUTLET/.test(l)).length);
+  assert.equal(
+    doc.querySelectorAll('svg > g:not(.svg-part):not(.svg-label):not(.callout) path').length,
+    0,
+    'no stray leader lines'
+  );
+  d.window.close();
+  const phone = new JSDOM(D.valve(40, 'cage', 'Cage', true));
+  assert.equal(phone.window.document.querySelector('svg').getAttribute('viewBox'), '0 46 520 560');
+  phone.window.close();
+});

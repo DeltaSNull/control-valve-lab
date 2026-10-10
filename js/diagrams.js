@@ -59,19 +59,83 @@
       .join('');
     return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(opts.title ?? 'Engineering plot')}"><title>${esc(opts.title ?? 'Engineering plot')}</title><desc>${esc(summary)}</desc><text x="${l}" y="17" font-size="14" font-weight="650">${esc(opts.yLabel ?? 'Output (%)')}</text>${grid}<path d="M${l} ${t}V${h - b}H${w - r}" stroke="#a9b7a1" fill="none"/>${paths}${markers}<text x="${l + pw / 2}" y="${compact ? h - 4 : h - 10}" text-anchor="middle" font-size="14">${esc(opts.xLabel ?? 'Input (%)')}</text></svg>`;
   }
-  function valve(travel = 40, selected = 'packing') {
+  // Where each part's name tag sits and which point its pointer line touches (viewBox units).
+  // Left tags start at x = 14; right tags end at x = 508. Targets follow moving parts.
+  const CALLOUTS = {
+    diaphragm: (d, plug) => ({ x: 14, y: 112, anchor: 'start', tx: 176, ty: d }),
+    air: (d, plug) => ({ x: 14, y: 206, anchor: 'start', tx: 178, ty: Math.min(205, d + 6) }),
+    spring: (d, plug) => ({ x: 508, y: 112, anchor: 'end', tx: 276, ty: 130 }),
+    yoke: (d, plug) => ({ x: 14, y: 256, anchor: 'start', tx: 182, ty: 262 }),
+    stem: (d, plug) => ({ x: 14, y: 322, anchor: 'start', tx: 254, ty: 322 }),
+    positioner: (d, plug) => ({ x: 508, y: 384, anchor: 'end', tx: 382, ty: 348 }),
+    packing: (d, plug) => ({ x: 14, y: 386, anchor: 'start', tx: 240, ty: 382 }),
+    bonnet: (d, plug) => ({ x: 14, y: 424, anchor: 'start', tx: 210, ty: 418 }),
+    plug: (d, plug) => ({ x: 508, y: 444, anchor: 'end', tx: 276, ty: plug + 9 }),
+    cage: (d, plug) => ({ x: 14, y: 462, anchor: 'start', tx: 231, ty: 462 }),
+    seat: (d, plug) => ({ x: 14, y: 598, anchor: 'start', tx: 215, ty: 500 }),
+    body: (d, plug) => ({ x: 508, y: 598, anchor: 'end', tx: 420, ty: 519 })
+  };
+  // Generic labels and their pointer lines; a label is dropped while its part has the name tag.
+  const LABELS = [
+    ['diaphragm', 'M183 115H85', 48, 108, 'Actuator'],
+    ['yoke', 'M189 250H90', 48, 244, 'Yoke'],
+    ['packing', 'M240 383H100', 48, 376, 'Packing'],
+    ['cage', 'M233 455H125', 49, 448, 'Cage'],
+    ['seat', 'M225 500H102', 49, 493, 'Seat'],
+    ['plug', 'M294 438H421', 378, 432, 'Plug / stem'],
+    ['positioner', 'M345 308H423', 403, 298, 'Positioner'],
+    ['', '', 54, 581, 'INLET'],
+    ['', '', 412, 550, 'OUTLET']
+  ];
+  function callout(selected, name, d, plug) {
+    const at = CALLOUTS[selected]?.(d, plug);
+    if (!at || !name) return '';
+    // Width estimate for a bold 19-unit label; the tag is padded generously.
+    const w = Math.round(name.length * 11.2 + 22),
+      left = at.anchor === 'start' ? at.x : at.x - w,
+      top = at.y - 21,
+      edgeX = at.anchor === 'start' ? left + w : left,
+      edgeY = top + 14;
+    return `<g class="callout" aria-hidden="true"><path d="M${edgeX} ${edgeY}L${at.tx} ${at.ty}"/><circle cx="${at.tx}" cy="${at.ty}" r="4.5"/><rect x="${left}" y="${top}" width="${w}" height="28" rx="14"/><text x="${left + w / 2}" y="${at.y - 1}" text-anchor="middle">${esc(name)}</text></g>`;
+  }
+  function valve(travel = 40, selected = 'packing', name = '', compact = false) {
     const x = Math.max(0, Math.min(100, travel)),
       lift = x * 0.55,
       d = 196 - lift,
       plug = 478 - lift;
+    // Each part gets invisible tap zones larger than its drawing, so small parts are easy to tap on a phone.
+    // Parts drawn later sit on top, so a small part inside a larger one (packing in the bonnet) still wins.
+    const zone = ([zx, zy, zw, zh]) => `<rect class="hit" x="${zx}" y="${zy}" width="${zw}" height="${zh}"/>`;
+    const hits = {
+      diaphragm: [[155, 56, 210, 172]],
+      air: [[172, Math.min(d, 181), 176, 211 - Math.min(d, 181)]],
+      spring: [[226, 80, 68, Math.max(20, d - 88)]],
+      yoke: [
+        [168, 225, 50, 140],
+        [302, 225, 50, 140]
+      ],
+      positioner: [[324, 268, 78, 86]],
+      bonnet: [[198, 356, 124, 76]],
+      packing: [[230, 354, 60, 52]],
+      body: [[36, 424, 440, 146]],
+      cage: [[220, 430, 80, 72]],
+      seat: [[184, 486, 156, 36]],
+      stem: [[238, d, 44, Math.max(0, 356 - d)]],
+      plug: [[234, plug - 8, 52, 32]]
+    };
     const part = (name, content) =>
-      `<g class="svg-part ${selected === name ? 'selected' : ''}" data-component="${name}" role="button" tabindex="0" aria-label="Inspect ${name}">${content}</g>`;
+      `<g class="svg-part ${selected === name ? 'selected' : ''}" data-component="${name}" role="button" tabindex="0" aria-label="Inspect ${name}">${content}${(hits[name] ?? []).map(zone).join('')}</g>`;
     const springPath = Array.from(
       { length: 15 },
       (_, i) =>
         `${i ? 'L' : 'M'}${i === 0 || i === 14 ? 260 : i % 2 ? 245 : 275} ${(87 + ((d - 104) * i) / 14).toFixed(1)}`
     ).join(' ');
-    return `<svg viewBox="0 0 520 610" role="group" aria-label="Air-to-open spring-to-close globe valve at ${x.toFixed(1)} percent travel" class="${x === 0 ? 'no-flow' : ''}"><title>Representative globe valve cutaway at ${x.toFixed(1)}% travel</title><defs><marker id="flow-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#399f99"/></marker><pattern id="metal-hatch" width="7" height="7" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#e1e7da"/><path d="M0 7L7 0" stroke="#b4c0b1" stroke-width=".6"/></pattern></defs>
+    const tagged = CALLOUTS[selected] && name ? selected : '';
+    const labels = LABELS.filter(([id]) => !id || (id !== tagged && !(tagged === 'stem' && id === 'plug')))
+      .map(([, line, lx, ly, text]) => `${line ? `<path d="${line}"/>` : ''}<text x="${lx}" y="${ly}">${text}</text>`)
+      .join('');
+    // Phones drop the empty band above the actuator and the caption so the valve itself draws larger.
+    return `<svg viewBox="${compact ? '0 46 520 560' : '0 0 520 610'}" role="group" aria-label="Air-to-open spring-to-close globe valve at ${x.toFixed(1)} percent travel${tagged ? `, ${esc(name)} highlighted` : ''}" class="valve-cutaway${tagged ? ' has-selection' : ''}${x === 0 ? ' no-flow' : ''}"><title>Representative globe valve cutaway at ${x.toFixed(1)}% travel</title><defs><marker id="flow-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#399f99"/></marker><pattern id="metal-hatch" width="7" height="7" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#e1e7da"/><path d="M0 7L7 0" stroke="#b4c0b1" stroke-width=".6"/></pattern></defs>
       ${part('diaphragm', `<path d="M157 184V130Q162 58 260 58Q358 58 363 130V211H157Z" fill="#679765" stroke="#365f3e" stroke-width="3"/><path d="M172 185V132Q182 78 260 78Q338 78 348 132V201H172Z" fill="#edf2e7"/><path d="M172 ${d}Q215 ${d + 8} 260 ${d}Q303 ${d + 8} 348 ${d}" stroke="#3a5545" stroke-width="6" fill="none"/><rect x="160" y="211" width="200" height="14" rx="5" fill="#59824f" stroke="#365f3e" stroke-width="2"/>`)}
       ${part('air', `<path d="M173 ${d + 5}H347V207H173Z" fill="#bee1db" opacity=".7"/><path d="M330 198H388V315H374" fill="none" stroke="#399f99" stroke-width="4"/><text x="181" y="${d + 22}" font-size="10" fill="#2e7167">AIR</text>`)}
       ${part('spring', `<path d="${springPath}" stroke="#67725f" fill="none" stroke-width="5" stroke-linejoin="round"/><path d="M235 84H285M237 ${d - 15}H283" stroke="#65775d" stroke-width="5"/>`)}
@@ -85,9 +149,9 @@
       ${part('stem', `<rect x="254" y="${d + 2}" width="12" height="${plug - d}" rx="3" fill="#9eaaa0" stroke="#53665a" stroke-width="1.5"/><rect x="247" y="291" width="26" height="18" rx="3" fill="#6d8470"/>`)}
       ${part('plug', `<rect x="254" y="425" width="12" height="${plug - 425 + 2}" fill="#9eaaa0" stroke="#53665a" stroke-width="1"/><path d="M244 ${plug}H276L275 ${plug + 18}H245Z" fill="#819d79" stroke="#426847" stroke-width="2"/>`)}
       <path class="flow-path" d="M67 520H204Q225 520 234 511L241 507M279 487Q309 471 339 479H440" fill="none" stroke="#399f99" stroke-width="3" marker-end="url(#flow-arrow)" opacity="${x === 0 ? 0.1 : 0.9}"/>
-      <g fill="none" stroke="#a6b69b" stroke-width="1"><path d="M183 115H85M189 250H90M240 383H100M233 455H125M225 500H102M294 438H421M345 308H423"/></g>
-      <g class="svg-label"><text x="48" y="108">Actuator</text><text x="48" y="244">Yoke</text><text x="48" y="376">Packing</text><text x="49" y="448">Cage</text><text x="49" y="493">Seat</text><text x="378" y="432">Plug / stem</text><text x="403" y="298">Positioner</text><text x="54" y="581">INLET</text><text x="412" y="550">OUTLET</text></g>
-      <text x="260" y="602" text-anchor="middle" font-size="11" fill="#6d8164">Lifted plug = more open flow path</text>
+      <g class="svg-label">${labels}</g>
+      ${compact ? '' : '<text x="260" y="602" text-anchor="middle" font-size="11" fill="#6d8164">Lifted plug = more open flow path</text>'}
+      ${callout(tagged, name, d, plug)}
     </svg>`;
   }
   function styleIcon(type, travel = 50, large = false) {
@@ -114,5 +178,7 @@
         : `<path d="M88 57L105 57L105 124L88 107ZM126 57L143 57L143 107L126 124Z" fill="#527e54"/>`;
     return `<svg viewBox="0 0 240 170" role="img" aria-label="${esc(type)} trim concept"><rect x="72" y="40" width="96" height="104" rx="8" fill="#c7d8b6" stroke="#749466" stroke-width="3"/>${windows}<path d="M120 14V88" stroke="#61795c" stroke-width="8"/><rect x="82" y="25" width="76" height="25" rx="3" fill="#789c67"/><path d="M67 149H173" stroke="#708e5b" stroke-width="7"/><text x="120" y="168" text-anchor="middle" font-size="9" fill="#708365">Illustrative cage / port geometry</text></svg>`;
   }
-  root.ValveDiagrams = { esc, colors, plot, valve, styleIcon, trimSketch };
+  // Left and right plot margins in viewBox units, so a tap on a chart can be mapped back to its x axis.
+  const plotInsets = { left: 64, right: 18 };
+  root.ValveDiagrams = { esc, colors, plot, plotInsets, valve, styleIcon, trimSketch };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

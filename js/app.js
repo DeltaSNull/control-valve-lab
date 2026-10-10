@@ -841,14 +841,14 @@
         views: [
           {
             label: 'Installed flow',
-            html: `<div id="installed-chart"></div>${legend([
+            html: `<div id="installed-chart" class="tap-chart"></div>${legend([
               ['Constant valve ΔP', 'command', 'dashed'],
               ['Installed system', 'travel']
-            ])}`
+            ])}<p class="plot-caption tap-hint">Tap the chart to move the valve to that travel.</p>`
           },
           {
             label: 'Inherent Cv',
-            html: `<div id="cv-chart"></div>${legend([
+            html: `<div id="cv-chart" class="tap-chart"></div>${legend([
               ['Linear', 'command'],
               ['Equal percentage', 'travel'],
               ['Quick opening', 'pressure', 'dashed']
@@ -1373,20 +1373,22 @@
   function updateAnatomy() {
     const a = state.anatomy,
       x = a.airLost ? 0 : a.command;
-    $('valve-diagram').innerHTML = D.valve(x, a.component);
+    const c = C.components[a.component],
+      short = c.name.split(' / ')[0];
+    $('valve-diagram').innerHTML = D.valve(x, a.component, short, root.innerWidth < 720);
     value('anatomy-travel', x, 1, '%');
     value('anatomy-pressure', a.airLost ? 0 : 3 + 0.12 * x, 1, 'psi');
     value('anatomy-force', a.airLost ? 0 : (3 + 0.12 * x) * 20, 0, 'lbf');
     value('anatomy-lift', (x * 0.75) / 100, 2, 'in');
-    const c = C.components[a.component];
     $('component-detail').innerHTML =
       `<p class="tag-line">SELECTED COMPONENT</p><h3>${c.name}</h3><p>${c.role}</p><div class="facts"><div class="fact"><b>What can go wrong</b><p>${c.cause}</p></div><div class="fact"><b>What would you look for?</b><p>${c.evidence}</p></div></div><div class="hint">${c.takeaway}</div>`;
     document
       .querySelectorAll('button[data-component]')
       .forEach(b => b.classList.toggle('selected', b.dataset.component === a.component));
-    $('anatomy-status').textContent = a.airLost
+    // The status line sits under the drawing, so the selected part is named where the learner is looking.
+    $('anatomy-status').innerHTML = a.airLost
       ? 'Air removed: this idealized spring-to-close assembly returns to 0% travel. Real failure behavior depends on the full assembly.'
-      : 'Air lifts the diaphragm, stem, and plug. The spring opposes motion.';
+      : `<strong>${c.name}</strong> · ${c.role.split(/(?<=\.)\s/)[0]}`;
     $('anatomy-command').disabled = a.airLost;
     document.querySelector('[data-action="air-fail"]').textContent = a.airLost ? 'Restore air' : 'Remove air';
   }
@@ -1981,6 +1983,7 @@
     }
     recordLine();
     refresh();
+    updatePinnedOffset();
     if (focus) {
       $('main').focus({ preventScroll: true });
       document.documentElement.scrollTop = 0;
@@ -2150,6 +2153,7 @@
     if (view) {
       W.setPlot(view.dataset.view);
       refresh();
+      updatePinnedOffset();
       return;
     }
     const quiz = event.target.closest('[data-quiz]');
@@ -2158,6 +2162,27 @@
       guideState().quiz[qi] = oi;
       saveProgress();
       updateQuiz();
+      return;
+    }
+    // Tapping a flow chart moves the valve to that travel: the chart is the quickest control on a phone.
+    const flowChart = event.target.closest('#installed-chart svg, #cv-chart svg');
+    if (flowChart && state.module === 'flow') {
+      const box = flowChart.getBoundingClientRect(),
+        vbWidth = Number(flowChart.getAttribute('viewBox')?.split(' ')[2]);
+      if (!box.width || !vbWidth) return;
+      const ux = ((event.clientX - box.left) / box.width) * vbWidth,
+        travel = M.clamp(
+          Math.round(((ux - D.plotInsets.left) / (vbWidth - D.plotInsets.left - D.plotInsets.right)) * 100)
+        );
+      if (state.demo) {
+        pause();
+        state.demo = null;
+        W.mode(false, 'Demo stopped. The controls are yours.');
+      }
+      state.flow.travel = travel;
+      $('flow-travel').value = travel;
+      output('flow-travel', travel + ' %');
+      updateFlow();
       return;
     }
     const step = event.target.closest('[data-guide-step]');
@@ -2209,10 +2234,12 @@
     }
     if (el.dataset.style) {
       state.trim.style = el.dataset.style;
+      showView(0);
       updateTrim();
     }
     if (el.dataset.profile) {
       state.trim.profile = el.dataset.profile;
+      showView(1);
       updateProfile();
     }
     if (el.dataset.positioner) {
@@ -2240,6 +2267,18 @@
       document.querySelector(`.svg-part[data-component="${c}"]`)?.focus();
     }
   });
+  // A control that only affects one view switches the live view there, so every change is visible.
+  function showView(index) {
+    if (W.currentPlot() === index) return;
+    W.setPlot(index);
+    refresh();
+  }
+  // Keep scrolled-to and keyboard-focused controls clear of a pinned live view (phones).
+  function updatePinnedOffset() {
+    const live = document.querySelector('.lab-observation'),
+      pinned = live && root.getComputedStyle?.(live).position === 'sticky' && root.innerWidth < 720;
+    document.documentElement.style.setProperty('--pinned-offset', pinned ? `${live.offsetHeight + 12}px` : '0px');
+  }
   // Positioner changes run the simulation until the valve settles, so every edit shows its response.
   function runUntilSettled() {
     const p = state.positioner;
@@ -2338,6 +2377,7 @@
     if (id === 'friction-speed') f.speed = n;
     if (id === 'friction-view') {
       f.view = el.value;
+      showView(1);
       updateFriction();
     }
     const flowKeys = {
@@ -2356,6 +2396,7 @@
     }
     if (id === 'trim-travel') {
       state.trim.travel = n;
+      showView(0);
       $('style-diagram').innerHTML = D.styleIcon(state.trim.style, n, true);
     }
     if (id === 'trim-type') {
@@ -2387,6 +2428,8 @@
     if (event.target.tagName === 'SELECT' || event.target.type === 'checkbox') onInput(event);
   });
   root.addEventListener('resize', () => {
+    updatePinnedOffset();
+    if (state.module === 'anatomy') updateAnatomy();
     if (state.module === 'friction') updateFriction();
     if (state.module === 'flow') updateFlow();
     if (state.module === 'positioner') updatePositioner();
