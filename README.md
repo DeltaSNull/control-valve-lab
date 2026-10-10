@@ -43,6 +43,8 @@ The tests cover liquid pressure balance and units, characteristic boundaries and
 
 Files are intentionally separated by responsibility. Change the source files and regenerate `dist/index.html`; do not hand-edit generated HTML.
 
+For continued agent development, begin with [the agent handoff](docs/AGENT_HANDOFF.md) and [the prioritized improvement backlog](docs/IMPROVEMENT_BACKLOG.md). These contain review findings and proposed work, including items that are not covered by the current passing tests.
+
 ## Model limits
 
 This app teaches mechanisms; it is not a valve sizing or diagnostic certification tool. Diagrams are representative, not exact Fisher assembly drawings. Signals and pressures are examples, not universal equipment settings.

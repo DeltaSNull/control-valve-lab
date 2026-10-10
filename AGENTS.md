@@ -2,6 +2,12 @@
 
 This is an educational engineering app, maintained in DeltaSNull/control-valve-lab.
 
+## Start here for agent handoff
+- Read [docs/AGENT_HANDOFF.md](docs/AGENT_HANDOFF.md) for the reviewed baseline, deployment status, verification evidence, and recommended next pass.
+- Read [docs/IMPROVEMENT_BACKLOG.md](docs/IMPROVEMENT_BACKLOG.md) for prioritized findings and acceptance criteria. It distinguishes reproduced defects, source observations, validation gaps, and optional enhancements.
+- Treat backlog entries as proposed work, not completed features or blanket authorization. Follow the current user's requested scope.
+- When implementing an entry, preserve its ID, record the commit and verification evidence, and update its status. Keep unresolved browser/device checks visible.
+
 ## Architecture
 - Buildless index.html loads four classic deferred scripts in order: models, content, diagrams, app.
 - js/models.js contains pure numerical models and exports the same API to Node and the browser.
