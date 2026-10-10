@@ -1,0 +1,14 @@
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const base=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+let html=await readFile(path.join(base,'index.html'),'utf8');
+const css=await readFile(path.join(base,'styles.css'),'utf8');
+const files=['models','content','diagrams','app'];
+const scripts=await Promise.all(files.map(f=>readFile(path.join(base,`js/${f}.js`),'utf8')));
+html=html.replace('<link rel="stylesheet" href="styles.css">',`<style>\n${css}\n</style>`);
+html=html.replace(/\s*<script defer src="js\/[^\"]+"><\/script>/g,'');
+html=html.replace('</body>',`<script>\n${scripts.join('\n').replace(/<\/script/gi,'<\\/script')}\n</script>\n</body>`);
+await mkdir(path.join(base,'dist'),{recursive:true});
+await writeFile(path.join(base,'dist/index.html'),html);
+console.log(`Packaged dist/index.html (${Buffer.byteLength(html).toLocaleString()} bytes; no external runtime dependencies)`);

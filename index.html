@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#143b32">
+  <meta name="description" content="Explore control valve internals, stiction, hysteresis, Cv, trims and digital positioners through interactive engineering labs.">
+  <title>Control Valve Lab — From signal to flow</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23143b32'/%3E%3Cpath d='M10 29h17V14h10v15h17v10H37v11H27V39H10z' fill='%23cfe58b'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="js/models.js"></script>
+  <script defer src="js/content.js"></script>
+  <script defer src="js/diagrams.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to the lab</a>
+  <aside class="sidebar" aria-label="Learning modules">
+    <a class="brand" href="#anatomy"><span class="brand-icon" aria-hidden="true">↗</span><span>Control Valve<span class="brand-sub">LAB / ENGINEERING</span></span></a>
+    <p class="nav-label">FROM SIGNAL TO FLOW</p>
+    <nav id="module-nav">
+      <a href="#anatomy" data-module="anatomy"><span>01</span>Inside the valve</a>
+      <a href="#friction" data-module="friction"><span>02</span>Stiction & hysteresis</a>
+      <a href="#flow" data-module="flow"><span>03</span>Cv & installed flow</a>
+      <a href="#trim" data-module="trim"><span>04</span>Trims & valve styles</a>
+      <a href="#positioner" data-module="positioner"><span>05</span>Positioners & DVCs</a>
+      <a href="#diagnosis" data-module="diagnosis"><span>06</span>Read the symptoms</a>
+    </nav>
+    <div class="sidebar-note"><span class="small-dot"></span><strong>A working mental model.</strong><p>Change one thing.<br>Watch the mechanism.<br>Connect it to the trend.</p></div>
+    <button class="utility" data-action="references">References & model notes ↗</button>
+    <button class="utility" data-action="glossary">Engineering glossary ↗</button>
+    <a class="utility repo-link" href="https://github.com/DeltaSNull/control-valve-lab" target="_blank" rel="noopener">Source on GitHub ↗</a>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><span>THE CONTROL VALVE FIELD GUIDE</span><span class="top-tag">INTERACTIVE LEARNING</span></header>
+    <main id="main" tabindex="-1"></main>
+    <footer>Original educational schematics · Simulated data · Built for engineers, technicians & operations</footer>
+  </div>
+  <dialog id="resource-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title">References</h2><button data-action="close-dialog" aria-label="Close dialog">×</button></div><div id="dialog-content"></div></dialog>
+  <noscript><p class="noscript">Enable JavaScript to use the valve simulations. The source and model notes are available in the GitHub repository.</p></noscript>
+</body>
+</html>

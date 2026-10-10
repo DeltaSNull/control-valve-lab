@@ -1,0 +1,14 @@
+{
+  "name": "control-valve-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive control valve learning for engineers, technicians, and operations",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "package": "node scripts/package.mjs",
+    "check": "node --check js/models.js && node --check js/content.js && node --check js/diagrams.js && node --check js/app.js"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0"
+  }
+}

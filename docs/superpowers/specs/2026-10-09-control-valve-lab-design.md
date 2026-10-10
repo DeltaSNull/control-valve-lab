@@ -1,6 +1,6 @@
 # Control Valve Lab — Design
 Date: 2026-10-09
-Status: Design for review; implementation has not started.
+Status: Approved by the user; implementation delivered in this repository.
 
 ## Purpose and audience
 Build a responsive interactive HTML learning application for process control engineers, instrument technicians, and operations. The primary learning goals are understanding the physical causes of stiction and hysteresis, and distinguishing valve command, actual travel, flow coefficient, flow, and process response. The starting example is a representative Fisher-style sliding-stem globe valve with spring-and-diaphragm actuator and digital positioner. It is an educational schematic, not an exact manufacturer's assembly drawing.
@@ -106,3 +106,4 @@ Verify detailed device-specific claims against applicable instruction manuals du
 6. Phone/desktop layout, keyboard operation, reduced motion, and readable chart labels are checked where browser tooling permits; any verification limitation is disclosed.
 7. Repository includes complete source, references, model limits, maintenance instructions, and reproducible tests.
 8. Commit and verify repository contents; separately report deployment status.
+
