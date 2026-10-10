@@ -1,6 +1,6 @@
 {
   "name": "control-valve-lab",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "description": "Interactive control valve learning for engineers, technicians, and operations",
   "scripts": {

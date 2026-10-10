@@ -60,3 +60,31 @@ test('the standalone build embeds its icons and ships the manifest beside it', (
   for (const icon of manifest.icons)
     assert.ok(fs.readFileSync(path.join('dist', icon.src)).equals(fs.readFileSync(icon.src)), icon.src);
 });
+
+test('the app does not zoom: viewport, touch-action, 16 px fields and blocked pinch gestures', () => {
+  assert.match(html, /name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/);
+  const css = fs.readFileSync('styles.css', 'utf8');
+  assert.match(css, /html \{\s*touch-action: pan-x pan-y;/, 'no pinch or double-tap zoom on touch screens');
+  assert.match(css, /input,\s*select,\s*textarea \{\s*font-size: 16px !important;/, 'phones do not zoom into fields');
+  const { JSDOM } = require('jsdom'),
+    vm = require('node:vm');
+  const d = new JSDOM(html, { url: 'https://example.test/#flow', runScripts: 'outside-only', pretendToBeVisual: true });
+  const w = d.window;
+  w.matchMedia = () => ({ matches: false });
+  for (const f of ['models', 'pid', 'content', 'diagrams', 'workspace', 'app'])
+    vm.runInContext(fs.readFileSync(`js/${f}.js`, 'utf8'), d.getInternalVMContext());
+  const fire = (type, init) => {
+    const ev = new w.Event(type, { bubbles: true, cancelable: true });
+    Object.assign(ev, init);
+    w.document.body.dispatchEvent(ev);
+    return ev.defaultPrevented;
+  };
+  assert.equal(fire('gesturestart', {}), true, 'Safari pinch blocked');
+  const zoomWheel = new w.WheelEvent('wheel', { ctrlKey: true, deltaY: -100, bubbles: true, cancelable: true });
+  w.document.body.dispatchEvent(zoomWheel);
+  assert.equal(zoomWheel.defaultPrevented, true, 'trackpad pinch / Ctrl+wheel blocked');
+  const scrollWheel = new w.WheelEvent('wheel', { deltaY: 100, bubbles: true, cancelable: true });
+  w.document.body.dispatchEvent(scrollWheel);
+  assert.equal(scrollWheel.defaultPrevented, false, 'ordinary scrolling still works');
+  d.window.close();
+});

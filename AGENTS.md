@@ -13,7 +13,10 @@ This is an educational engineering app, maintained in DeltaSNull/control-valve-l
 - js/models.js contains pure numerical models and exports the same API to Node and the browser.
 - js/pid.js contains pure controller, process, recorded-step identification and SIMC PI models; UI time parameters are minutes.
 - js/workspace.js renders the shared lesson layout (live view, guided activity, controls, More settings) and view/demo state.
-- Every lesson follows the same template: question + key idea, live view, guided steps (Try it / Look for / Why it matters / Show me), controls, role notes for operations/maintenance/engineering/management, Go deeper, pager. Keep it that way; a new lesson needs guide steps, role notes and tests that re-check any numbers quoted in its guide.
+- Every lesson follows the same template: question + key idea, live view, guided steps (Try it / Look for / Why it matters / Show me), controls, role notes for operations/maintenance/engineering/management, a three-question knowledge check, Go deeper, pager. Keep it that way; a new lesson needs guide steps, role notes, quiz questions and tests that re-check any numbers quoted in its guide or quiz explanations.
+- Progress (guided steps done, quiz answers, optional learner name) is stored only in this browser's localStorage under `control-valve-lab:progress:v1`, validated on load. Nothing is sent anywhere. The Managers & trainers page (`#training`) holds session plans, team questions, the printable training record and About/version.
+- Zoom is disabled at the owner's request (viewport `user-scalable=no`, `touch-action: pan-x pan-y`, 16 px form text, blocked pinch/Ctrl+wheel). axe reports this as a critical `meta-viewport` (WCAG 1.4.4) finding; keep it documented, and do not re-enable or remove it without the owner. Keyboard/menu browser zoom still works on desktop.
+- Release label: `C.release` in content.js must match package.json version (tested).
 - js/content.js holds original educational explanations, glossary, cases, and primary references.
 - js/diagrams.js renders original SVG schematics and plots.
 - js/app.js owns controls, seven module states, scripted demos and one fixed-step animation loop; navigation/background/custom pauses or cancels demos.

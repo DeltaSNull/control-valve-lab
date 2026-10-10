@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <meta name="theme-color" content="#143b32">
   <meta name="description" content="Explore control valve internals, stiction, hysteresis, Cv, trims and digital positioners through interactive engineering labs.">
   <title>Control Valve Lab — From signal to flow</title>
@@ -58,6 +58,16 @@
 /* ---- Base ---- */
 * {
   box-sizing: border-box;
+}
+/* The app does not zoom: pan only (no pinch or double-tap zoom). */
+html {
+  touch-action: pan-x pan-y;
+}
+/* 16 px form text stops phones from zooming in when a field is tapped. */
+input,
+select,
+textarea {
+  font-size: 16px !important;
 }
 body {
   margin: 0;
@@ -1845,6 +1855,437 @@ main:focus-visible {
     overflow: hidden;
   }
 }
+/* ---- Knowledge checks ---- */
+.quiz {
+  margin-top: 40px;
+}
+.quiz > h2 {
+  font-size: 24px;
+  letter-spacing: -0.5px;
+  margin: 0 0 14px;
+}
+.quiz-list {
+  list-style: none;
+  counter-reset: quiz;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+.quiz-item {
+  counter-increment: quiz;
+}
+.quiz-item fieldset {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  padding: 16px 18px;
+}
+.quiz-item legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+.quiz-item legend::before {
+  content: counter(quiz) '. ';
+  color: #5d7653;
+}
+.quiz-options {
+  clear: both;
+  display: grid;
+  gap: 8px;
+}
+.quiz-options button {
+  justify-content: flex-start;
+  text-align: left;
+  font-weight: 550;
+  font-size: 14px;
+}
+.quiz-options button[aria-pressed='true'] {
+  background: var(--card);
+}
+.quiz-options button.correct {
+  background: #e8f3dc;
+  border-color: #6f9a4a;
+  color: #24452c;
+}
+.quiz-options button.incorrect {
+  background: #fff1e5;
+  border-color: #c98d5c;
+  color: #6e3f1c;
+}
+.quiz-feedback {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.quiz-feedback:empty {
+  display: none;
+}
+.quiz-feedback.is-correct {
+  color: #2f5a2f;
+}
+.quiz-feedback.is-incorrect {
+  color: #7a4a1e;
+}
+.quiz-score {
+  margin: 14px 0 0;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+/* ---- Progress ---- */
+.progress-panel {
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 28px;
+  background: var(--card);
+  border: 1px solid #b9cf98;
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+.progress-main {
+  flex: 1 1 300px;
+}
+.progress-main h2 {
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #5d7653;
+  margin: 0 0 2px;
+}
+.progress-main p {
+  margin: 0;
+}
+.progress-bar {
+  height: 10px;
+  border-radius: 6px;
+  background: #e7ece1;
+  overflow: hidden;
+  margin: 8px 0 6px;
+}
+.progress-bar span {
+  display: block;
+  height: 100%;
+  background: var(--travel);
+  border-radius: 6px;
+}
+.progress-note {
+  font-size: 12px;
+  color: var(--muted);
+}
+.progress-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.lesson-status {
+  font-size: 12px;
+  font-weight: 650;
+  color: #5d7653;
+}
+.lesson-card.is-complete {
+  border-color: #8fb35f;
+  background: linear-gradient(180deg, #f7fbef, #fff 60%);
+}
+.lesson-card.is-complete .lesson-status {
+  color: #2f6b2f;
+}
+.path-check {
+  margin-left: auto;
+  color: #2f6b2f;
+}
+.team-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 24px;
+  background: var(--leaf-soft);
+  border: 1px solid #c9dca8;
+  border-radius: var(--radius);
+  padding: 20px 22px;
+}
+.team-banner h2 {
+  font-size: 20px !important;
+  margin: 0 0 4px !important;
+}
+.team-banner p {
+  margin: 0;
+  color: #45603a;
+}
+
+/* ---- Managers & trainers ---- */
+.home-section.first {
+  margin-top: 28px;
+}
+.impact-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.impact-card {
+  background: var(--green);
+  color: #e9f0e3;
+  border-radius: 12px;
+  padding: 18px;
+}
+.impact-card h3 {
+  color: #fff;
+  font-size: 16px;
+  margin: 0 0 6px;
+}
+.impact-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #c9d8cc;
+}
+.format-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+.format-card h3 {
+  font-size: 18px !important;
+  margin: 4px 0 10px !important;
+}
+.format-card ol {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.team-questions {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: tq;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.team-questions li {
+  counter-increment: tq;
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.team-questions li::before {
+  content: counter(tq);
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--leaf-soft);
+  color: #2f5a2f;
+  font-size: 13px;
+  font-weight: 700;
+}
+.record-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px 24px;
+}
+.record-head > div {
+  flex: 1 1 320px;
+}
+.record-head h2 {
+  margin-bottom: 4px;
+}
+.record-name {
+  max-width: 420px;
+}
+.record-name input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  padding: 9px 12px;
+  background: #fbfcf8;
+  color: var(--ink);
+}
+.record th[scope='row'] {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+.print-only {
+  display: none;
+}
+
+@media (max-width: 1150px) {
+  .impact-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 920px) {
+  .format-grid,
+  .team-questions {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 719px) {
+  .impact-grid {
+    grid-template-columns: 1fr;
+  }
+  .progress-actions,
+  .progress-actions .button,
+  .progress-actions button {
+    width: 100%;
+  }
+  .team-banner .button {
+    width: 100%;
+  }
+}
+
+/* ---- Print: lessons print as handouts; the training record prints on its own ---- */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  :root,
+  body {
+    background: #fff;
+  }
+  .sidebar,
+  .topbar,
+  footer,
+  .skip,
+  .head-tools,
+  .live-head,
+  .live-foot,
+  .lab-side,
+  .pager,
+  .progress-actions,
+  .team-banner,
+  .hero-actions,
+  .settings,
+  .record-head button,
+  .record-name,
+  .quiz-feedback,
+  .quiz-score,
+  dialog {
+    display: none !important;
+  }
+  .workspace {
+    margin: 0;
+  }
+  main {
+    padding: 0;
+    max-width: none;
+  }
+  .print-only {
+    display: block;
+  }
+  .lab {
+    display: block;
+  }
+  .lab-observation {
+    position: static;
+    box-shadow: none;
+    break-inside: avoid;
+  }
+  .observation-panel[hidden] {
+    display: none !important;
+  }
+  .card,
+  .role-card,
+  .quiz-item fieldset,
+  .lesson-card,
+  .impact-card,
+  .team-questions li,
+  .print-steps li {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+  h1,
+  h2,
+  h3,
+  legend {
+    break-after: avoid;
+  }
+  .print-steps,
+  .on-the-job,
+  .quiz,
+  .deeper {
+    break-before: auto;
+  }
+  .print-steps > h2,
+  .on-the-job > h2,
+  .quiz > h2,
+  .quiz > .section-intro,
+  .deeper > h2 {
+    break-after: avoid;
+    break-inside: avoid;
+  }
+  .print-steps {
+    margin-top: 24px;
+  }
+  .print-steps ol {
+    padding-left: 20px;
+  }
+  .print-steps h3 {
+    margin: 12px 0 4px;
+  }
+  .print-steps p {
+    margin: 2px 0;
+    font-size: 13px;
+  }
+  .quiz-options button {
+    border-style: dashed;
+    min-height: 0;
+    padding: 6px 10px;
+  }
+  .essentials li,
+  .impact-card {
+    background: #fff;
+    color: var(--ink);
+    border: 1px solid var(--line);
+  }
+  .essentials strong,
+  .impact-card h3 {
+    color: var(--ink);
+  }
+  .essentials span,
+  .impact-card p {
+    color: var(--muted);
+  }
+  a {
+    text-decoration: none;
+  }
+  body[data-print='record'] main > :not(.home-section),
+  body[data-print='record'] main > .home-section:not(:has(#training-record)) {
+    display: none !important;
+  }
+  body[data-print='record'] .record {
+    border: 0;
+    padding: 0;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -1903,6 +2344,7 @@ main:focus-visible {
       <a href="#positioner" data-module="positioner"><span>05</span>Positioners & DVCs</a>
       <a href="#diagnosis" data-module="diagnosis"><span>06</span>Read the symptoms</a>
       <a href="#pid" data-module="pid"><span>07</span>PID & step testing</a>
+      <a href="#training" data-module="training"><span aria-hidden="true">★</span>Managers & trainers</a>
     </nav>
     <div class="sidebar-note"><span class="small-dot"></span><strong>How each lesson works</strong><p>1. Read the key idea.<br>2. Follow the guided steps.<br>3. Explore the controls.</p></div>
     <button class="utility" data-action="references">References & model notes ↗</button>
@@ -1912,7 +2354,7 @@ main:focus-visible {
   <div class="workspace">
     <header class="topbar"><span>The control valve field guide</span><span class="top-tag">Simulated data · for training</span></header>
     <main id="main" tabindex="-1"></main>
-    <footer>Original educational schematics · Simulated data · Built for operations, maintenance, engineering and management</footer>
+    <footer>Original educational schematics · Simulated data · Built for operations, maintenance, engineering and management · <span id="app-version"></span></footer>
   </div>
   <dialog id="resource-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title">References</h2><button data-action="close-dialog" aria-label="Close dialog">×</button></div><div id="dialog-content"></div></dialog>
   <noscript><p class="noscript">Enable JavaScript to use the valve simulations. The source and model notes are available in the GitHub repository.</p></noscript>
@@ -3003,6 +3445,296 @@ main:focus-visible {
       }
     ]
   };
+  // Knowledge checks: three questions per lesson. `answer` is the index of the correct option;
+  // `explain` is shown once the learner picks it.
+  const quizzes = {
+    anatomy: [
+      {
+        q: 'The controller output reads 60%. What do you actually know about the valve?',
+        options: [
+          'The stem is at 60% travel.',
+          'The valve passes 60% of its maximum flow.',
+          'The controller is asking for 60%. Actual travel has to be measured.'
+        ],
+        answer: 2,
+        explain:
+          'Output is a request. Travel is the mechanical result, and flow also depends on pressure drop. Only a travel measurement tells you where the stem is.'
+      },
+      {
+        q: 'In this lesson’s example valve, what happens when actuator air is lost?',
+        options: ['It holds its last position.', 'The spring closes it.', 'It opens fully.'],
+        answer: 1,
+        explain:
+          'The example is air-to-open, spring-to-close. Other valves fail open or in place, so confirm fail action from the actuator nameplate and datasheet.'
+      },
+      {
+        q: 'A stem leak is fixed by tightening the packing. What new problem can this create?',
+        options: ['More seat leakage.', 'More friction, which can make the valve stick.', 'A larger valve Cv.'],
+        answer: 1,
+        explain:
+          'Packing must seal and still let the stem slide. More compression raises friction on the stem, a frequent cause of stiction.'
+      }
+    ],
+    friction: [
+      {
+        q: 'Controller output ramps steadily while valve travel stays flat, then suddenly jumps. What does this most resemble?',
+        options: ['Stiction (stick–slip)', 'Backlash', 'A slow, lagging actuator'],
+        answer: 0,
+        explain:
+          'Flat-then-jump is stick–slip: force builds until breakaway, then the stem jumps. Backlash loses motion at reversals without a jump; lag smooths the response.'
+      },
+      {
+        q: 'How can you tell a slow response (lag) from friction or backlash?',
+        options: [
+          'Repeat the test more slowly: a lag loop shrinks, lost motion from friction or clearance does not.',
+          'Increase the controller gain and watch the trend.',
+          'Look at the flow trend only.'
+        ],
+        answer: 0,
+        explain: 'Lag depends on speed. Lost motion from friction or mechanical clearance does not.'
+      },
+      {
+        q: 'A sticking valve keeps a loop cycling in Auto. What will detuning the controller do?',
+        options: [
+          'Remove the cycle for good.',
+          'Slow the cycle down, but the valve still needs repair.',
+          'Turn the stiction into backlash.'
+        ],
+        answer: 1,
+        explain:
+          'Stiction plus integral action produces a limit cycle. Detuning lengthens its period; repairing the valve removes the cause.'
+      }
+    ],
+    flow: [
+      {
+        q: 'What does a valve’s Cv describe?',
+        options: [
+          'How much flow it passes for a given pressure drop at that opening.',
+          'The flow rate in the pipe.',
+          'The pressure drop across the valve.'
+        ],
+        answer: 0,
+        explain:
+          'Cv is a capacity coefficient. In this liquid model Q = Cv × √(ΔP/SG), so flow needs both Cv and the pressure drop.'
+      },
+      {
+        q: 'In the installed system, opening from 50% to 75% nearly triples Cv but raises flow only about 60%. Why?',
+        options: [
+          'More flow means more piping loss, leaving less of the fixed pressure budget across the valve.',
+          'The equal-percentage curve flattens near full open.',
+          'The liquid becomes compressible.'
+        ],
+        answer: 0,
+        explain:
+          'Pressure balance: total ΔP = valve ΔP + piping losses. In the lab, valve ΔP falls from 18.1 to 6.7 psi over that move.'
+      },
+      {
+        q: 'A valve is badly oversized. Where does it do most of its controlling?',
+        options: [
+          'Evenly across 0–100% travel.',
+          'In a small part of its travel near the seat, where friction and resolution matter most.',
+          'Only above 90% travel.'
+        ],
+        answer: 1,
+        explain:
+          'In the lab, an oversized linear valve already passes 89 of a possible 91 gpm at 25% travel. The rest of the stroke adds almost nothing.'
+      }
+    ],
+    trim: [
+      {
+        q: 'What separates cavitation from flashing?',
+        options: [
+          'In cavitation pressure recovers above vapor pressure and bubbles collapse; in flashing the outlet stays below vapor pressure.',
+          'Cavitation only happens in gas service.',
+          'Flashing is simply louder cavitation.'
+        ],
+        answer: 0,
+        explain:
+          'Both start when local pressure falls below vapor pressure. What happens next depends on whether pressure recovers above it.'
+      },
+      {
+        q: 'Can anti-cavitation (staged) trim prevent flashing?',
+        options: [
+          'Yes, always.',
+          'No. If outlet pressure is below vapor pressure, vapor persists whatever the trim.',
+          'Only on rotary valves.'
+        ],
+        answer: 1,
+        explain:
+          'Outlet conditions decide flashing. Materials and downstream design manage it; trim staging cannot prevent it.'
+      },
+      {
+        q: 'Do rotary valves such as ball and butterfly valves avoid friction problems?',
+        options: [
+          'Yes, they have no packing.',
+          'No. Shaft packing, bearings, seals and couplings bring their own friction and lost motion.',
+          'Only butterfly valves avoid them.'
+        ],
+        answer: 1,
+        explain: 'Rotary valves can stick and lose motion too; the sources are different from a sliding stem.'
+      }
+    ],
+    positioner: [
+      {
+        q: 'With an I/P alone (no positioner), an extra opposing load is applied. What happens to travel?',
+        options: [
+          'It stays at the request.',
+          'It falls short, because nothing measures travel and corrects it.',
+          'It overshoots the request.'
+        ],
+        answer: 1,
+        explain: 'In the lab, a 2 psi load leaves travel near 34% instead of the 50% request.'
+      },
+      {
+        q: 'Positioner output pressure has reached supply pressure, but travel is still short. What does this suggest?',
+        options: [
+          'The positioner is mis-tuned.',
+          'There is not enough air force for the load: check supply, load and friction.',
+          'The process controller needs more gain.'
+        ],
+        answer: 1,
+        explain:
+          'Feedback cannot create force the supply cannot deliver. Trend supply, output pressure and travel together.'
+      },
+      {
+        q: 'What does positioner tuning control?',
+        options: [
+          'The process variable.',
+          'How actual travel follows the travel request: an inner loop separate from process PID tuning.',
+          'The valve’s Cv characteristic.'
+        ],
+        answer: 1,
+        explain: 'The positioner controls position. The process controller controls the process variable.'
+      }
+    ],
+    diagnosis: [
+      {
+        q: 'A process variable is cycling. What is the best first step?',
+        options: [
+          'Replace the valve.',
+          'Compare command, actual travel, actuator pressure and flow before deciding.',
+          'Halve the controller gain.'
+        ],
+        answer: 1,
+        explain: 'One trend shape can fit several causes. Several measurements narrow it down before money is spent.'
+      },
+      {
+        q: 'Where procedures allow, the loop is put in Manual and the cycling stops. What does that suggest?',
+        options: [
+          'The cycle is generated inside the loop, by tuning or valve interaction.',
+          'An outside process disturbance is the cause.',
+          'The transmitter has failed.'
+        ],
+        answer: 0,
+        explain: 'Cycling that stops in Manual comes from inside the loop. Cycling that continues comes from elsewhere.'
+      },
+      {
+        q: 'Why compare valve signatures only under similar conditions?',
+        options: [
+          'Different process load or temperature can make a normal change look like extra friction.',
+          'Signatures expire after a month.',
+          'Positioners can only store one signature.'
+        ],
+        answer: 0,
+        explain:
+          'A signature is evidence under a particular load and temperature. Unlike conditions give misleading comparisons.'
+      }
+    ],
+    pid: [
+      {
+        q: 'Why is the step test run in Manual?',
+        options: [
+          'So the controller does not react, revealing the process’s own gain, delay and time constant.',
+          'Manual mode simulates faster.',
+          'Auto mode cannot change the output.'
+        ],
+        answer: 0,
+        explain:
+          'In Auto the controller would respond to the step and hide the process behavior you are trying to measure.'
+      },
+      {
+        q: 'A step test is run on a valve with stiction. What can happen to the fitted model?',
+        options: [
+          'Nothing; the fit ignores the valve.',
+          'The valve’s dead band and jumps are absorbed into the fit, making it misleading.',
+          'The fit becomes more accurate.'
+        ],
+        answer: 1,
+        explain: 'The fit sees OP to measured PV, valve included. Check the valve before trusting a tuning fit.'
+      },
+      {
+        q: 'What does a bumpless Manual-to-Auto transfer guarantee?',
+        options: [
+          'The PV never changes after transfer.',
+          'The output does not jump at the moment of transfer.',
+          'The setpoint jumps to the PV.'
+        ],
+        answer: 1,
+        explain:
+          'Only the instant of transfer is bump-free. After that the controller acts on any error. In this lab, SP does not track PV in Manual.'
+      }
+    ]
+  };
+  // Material for the managers & trainers page. Claims are qualitative; no plant data is implied.
+  const training = {
+    impact: [
+      [
+        'Process variability',
+        'A valve that sticks, lags or loses motion keeps the loop moving. Cycling pushes product quality and operating margins around.'
+      ],
+      [
+        'Throughput and energy',
+        'Loops that cycle are usually run further from their limits to stay safe, which can cost capacity or energy.'
+      ],
+      [
+        'Wear and maintenance effort',
+        'Constant cycling wears packing, actuators and trim. Retuning around a mechanical fault hides it instead of fixing it.'
+      ],
+      [
+        'Predictable response in upsets',
+        'Operators rely on valves moving when asked. Knowing the difference between output, travel and flow matters most then.'
+      ]
+    ],
+    formats: [
+      {
+        name: 'Self-paced',
+        time: 'About 50 minutes in total',
+        steps: [
+          'Each lesson takes 5–10 minutes and works on a phone.',
+          'Learners follow the guided steps, then answer the three-question knowledge check.',
+          'Progress is saved on their device; the training record prints a summary.'
+        ]
+      },
+      {
+        name: 'Shift toolbox talk',
+        time: '15 minutes',
+        steps: [
+          'Open one lesson, for example 02 Stiction & hysteresis, on a shared screen.',
+          'Read the key idea aloud, then run Show me on guided steps 1 and 2.',
+          'Ask one discussion question from the list below and note the answers.'
+        ]
+      },
+      {
+        name: 'Team workshop',
+        time: '60 minutes',
+        steps: [
+          '0–10 min: walk the signal-to-flow chain on the Start here page.',
+          '10–30 min: everyone works through lessons 01 and 02.',
+          '30–45 min: solve two cases in lesson 06 as a group before revealing the answer.',
+          '45–60 min: one lesson by role (03 engineering, 05 maintenance, 07 control), then the knowledge checks.'
+        ]
+      }
+    ],
+    questions: [
+      'Do our operator displays show actual valve travel, or only controller output?',
+      'Which of our loops cycle in Auto but settle in Manual?',
+      'Which control valves spend most of their time below 20% or above 80% open?',
+      'When did we last compare a valve signature with its baseline under similar conditions?',
+      'Before we retune a loop, how do we confirm the valve moves cleanly in small steps?',
+      'For our critical valves, do we know the fail action from the datasheet rather than from memory?'
+    ]
+  };
+  const release = { version: '2.0.0', date: '10 October 2026' };
   root.ValveContent = {
     components,
     friction,
@@ -3017,7 +3749,10 @@ main:focus-visible {
     roles,
     essentials,
     onTheJob,
-    guides
+    guides,
+    quizzes,
+    training,
+    release
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
@@ -3312,7 +4047,8 @@ main:focus-visible {
     trim: { style: 'globe', travel: 50, trim: 'characterized', profile: 'cavitation' },
     positioner: defaultP(),
     diagnosis: { case: 'packing', answered: null, revealed: false },
-    guide: {}
+    guide: {},
+    learner: ''
   };
   let frameId = null,
     lastFrame = 0,
@@ -3734,7 +4470,7 @@ main:focus-visible {
   };
   function header(id) {
     const m = C.modules[id];
-    return `<header class="page-head"><p class="eyebrow">Lesson ${m.num} of ${String(MODULE_IDS.length).padStart(2, '0')} · about ${m.minutes} min</p><h1>${m.title}</h1><p class="question">${m.question}</p><p class="key-idea"><strong>Key idea</strong>${m.keyIdea}</p><div class="head-tools"><button type="button" class="link-button" data-action="glossary">Glossary</button><button type="button" class="link-button" data-action="references">Sources & assumptions</button></div></header>`;
+    return `<header class="page-head"><p class="eyebrow">Lesson ${m.num} of ${String(MODULE_IDS.length).padStart(2, '0')} · about ${m.minutes} min</p><h1>${m.title}</h1><p class="question">${m.question}</p><p class="key-idea"><strong>Key idea</strong>${m.keyIdea}</p><div class="head-tools"><button type="button" class="link-button" data-action="glossary">Glossary</button><button type="button" class="link-button" data-action="references">Sources & assumptions</button><button type="button" class="link-button" data-action="print">Print lesson</button></div></header>`;
   }
   function lessonPage(id, labHtml, deeper) {
     const i = MODULE_IDS.indexOf(id),
@@ -3747,19 +4483,169 @@ main:focus-visible {
     return (
       header(id) +
       labHtml +
+      `<section class="print-only print-steps"><h2>Guided activity</h2><ol>${C.guides[id]
+        .map(
+          s =>
+            `<li><h3>${s.title}</h3><p><strong>Try it:</strong> ${s.do}</p><p><strong>Look for:</strong> ${s.look}</p><p><strong>Why it matters:</strong> ${s.why}</p></li>`
+        )
+        .join('')}</ol></section>` +
       `<section class="on-the-job" aria-labelledby="job-title"><h2 id="job-title">Why it matters on the job</h2><div class="role-grid">${C.roles
         .map(
           (r, k) => `<article class="role-card role-${r.id}"><h3>${r.name}</h3><p>${C.onTheJob[id][k]}</p></article>`
         )
         .join('')}</div></section>` +
+      quizSection(id) +
       `<section class="deeper" aria-labelledby="deeper-title"><h2 id="deeper-title">Go deeper</h2>${deeper}</section>` +
       `<nav class="pager" aria-label="Lesson navigation">${link(prev, 'prev')}${link(next, 'next')}</nav>`
     );
   }
+  // ---- Progress and knowledge checks (stored in this browser only) -----------------------------
+  const STORE = 'control-valve-lab:progress:v1';
+  function loadProgress() {
+    const lessons = {};
+    let learner = '';
+    try {
+      const raw = JSON.parse(root.localStorage?.getItem(STORE) || '{}');
+      learner = typeof raw.learner === 'string' ? raw.learner.slice(0, 80) : '';
+      const ok = (v, max) => Number.isInteger(v) && v >= 0 && v < max;
+      for (const id of MODULE_IDS) {
+        const g = raw.lessons?.[id];
+        if (!g || typeof g !== 'object') continue;
+        const steps = C.guides[id].length,
+          quiz = {};
+        for (const [k, v] of Object.entries(g.quiz ?? {}))
+          if (ok(Number(k), C.quizzes[id].length) && ok(v, C.quizzes[id][Number(k)].options.length)) quiz[k] = v;
+        lessons[id] = {
+          step: ok(g.step, steps) ? g.step : 0,
+          done: [...new Set((Array.isArray(g.done) ? g.done : []).filter(v => ok(v, steps)))],
+          quiz
+        };
+      }
+    } catch {
+      // Blocked or corrupt storage: start fresh.
+    }
+    return { lessons, learner };
+  }
+  function saveProgress() {
+    try {
+      root.localStorage?.setItem(STORE, JSON.stringify({ lessons: state.guide, learner: state.learner }));
+    } catch {
+      // Private browsing or blocked storage: progress lasts for this visit only.
+    }
+  }
+  // A lesson is complete when every guided step is done and every knowledge check is answered correctly.
+  function lessonStatus(id) {
+    const g = state.guide[id] ?? { done: [], quiz: {} },
+      questions = C.quizzes[id],
+      correct = questions.filter((q, i) => g.quiz?.[i] === q.answer).length,
+      steps = C.guides[id].length,
+      done = g.done.length;
+    return {
+      steps,
+      done,
+      questions: questions.length,
+      correct,
+      complete: done === steps && correct === questions.length,
+      started: done > 0 || Object.keys(g.quiz ?? {}).length > 0
+    };
+  }
+  function statusLabel(id) {
+    const s = lessonStatus(id);
+    return s.complete
+      ? '✓ Complete'
+      : s.started
+        ? `In progress · steps ${s.done}/${s.steps} · check ${s.correct}/${s.questions}`
+        : '';
+  }
+  function updateQuiz() {
+    const id = state.module;
+    if (!C.quizzes[id] || !$('quiz-score')) return;
+    const g = guideState(id);
+    C.quizzes[id].forEach((q, qi) => {
+      const chosen = g.quiz[qi];
+      document.querySelectorAll(`[data-quiz^="${qi}:"]`).forEach(b => {
+        const oi = Number(b.dataset.quiz.split(':')[1]);
+        b.setAttribute('aria-pressed', String(oi === chosen));
+        b.classList.toggle('correct', oi === chosen && oi === q.answer);
+        b.classList.toggle('incorrect', oi === chosen && oi !== q.answer);
+      });
+      const fb = $('quiz-feedback-' + qi);
+      fb.className =
+        'quiz-feedback' + (chosen === undefined ? '' : chosen === q.answer ? ' is-correct' : ' is-incorrect');
+      fb.textContent =
+        chosen === undefined
+          ? ''
+          : chosen === q.answer
+            ? `Correct. ${q.explain}`
+            : 'Not quite. Look back at the lesson and try a different answer.';
+    });
+    const s = lessonStatus(id);
+    $('quiz-score').innerHTML =
+      `${s.correct} of ${s.questions} correct` +
+      (s.complete
+        ? ' · <strong>Lesson complete ✓</strong>'
+        : s.correct === s.questions
+          ? ` · finish the guided steps (${s.done} of ${s.steps} done) to complete the lesson`
+          : '');
+  }
+  function quizSection(id) {
+    return `<section class="quiz" aria-labelledby="quiz-title"><h2 id="quiz-title">Check your understanding</h2><p class="section-intro">Three quick questions. Pick an answer for feedback; you can try again.</p><ol class="quiz-list">${C.quizzes[
+      id
+    ]
+      .map(
+        (q, qi) =>
+          `<li class="quiz-item"><fieldset><legend>${q.q}</legend><div class="quiz-options">${q.options
+            .map((o, oi) => `<button type="button" data-quiz="${qi}:${oi}" aria-pressed="false">${o}</button>`)
+            .join('')}</div><p class="quiz-feedback" id="quiz-feedback-${qi}" aria-live="polite"></p></fieldset></li>`
+      )
+      .join('')}</ol><p class="quiz-score" id="quiz-score" role="status"></p></section>`;
+  }
+  function progressPanel() {
+    const complete = MODULE_IDS.filter(id => lessonStatus(id).complete).length;
+    if (!MODULE_IDS.some(id => lessonStatus(id).started)) return '';
+    const next = MODULE_IDS.find(id => !lessonStatus(id).complete),
+      pct = Math.round((complete / MODULE_IDS.length) * 100);
+    return `<section class="progress-panel" aria-labelledby="progress-title"><div class="progress-main"><h2 id="progress-title">Your progress</h2><p><strong>${complete} of ${MODULE_IDS.length} lessons complete</strong></p><div class="progress-bar" role="progressbar" aria-label="Lessons complete" aria-valuemin="0" aria-valuemax="${MODULE_IDS.length}" aria-valuenow="${complete}"><span style="width:${pct}%"></span></div><p class="progress-note">Saved in this browser only. Nothing is sent anywhere.</p></div><div class="progress-actions">${
+      next
+        ? `<a class="button primary" href="#${next}" data-module="${next}">Continue: ${C.modules[next].num} · ${C.modules[next].title} →</a>`
+        : '<a class="button primary" href="#training" data-module="training">All lessons complete · training record →</a>'
+    }<button type="button" data-action="reset-progress">Reset progress</button></div></section>`;
+  }
+  function recordLine() {
+    const line = $('record-print-line');
+    if (!line) return;
+    const date = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    line.textContent = `Name: ${state.learner || '______________________________'} · Printed ${date} · Control Valve Lab ${C.release.version}`;
+  }
+  function trainingPage() {
+    const T = C.training,
+      complete = MODULE_IDS.filter(id => lessonStatus(id).complete).length;
+    const rows = MODULE_IDS.map(id => {
+      const m = C.modules[id],
+        s = lessonStatus(id);
+      return `<tr><th scope="row">${m.num} · ${m.title}</th><td>${s.done} of ${s.steps}</td><td>${s.correct} of ${s.questions}</td><td>${s.complete ? '✓ Complete' : s.started ? 'In progress' : 'Not started'}</td></tr>`;
+    }).join('');
+    return `<header class="page-head"><p class="eyebrow">For managers & trainers</p><h1>Use the lab with your team</h1><p class="question">Why valve performance matters, ready-made session plans, questions to ask, and a printable training record.</p></header>
+    <section class="home-section first" aria-labelledby="impact-title"><h2 id="impact-title">Why control valve performance matters</h2><p class="section-intro">Most control loops end in a valve. When it does not move as asked, the whole loop pays for it.</p><div class="impact-grid">${T.impact
+      .map(([t, d]) => `<article class="impact-card"><h3>${t}</h3><p>${d}</p></article>`)
+      .join('')}</div></section>
+    <section class="home-section" aria-labelledby="formats-title"><h2 id="formats-title">Three ways to use it</h2><div class="format-grid">${T.formats
+      .map(
+        f =>
+          `<article class="card format-card"><p class="kicker">${f.time}</p><h3>${f.name}</h3><ol>${f.steps.map(s => `<li>${s}</li>`).join('')}</ol></article>`
+      )
+      .join('')}</div></section>
+    <section class="home-section" aria-labelledby="questions-title"><h2 id="questions-title">Questions to ask your team</h2><p class="section-intro">Each one connects a lesson to your own plant. Good answers come with evidence: trends, signatures and datasheets.</p><ol class="team-questions">${T.questions
+      .map(q => `<li>${q}</li>`)
+      .join('')}</ol></section>
+    <section class="home-section" aria-labelledby="record-title"><div class="card record" id="training-record"><div class="record-head"><div><h2 id="record-title">Training record</h2><p>${complete} of ${MODULE_IDS.length} lessons complete on this device. A lesson is complete when all its guided steps are done and all three knowledge-check answers are correct.</p></div><button type="button" class="primary" data-action="print-record">Print training record</button></div><div class="control record-name"><label for="learner-name">Name for the printout <span>optional · saved on this device only</span></label><input id="learner-name" type="text" autocomplete="name" maxlength="80" value="${e(state.learner)}"></div><p class="print-only" id="record-print-line"></p><div class="table-wrap"><table><thead><tr><th scope="col">Lesson</th><th scope="col">Guided steps</th><th scope="col">Knowledge check</th><th scope="col">Status</th></tr></thead><tbody>${rows}</tbody></table></div></div></section>
+    <section class="home-section" aria-labelledby="about-title"><h2 id="about-title">About this lab</h2><div class="deeper-grid"><article class="card"><h3>What it is</h3><p>An interactive training lab for people who work with control valves: seven lessons with live simulations, guided steps and knowledge checks. All data are simulated and every drawing is conceptual. Nothing connects to a plant.</p><p><strong>Version ${C.release.version}</strong> · updated ${C.release.date}</p><div class="head-tools"><button type="button" class="link-button" data-action="references">Sources & assumptions</button><button type="button" class="link-button" data-action="glossary">Glossary</button></div></article><article class="card"><h3>How it is built and checked</h3><p>Designed, written and tested with Claude Code, Anthropic’s AI coding agent, working from the owner’s requirements in a GitHub repository. Every change is tracked in version control and must pass automated checks before it is published.</p><p>The checks cover the simulation models, every number quoted in the guided steps and knowledge checks, page behavior, phone and desktop layouts, and automated accessibility rules. Device-specific statements link to manufacturer documents.</p><a class="source-link" href="https://github.com/DeltaSNull/control-valve-lab" target="_blank" rel="noopener">Source on GitHub ↗</a></article></div></section>`;
+  }
   function homePage() {
     const lessonsHtml = MODULE_IDS.map(id => {
       const m = C.modules[id];
-      return `<a class="lesson-card" href="#${id}" data-module="${id}"><span class="lesson-num">${m.num}</span><strong>${m.title}</strong><span class="lesson-q">${m.question}</span><em>About ${m.minutes} min · ${C.guides[id].length} guided steps</em></a>`;
+      const s = lessonStatus(id);
+      return `<a class="lesson-card${s.complete ? ' is-complete' : ''}" href="#${id}" data-module="${id}"><span class="lesson-num">${m.num}</span><strong>${m.title}</strong><span class="lesson-q">${m.question}</span><em>About ${m.minutes} min · ${C.guides[id].length} guided steps · ${C.quizzes[id].length} questions</em>${s.started ? `<span class="lesson-status">${statusLabel(id)}</span>` : ''}</a>`;
     }).join('');
     return `<section class="hero">
       <p class="eyebrow">Control Valve Lab</p>
@@ -3767,6 +4653,7 @@ main:focus-visible {
       <p class="lede">Seven short, hands-on lessons that follow a control signal all the way to process flow. Each lesson is a live simulation with guided steps, written for operators, technicians, engineers and managers.</p>
       <div class="hero-actions"><a class="button primary" href="#anatomy" data-module="anatomy">Start lesson 1 →</a><button type="button" data-scroll="paths">Choose a path for your role</button></div>
     </section>
+    ${progressPanel()}
     <section class="home-section" aria-labelledby="chain-title">
       <h2 id="chain-title">From signal to flow</h2>
       <p class="section-intro">Each lesson explains one link in this chain. A problem in any link shows up in the process trend.</p>
@@ -3786,12 +4673,13 @@ main:focus-visible {
             `<article class="role-card path-card role-${r.id}"><h3>${r.name}</h3><p class="who">${r.who}</p><p class="goal">${r.goal}</p><ol class="path">${r.path
               .map(
                 m =>
-                  `<li><a href="#${m}" data-module="${m}"><span>${C.modules[m].num}</span>${C.modules[m].title}</a></li>`
+                  `<li><a href="#${m}" data-module="${m}"><span>${C.modules[m].num}</span>${C.modules[m].title}${lessonStatus(m).complete ? '<b class="path-check" aria-label="complete">✓</b>' : ''}</a></li>`
               )
               .join('')}</ol><p class="remember"><strong>Remember</strong>${r.remember}</p></article>`
         )
         .join('')}</div>
     </section>
+    <section class="home-section team-banner" aria-labelledby="team-title"><div><h2 id="team-title">Rolling this out to a team?</h2><p>Session plans, discussion questions and a printable training record for managers and trainers.</p></div><a class="button" href="#training" data-module="training">For managers & trainers →</a></section>
     <section class="home-section" aria-labelledby="all-title">
       <h2 id="all-title">All lessons</h2>
       <div class="lesson-grid">${lessonsHtml}</div>
@@ -4259,7 +5147,9 @@ main:focus-visible {
     mode: 'installed'
   });
   function guideState(mod = state.module) {
-    return (state.guide[mod] ??= { step: 0, done: [] });
+    const g = (state.guide[mod] ??= { step: 0, done: [], quiz: {} });
+    g.quiz ??= {};
+    return g;
   }
   function renderGuide() {
     const el = $('guide-step');
@@ -4450,7 +5340,9 @@ main:focus-visible {
       note = guideActions[state.module][g.step]() || '';
       if (!note && !g.done.includes(g.step)) g.done.push(g.step);
     }
+    saveProgress();
     renderGuide();
+    updateQuiz();
     if (note) guideNote(note);
     // Keep keyboard focus on the button just used (or the current step when it is disabled or gone).
     const main = $('main'),
@@ -5046,12 +5938,15 @@ main:focus-visible {
       flow: flowPage,
       trim: trimPage,
       positioner: positionerPage,
-      diagnosis: diagnosisPage
+      diagnosis: diagnosisPage,
+      training: trainingPage
     };
     $('main').innerHTML = pages[module]();
     document.body.dataset.page = module;
     document.title =
-      module === 'home' ? 'Control Valve Lab — From signal to flow' : `${C.modules[module].title} · Control Valve Lab`;
+      module === 'home'
+        ? 'Control Valve Lab — From signal to flow'
+        : `${C.modules[module]?.title ?? 'Managers & trainers'} · Control Valve Lab`;
     document.querySelectorAll('#module-nav [data-module]').forEach(a => {
       a.classList.toggle('active', a.dataset.module === module);
       if (a.dataset.module === module) a.setAttribute('aria-current', 'page');
@@ -5071,10 +5966,12 @@ main:focus-visible {
     if (module === 'positioner') updatePositioner();
     if (module === 'diagnosis') updateDiagnosis();
     if (module === 'pid') updatePID();
-    if (module !== 'home') {
+    if (C.modules[module]) {
       renderGuide();
+      updateQuiz();
       W.mode(false, '');
     }
+    recordLine();
     refresh();
     if (focus) {
       $('main').focus({ preventScroll: true });
@@ -5123,6 +6020,25 @@ main:focus-visible {
       d = state.diagnosis;
     if (name === 'references' || name === 'glossary') {
       resources(name);
+      return;
+    }
+    if (name === 'reset-progress') {
+      // Two taps, so progress is never cleared by accident.
+      const button = document.querySelector('[data-action="reset-progress"]');
+      if (button && button.dataset.confirm !== 'yes') {
+        button.dataset.confirm = 'yes';
+        button.textContent = 'Tap again to clear all progress';
+        return;
+      }
+      state.guide = {};
+      saveProgress();
+      render(state.module);
+      return;
+    }
+    if (name === 'print' || name === 'print-record') {
+      if (name === 'print-record') document.body.dataset.print = 'record';
+      recordLine();
+      root.print?.();
       return;
     }
     if (name === 'close-dialog') {
@@ -5228,6 +6144,14 @@ main:focus-visible {
       refresh();
       return;
     }
+    const quiz = event.target.closest('[data-quiz]');
+    if (quiz) {
+      const [qi, oi] = quiz.dataset.quiz.split(':').map(Number);
+      guideState().quiz[qi] = oi;
+      saveProgress();
+      updateQuiz();
+      return;
+    }
     const step = event.target.closest('[data-guide-step]');
     if (step) {
       guideAction('guide-step', Number(step.dataset.guideStep));
@@ -5329,6 +6253,12 @@ main:focus-visible {
   function onInput(event) {
     const el = event.target,
       id = el.id;
+    if (id === 'learner-name') {
+      state.learner = el.value.slice(0, 80);
+      saveProgress();
+      recordLine();
+      return;
+    }
     if (state.demo) {
       pause();
       state.demo = null;
@@ -5458,7 +6388,7 @@ main:focus-visible {
   });
   root.addEventListener('hashchange', () => {
     const mod = location.hash.slice(1);
-    if (mod === 'home' || C.modules[mod]) render(mod, true);
+    if (mod === 'home' || mod === 'training' || C.modules[mod]) render(mod, true);
   });
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
@@ -5470,9 +6400,46 @@ main:focus-visible {
       if (state.module === 'positioner') updatePositioner();
     }
   });
+  // The app does not zoom. Block pinch gestures (Safari gesture events, trackpad/Ctrl+wheel);
+  // the viewport meta and CSS touch-action cover pinch and double-tap zoom on touch screens.
+  for (const type of ['gesturestart', 'gesturechange', 'gestureend'])
+    document.addEventListener(type, event => event.preventDefault(), { passive: false });
+  document.addEventListener(
+    'wheel',
+    event => {
+      if (event.ctrlKey) event.preventDefault();
+    },
+    { passive: false }
+  );
+  document.addEventListener(
+    'touchmove',
+    event => {
+      if (event.touches?.length > 1) event.preventDefault();
+    },
+    { passive: false }
+  );
+  // Printing: expand collapsed explanations, then restore them afterwards.
+  root.addEventListener('beforeprint', () => {
+    recordLine();
+    document.querySelectorAll('main details:not([open])').forEach(d => {
+      d.open = true;
+      d.dataset.printOpened = '1';
+    });
+  });
+  root.addEventListener('afterprint', () => {
+    document.querySelectorAll('details[data-print-opened]').forEach(d => {
+      d.open = false;
+      delete d.dataset.printOpened;
+    });
+    delete document.body.dataset.print;
+  });
   root.ValveLab = { getState: () => state, pause };
+  const saved = loadProgress();
+  state.guide = saved.lessons;
+  state.learner = saved.learner;
+  if ($('app-version')) $('app-version').textContent = `Version ${C.release.version}`;
   const initial = location.hash.slice(1);
-  render(C.modules[initial] ? initial : 'home');
+  render(C.modules[initial] || initial === 'training' ? initial : 'home');
 })(window);
 
 </script>

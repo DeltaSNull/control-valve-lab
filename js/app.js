@@ -55,7 +55,8 @@
     trim: { style: 'globe', travel: 50, trim: 'characterized', profile: 'cavitation' },
     positioner: defaultP(),
     diagnosis: { case: 'packing', answered: null, revealed: false },
-    guide: {}
+    guide: {},
+    learner: ''
   };
   let frameId = null,
     lastFrame = 0,
@@ -477,7 +478,7 @@
   };
   function header(id) {
     const m = C.modules[id];
-    return `<header class="page-head"><p class="eyebrow">Lesson ${m.num} of ${String(MODULE_IDS.length).padStart(2, '0')} · about ${m.minutes} min</p><h1>${m.title}</h1><p class="question">${m.question}</p><p class="key-idea"><strong>Key idea</strong>${m.keyIdea}</p><div class="head-tools"><button type="button" class="link-button" data-action="glossary">Glossary</button><button type="button" class="link-button" data-action="references">Sources & assumptions</button></div></header>`;
+    return `<header class="page-head"><p class="eyebrow">Lesson ${m.num} of ${String(MODULE_IDS.length).padStart(2, '0')} · about ${m.minutes} min</p><h1>${m.title}</h1><p class="question">${m.question}</p><p class="key-idea"><strong>Key idea</strong>${m.keyIdea}</p><div class="head-tools"><button type="button" class="link-button" data-action="glossary">Glossary</button><button type="button" class="link-button" data-action="references">Sources & assumptions</button><button type="button" class="link-button" data-action="print">Print lesson</button></div></header>`;
   }
   function lessonPage(id, labHtml, deeper) {
     const i = MODULE_IDS.indexOf(id),
@@ -490,19 +491,169 @@
     return (
       header(id) +
       labHtml +
+      `<section class="print-only print-steps"><h2>Guided activity</h2><ol>${C.guides[id]
+        .map(
+          s =>
+            `<li><h3>${s.title}</h3><p><strong>Try it:</strong> ${s.do}</p><p><strong>Look for:</strong> ${s.look}</p><p><strong>Why it matters:</strong> ${s.why}</p></li>`
+        )
+        .join('')}</ol></section>` +
       `<section class="on-the-job" aria-labelledby="job-title"><h2 id="job-title">Why it matters on the job</h2><div class="role-grid">${C.roles
         .map(
           (r, k) => `<article class="role-card role-${r.id}"><h3>${r.name}</h3><p>${C.onTheJob[id][k]}</p></article>`
         )
         .join('')}</div></section>` +
+      quizSection(id) +
       `<section class="deeper" aria-labelledby="deeper-title"><h2 id="deeper-title">Go deeper</h2>${deeper}</section>` +
       `<nav class="pager" aria-label="Lesson navigation">${link(prev, 'prev')}${link(next, 'next')}</nav>`
     );
   }
+  // ---- Progress and knowledge checks (stored in this browser only) -----------------------------
+  const STORE = 'control-valve-lab:progress:v1';
+  function loadProgress() {
+    const lessons = {};
+    let learner = '';
+    try {
+      const raw = JSON.parse(root.localStorage?.getItem(STORE) || '{}');
+      learner = typeof raw.learner === 'string' ? raw.learner.slice(0, 80) : '';
+      const ok = (v, max) => Number.isInteger(v) && v >= 0 && v < max;
+      for (const id of MODULE_IDS) {
+        const g = raw.lessons?.[id];
+        if (!g || typeof g !== 'object') continue;
+        const steps = C.guides[id].length,
+          quiz = {};
+        for (const [k, v] of Object.entries(g.quiz ?? {}))
+          if (ok(Number(k), C.quizzes[id].length) && ok(v, C.quizzes[id][Number(k)].options.length)) quiz[k] = v;
+        lessons[id] = {
+          step: ok(g.step, steps) ? g.step : 0,
+          done: [...new Set((Array.isArray(g.done) ? g.done : []).filter(v => ok(v, steps)))],
+          quiz
+        };
+      }
+    } catch {
+      // Blocked or corrupt storage: start fresh.
+    }
+    return { lessons, learner };
+  }
+  function saveProgress() {
+    try {
+      root.localStorage?.setItem(STORE, JSON.stringify({ lessons: state.guide, learner: state.learner }));
+    } catch {
+      // Private browsing or blocked storage: progress lasts for this visit only.
+    }
+  }
+  // A lesson is complete when every guided step is done and every knowledge check is answered correctly.
+  function lessonStatus(id) {
+    const g = state.guide[id] ?? { done: [], quiz: {} },
+      questions = C.quizzes[id],
+      correct = questions.filter((q, i) => g.quiz?.[i] === q.answer).length,
+      steps = C.guides[id].length,
+      done = g.done.length;
+    return {
+      steps,
+      done,
+      questions: questions.length,
+      correct,
+      complete: done === steps && correct === questions.length,
+      started: done > 0 || Object.keys(g.quiz ?? {}).length > 0
+    };
+  }
+  function statusLabel(id) {
+    const s = lessonStatus(id);
+    return s.complete
+      ? '✓ Complete'
+      : s.started
+        ? `In progress · steps ${s.done}/${s.steps} · check ${s.correct}/${s.questions}`
+        : '';
+  }
+  function updateQuiz() {
+    const id = state.module;
+    if (!C.quizzes[id] || !$('quiz-score')) return;
+    const g = guideState(id);
+    C.quizzes[id].forEach((q, qi) => {
+      const chosen = g.quiz[qi];
+      document.querySelectorAll(`[data-quiz^="${qi}:"]`).forEach(b => {
+        const oi = Number(b.dataset.quiz.split(':')[1]);
+        b.setAttribute('aria-pressed', String(oi === chosen));
+        b.classList.toggle('correct', oi === chosen && oi === q.answer);
+        b.classList.toggle('incorrect', oi === chosen && oi !== q.answer);
+      });
+      const fb = $('quiz-feedback-' + qi);
+      fb.className =
+        'quiz-feedback' + (chosen === undefined ? '' : chosen === q.answer ? ' is-correct' : ' is-incorrect');
+      fb.textContent =
+        chosen === undefined
+          ? ''
+          : chosen === q.answer
+            ? `Correct. ${q.explain}`
+            : 'Not quite. Look back at the lesson and try a different answer.';
+    });
+    const s = lessonStatus(id);
+    $('quiz-score').innerHTML =
+      `${s.correct} of ${s.questions} correct` +
+      (s.complete
+        ? ' · <strong>Lesson complete ✓</strong>'
+        : s.correct === s.questions
+          ? ` · finish the guided steps (${s.done} of ${s.steps} done) to complete the lesson`
+          : '');
+  }
+  function quizSection(id) {
+    return `<section class="quiz" aria-labelledby="quiz-title"><h2 id="quiz-title">Check your understanding</h2><p class="section-intro">Three quick questions. Pick an answer for feedback; you can try again.</p><ol class="quiz-list">${C.quizzes[
+      id
+    ]
+      .map(
+        (q, qi) =>
+          `<li class="quiz-item"><fieldset><legend>${q.q}</legend><div class="quiz-options">${q.options
+            .map((o, oi) => `<button type="button" data-quiz="${qi}:${oi}" aria-pressed="false">${o}</button>`)
+            .join('')}</div><p class="quiz-feedback" id="quiz-feedback-${qi}" aria-live="polite"></p></fieldset></li>`
+      )
+      .join('')}</ol><p class="quiz-score" id="quiz-score" role="status"></p></section>`;
+  }
+  function progressPanel() {
+    const complete = MODULE_IDS.filter(id => lessonStatus(id).complete).length;
+    if (!MODULE_IDS.some(id => lessonStatus(id).started)) return '';
+    const next = MODULE_IDS.find(id => !lessonStatus(id).complete),
+      pct = Math.round((complete / MODULE_IDS.length) * 100);
+    return `<section class="progress-panel" aria-labelledby="progress-title"><div class="progress-main"><h2 id="progress-title">Your progress</h2><p><strong>${complete} of ${MODULE_IDS.length} lessons complete</strong></p><div class="progress-bar" role="progressbar" aria-label="Lessons complete" aria-valuemin="0" aria-valuemax="${MODULE_IDS.length}" aria-valuenow="${complete}"><span style="width:${pct}%"></span></div><p class="progress-note">Saved in this browser only. Nothing is sent anywhere.</p></div><div class="progress-actions">${
+      next
+        ? `<a class="button primary" href="#${next}" data-module="${next}">Continue: ${C.modules[next].num} · ${C.modules[next].title} →</a>`
+        : '<a class="button primary" href="#training" data-module="training">All lessons complete · training record →</a>'
+    }<button type="button" data-action="reset-progress">Reset progress</button></div></section>`;
+  }
+  function recordLine() {
+    const line = $('record-print-line');
+    if (!line) return;
+    const date = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    line.textContent = `Name: ${state.learner || '______________________________'} · Printed ${date} · Control Valve Lab ${C.release.version}`;
+  }
+  function trainingPage() {
+    const T = C.training,
+      complete = MODULE_IDS.filter(id => lessonStatus(id).complete).length;
+    const rows = MODULE_IDS.map(id => {
+      const m = C.modules[id],
+        s = lessonStatus(id);
+      return `<tr><th scope="row">${m.num} · ${m.title}</th><td>${s.done} of ${s.steps}</td><td>${s.correct} of ${s.questions}</td><td>${s.complete ? '✓ Complete' : s.started ? 'In progress' : 'Not started'}</td></tr>`;
+    }).join('');
+    return `<header class="page-head"><p class="eyebrow">For managers & trainers</p><h1>Use the lab with your team</h1><p class="question">Why valve performance matters, ready-made session plans, questions to ask, and a printable training record.</p></header>
+    <section class="home-section first" aria-labelledby="impact-title"><h2 id="impact-title">Why control valve performance matters</h2><p class="section-intro">Most control loops end in a valve. When it does not move as asked, the whole loop pays for it.</p><div class="impact-grid">${T.impact
+      .map(([t, d]) => `<article class="impact-card"><h3>${t}</h3><p>${d}</p></article>`)
+      .join('')}</div></section>
+    <section class="home-section" aria-labelledby="formats-title"><h2 id="formats-title">Three ways to use it</h2><div class="format-grid">${T.formats
+      .map(
+        f =>
+          `<article class="card format-card"><p class="kicker">${f.time}</p><h3>${f.name}</h3><ol>${f.steps.map(s => `<li>${s}</li>`).join('')}</ol></article>`
+      )
+      .join('')}</div></section>
+    <section class="home-section" aria-labelledby="questions-title"><h2 id="questions-title">Questions to ask your team</h2><p class="section-intro">Each one connects a lesson to your own plant. Good answers come with evidence: trends, signatures and datasheets.</p><ol class="team-questions">${T.questions
+      .map(q => `<li>${q}</li>`)
+      .join('')}</ol></section>
+    <section class="home-section" aria-labelledby="record-title"><div class="card record" id="training-record"><div class="record-head"><div><h2 id="record-title">Training record</h2><p>${complete} of ${MODULE_IDS.length} lessons complete on this device. A lesson is complete when all its guided steps are done and all three knowledge-check answers are correct.</p></div><button type="button" class="primary" data-action="print-record">Print training record</button></div><div class="control record-name"><label for="learner-name">Name for the printout <span>optional · saved on this device only</span></label><input id="learner-name" type="text" autocomplete="name" maxlength="80" value="${e(state.learner)}"></div><p class="print-only" id="record-print-line"></p><div class="table-wrap"><table><thead><tr><th scope="col">Lesson</th><th scope="col">Guided steps</th><th scope="col">Knowledge check</th><th scope="col">Status</th></tr></thead><tbody>${rows}</tbody></table></div></div></section>
+    <section class="home-section" aria-labelledby="about-title"><h2 id="about-title">About this lab</h2><div class="deeper-grid"><article class="card"><h3>What it is</h3><p>An interactive training lab for people who work with control valves: seven lessons with live simulations, guided steps and knowledge checks. All data are simulated and every drawing is conceptual. Nothing connects to a plant.</p><p><strong>Version ${C.release.version}</strong> · updated ${C.release.date}</p><div class="head-tools"><button type="button" class="link-button" data-action="references">Sources & assumptions</button><button type="button" class="link-button" data-action="glossary">Glossary</button></div></article><article class="card"><h3>How it is built and checked</h3><p>Designed, written and tested with Claude Code, Anthropic’s AI coding agent, working from the owner’s requirements in a GitHub repository. Every change is tracked in version control and must pass automated checks before it is published.</p><p>The checks cover the simulation models, every number quoted in the guided steps and knowledge checks, page behavior, phone and desktop layouts, and automated accessibility rules. Device-specific statements link to manufacturer documents.</p><a class="source-link" href="https://github.com/DeltaSNull/control-valve-lab" target="_blank" rel="noopener">Source on GitHub ↗</a></article></div></section>`;
+  }
   function homePage() {
     const lessonsHtml = MODULE_IDS.map(id => {
       const m = C.modules[id];
-      return `<a class="lesson-card" href="#${id}" data-module="${id}"><span class="lesson-num">${m.num}</span><strong>${m.title}</strong><span class="lesson-q">${m.question}</span><em>About ${m.minutes} min · ${C.guides[id].length} guided steps</em></a>`;
+      const s = lessonStatus(id);
+      return `<a class="lesson-card${s.complete ? ' is-complete' : ''}" href="#${id}" data-module="${id}"><span class="lesson-num">${m.num}</span><strong>${m.title}</strong><span class="lesson-q">${m.question}</span><em>About ${m.minutes} min · ${C.guides[id].length} guided steps · ${C.quizzes[id].length} questions</em>${s.started ? `<span class="lesson-status">${statusLabel(id)}</span>` : ''}</a>`;
     }).join('');
     return `<section class="hero">
       <p class="eyebrow">Control Valve Lab</p>
@@ -510,6 +661,7 @@
       <p class="lede">Seven short, hands-on lessons that follow a control signal all the way to process flow. Each lesson is a live simulation with guided steps, written for operators, technicians, engineers and managers.</p>
       <div class="hero-actions"><a class="button primary" href="#anatomy" data-module="anatomy">Start lesson 1 →</a><button type="button" data-scroll="paths">Choose a path for your role</button></div>
     </section>
+    ${progressPanel()}
     <section class="home-section" aria-labelledby="chain-title">
       <h2 id="chain-title">From signal to flow</h2>
       <p class="section-intro">Each lesson explains one link in this chain. A problem in any link shows up in the process trend.</p>
@@ -529,12 +681,13 @@
             `<article class="role-card path-card role-${r.id}"><h3>${r.name}</h3><p class="who">${r.who}</p><p class="goal">${r.goal}</p><ol class="path">${r.path
               .map(
                 m =>
-                  `<li><a href="#${m}" data-module="${m}"><span>${C.modules[m].num}</span>${C.modules[m].title}</a></li>`
+                  `<li><a href="#${m}" data-module="${m}"><span>${C.modules[m].num}</span>${C.modules[m].title}${lessonStatus(m).complete ? '<b class="path-check" aria-label="complete">✓</b>' : ''}</a></li>`
               )
               .join('')}</ol><p class="remember"><strong>Remember</strong>${r.remember}</p></article>`
         )
         .join('')}</div>
     </section>
+    <section class="home-section team-banner" aria-labelledby="team-title"><div><h2 id="team-title">Rolling this out to a team?</h2><p>Session plans, discussion questions and a printable training record for managers and trainers.</p></div><a class="button" href="#training" data-module="training">For managers & trainers →</a></section>
     <section class="home-section" aria-labelledby="all-title">
       <h2 id="all-title">All lessons</h2>
       <div class="lesson-grid">${lessonsHtml}</div>
@@ -1002,7 +1155,9 @@
     mode: 'installed'
   });
   function guideState(mod = state.module) {
-    return (state.guide[mod] ??= { step: 0, done: [] });
+    const g = (state.guide[mod] ??= { step: 0, done: [], quiz: {} });
+    g.quiz ??= {};
+    return g;
   }
   function renderGuide() {
     const el = $('guide-step');
@@ -1193,7 +1348,9 @@
       note = guideActions[state.module][g.step]() || '';
       if (!note && !g.done.includes(g.step)) g.done.push(g.step);
     }
+    saveProgress();
     renderGuide();
+    updateQuiz();
     if (note) guideNote(note);
     // Keep keyboard focus on the button just used (or the current step when it is disabled or gone).
     const main = $('main'),
@@ -1789,12 +1946,15 @@
       flow: flowPage,
       trim: trimPage,
       positioner: positionerPage,
-      diagnosis: diagnosisPage
+      diagnosis: diagnosisPage,
+      training: trainingPage
     };
     $('main').innerHTML = pages[module]();
     document.body.dataset.page = module;
     document.title =
-      module === 'home' ? 'Control Valve Lab — From signal to flow' : `${C.modules[module].title} · Control Valve Lab`;
+      module === 'home'
+        ? 'Control Valve Lab — From signal to flow'
+        : `${C.modules[module]?.title ?? 'Managers & trainers'} · Control Valve Lab`;
     document.querySelectorAll('#module-nav [data-module]').forEach(a => {
       a.classList.toggle('active', a.dataset.module === module);
       if (a.dataset.module === module) a.setAttribute('aria-current', 'page');
@@ -1814,10 +1974,12 @@
     if (module === 'positioner') updatePositioner();
     if (module === 'diagnosis') updateDiagnosis();
     if (module === 'pid') updatePID();
-    if (module !== 'home') {
+    if (C.modules[module]) {
       renderGuide();
+      updateQuiz();
       W.mode(false, '');
     }
+    recordLine();
     refresh();
     if (focus) {
       $('main').focus({ preventScroll: true });
@@ -1866,6 +2028,25 @@
       d = state.diagnosis;
     if (name === 'references' || name === 'glossary') {
       resources(name);
+      return;
+    }
+    if (name === 'reset-progress') {
+      // Two taps, so progress is never cleared by accident.
+      const button = document.querySelector('[data-action="reset-progress"]');
+      if (button && button.dataset.confirm !== 'yes') {
+        button.dataset.confirm = 'yes';
+        button.textContent = 'Tap again to clear all progress';
+        return;
+      }
+      state.guide = {};
+      saveProgress();
+      render(state.module);
+      return;
+    }
+    if (name === 'print' || name === 'print-record') {
+      if (name === 'print-record') document.body.dataset.print = 'record';
+      recordLine();
+      root.print?.();
       return;
     }
     if (name === 'close-dialog') {
@@ -1971,6 +2152,14 @@
       refresh();
       return;
     }
+    const quiz = event.target.closest('[data-quiz]');
+    if (quiz) {
+      const [qi, oi] = quiz.dataset.quiz.split(':').map(Number);
+      guideState().quiz[qi] = oi;
+      saveProgress();
+      updateQuiz();
+      return;
+    }
     const step = event.target.closest('[data-guide-step]');
     if (step) {
       guideAction('guide-step', Number(step.dataset.guideStep));
@@ -2072,6 +2261,12 @@
   function onInput(event) {
     const el = event.target,
       id = el.id;
+    if (id === 'learner-name') {
+      state.learner = el.value.slice(0, 80);
+      saveProgress();
+      recordLine();
+      return;
+    }
     if (state.demo) {
       pause();
       state.demo = null;
@@ -2201,7 +2396,7 @@
   });
   root.addEventListener('hashchange', () => {
     const mod = location.hash.slice(1);
-    if (mod === 'home' || C.modules[mod]) render(mod, true);
+    if (mod === 'home' || mod === 'training' || C.modules[mod]) render(mod, true);
   });
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
@@ -2213,7 +2408,44 @@
       if (state.module === 'positioner') updatePositioner();
     }
   });
+  // The app does not zoom. Block pinch gestures (Safari gesture events, trackpad/Ctrl+wheel);
+  // the viewport meta and CSS touch-action cover pinch and double-tap zoom on touch screens.
+  for (const type of ['gesturestart', 'gesturechange', 'gestureend'])
+    document.addEventListener(type, event => event.preventDefault(), { passive: false });
+  document.addEventListener(
+    'wheel',
+    event => {
+      if (event.ctrlKey) event.preventDefault();
+    },
+    { passive: false }
+  );
+  document.addEventListener(
+    'touchmove',
+    event => {
+      if (event.touches?.length > 1) event.preventDefault();
+    },
+    { passive: false }
+  );
+  // Printing: expand collapsed explanations, then restore them afterwards.
+  root.addEventListener('beforeprint', () => {
+    recordLine();
+    document.querySelectorAll('main details:not([open])').forEach(d => {
+      d.open = true;
+      d.dataset.printOpened = '1';
+    });
+  });
+  root.addEventListener('afterprint', () => {
+    document.querySelectorAll('details[data-print-opened]').forEach(d => {
+      d.open = false;
+      delete d.dataset.printOpened;
+    });
+    delete document.body.dataset.print;
+  });
   root.ValveLab = { getState: () => state, pause };
+  const saved = loadProgress();
+  state.guide = saved.lessons;
+  state.learner = saved.learner;
+  if ($('app-version')) $('app-version').textContent = `Version ${C.release.version}`;
   const initial = location.hash.slice(1);
-  render(C.modules[initial] ? initial : 'home');
+  render(C.modules[initial] || initial === 'training' ? initial : 'home');
 })(window);

@@ -6,6 +6,9 @@ An interactive control-valve learning lab for everyone who works with control va
 
 - **Start here** maps the signal-to-flow chain, suggests a lesson path for each role, and lists five essentials everyone should know.
 - Every lesson has the same layout: a question and **key idea**, a live view (view buttons, plot, key numbers, Run/Pause/Reset), a **guided activity** (Try it → Look for → Why it matters, with **Show me** to set it up), the controls (advanced options under **More settings**), **Why it matters on the job** for four roles, and **Go deeper** for equations, assumptions and references.
+- Each lesson ends with a three-question **knowledge check**. Progress is saved in the browser only (nothing is sent anywhere); the home page shows it and offers **Continue**.
+- **Managers & trainers** page: why valve performance matters, 15-minute and 60-minute session plans, questions to ask your team, a printable training record, and About/version. Lessons also print as handouts.
+- The app does not zoom (pinch, double-tap and form auto-zoom are disabled at the owner's request).
 - **Watch the full demo** plays a narrated, self-ending example; **Stop demo** hands the controls back. Changing the view never stops a demo. Positioner edits run the simulation until the valve settles.
 
 ## Explore

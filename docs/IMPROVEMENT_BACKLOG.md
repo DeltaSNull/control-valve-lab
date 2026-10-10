@@ -9,15 +9,15 @@ Status updated 2026-10-10 (third pass: guided-lab redesign; second pass: browser
 | CVL-001 | Implemented | Fixed 0.05 s recording, 8,000-sample bound; complete slow-sweep DOM tests at 30/120 Hz. |
 | CVL-002 | Implemented | Third pass: positioner edits run until settled and say so; lag-mode changes hold and settle; Run/Pause/Reset sit with the live view; status shows running/paused/settled. Device QA still pending. |
 | CVL-003 | Partially verified | 2026-10-10 (`5331694`): headless Chromium (Playwright) at 320×640, 375×667, 390×844, 768×1024, 1280×800 and 844×390, source and dist: no page overflow or script errors; all seven demos complete; PID custom record/step/estimate/apply/Auto flow works. Fixed crowded compact charts and the off-screen active nav tab. Real iPhone Safari, Android Chrome, zoom/large text and touch remain untested. |
-| CVL-004 | Partially implemented | Chart `<desc>` summaries (`5331694`). Third pass: axe-core finds no serious/critical WCAG A/AA issues on any page; valve SVG is a group of buttons; guide keeps focus. Actual screen-reader check still needed. |
+| CVL-004 | Partially implemented | Chart `<desc>` summaries (`5331694`). Third pass: axe-core finds no serious/critical WCAG A/AA issues on any page; valve SVG is a group of buttons; guide keeps focus. Actual screen-reader check still needed. Fifth pass: zoom disabled at owner request; axe reports critical `meta-viewport` (WCAG 1.4.4) as a documented exception. |
 | CVL-005 | Open | Detailed trim drawings unchanged. |
 | CVL-006 | Open | Linked force/travel/Cv experiment still proposed. |
-| CVL-007 | Implemented | Third pass: every lesson has four guided steps (Try it / Look for / Why it matters / Show me) whose quoted numbers come from the models and are re-checked by tests/guide.test.cjs. Explicit prediction prompts were not added. |
+| CVL-007 | Implemented | Third pass: four guided steps per lesson with model-checked numbers. Fifth pass: three-question knowledge check per lesson with feedback and saved progress. |
 | CVL-008 | Open | Positioner characterization/configuration lessons unchanged. |
 | CVL-009 | Implemented within current scope | FOPDT PID/step lab, A/B/C ideal form, OP/SP/manual/auto, load and valve defects; integrating processes and series PID remain future work. |
 | CVL-010 | Partially implemented | Fixed-clock DOM tests, PID model and fit rejection tests. 2026-10-10 (`5331694`): UI pressure-balance assertion, compact-plot, chart-summary and history tests. Expanded visual tests remain. |
 | CVL-011 | Implemented within current scope | Prettier formatting (`cd59d3a`); third pass replaces DOM relocation with one lesson template and moves lesson text to content.js. |
-| CVL-012 | Open | Both targets are explicitly synchronized this pass; automated cross-host revision labeling still proposed. |
+| CVL-012 | Partially implemented | Fifth pass: the app shows its release label (version 2.0.0, footer and About) and a test ties it to package.json. Cross-host commit labeling for Sites is still manual. |
 | CVL-013 | Partially implemented | Push-state module navigation supports history; re-clicking the active module no longer duplicates entries (`5331694`). Fourth pass: web app manifest and control-valve icons make the hosted app installable (no offline cache). Offline/scenario sharing/export remain proposed. |
 
 Application changes are authorized by the user's 2026-10-10 phone/PID request. See docs/AGENT_HANDOFF.md for tested behavior and limits.

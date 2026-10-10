@@ -771,6 +771,296 @@
       }
     ]
   };
+  // Knowledge checks: three questions per lesson. `answer` is the index of the correct option;
+  // `explain` is shown once the learner picks it.
+  const quizzes = {
+    anatomy: [
+      {
+        q: 'The controller output reads 60%. What do you actually know about the valve?',
+        options: [
+          'The stem is at 60% travel.',
+          'The valve passes 60% of its maximum flow.',
+          'The controller is asking for 60%. Actual travel has to be measured.'
+        ],
+        answer: 2,
+        explain:
+          'Output is a request. Travel is the mechanical result, and flow also depends on pressure drop. Only a travel measurement tells you where the stem is.'
+      },
+      {
+        q: 'In this lesson’s example valve, what happens when actuator air is lost?',
+        options: ['It holds its last position.', 'The spring closes it.', 'It opens fully.'],
+        answer: 1,
+        explain:
+          'The example is air-to-open, spring-to-close. Other valves fail open or in place, so confirm fail action from the actuator nameplate and datasheet.'
+      },
+      {
+        q: 'A stem leak is fixed by tightening the packing. What new problem can this create?',
+        options: ['More seat leakage.', 'More friction, which can make the valve stick.', 'A larger valve Cv.'],
+        answer: 1,
+        explain:
+          'Packing must seal and still let the stem slide. More compression raises friction on the stem, a frequent cause of stiction.'
+      }
+    ],
+    friction: [
+      {
+        q: 'Controller output ramps steadily while valve travel stays flat, then suddenly jumps. What does this most resemble?',
+        options: ['Stiction (stick–slip)', 'Backlash', 'A slow, lagging actuator'],
+        answer: 0,
+        explain:
+          'Flat-then-jump is stick–slip: force builds until breakaway, then the stem jumps. Backlash loses motion at reversals without a jump; lag smooths the response.'
+      },
+      {
+        q: 'How can you tell a slow response (lag) from friction or backlash?',
+        options: [
+          'Repeat the test more slowly: a lag loop shrinks, lost motion from friction or clearance does not.',
+          'Increase the controller gain and watch the trend.',
+          'Look at the flow trend only.'
+        ],
+        answer: 0,
+        explain: 'Lag depends on speed. Lost motion from friction or mechanical clearance does not.'
+      },
+      {
+        q: 'A sticking valve keeps a loop cycling in Auto. What will detuning the controller do?',
+        options: [
+          'Remove the cycle for good.',
+          'Slow the cycle down, but the valve still needs repair.',
+          'Turn the stiction into backlash.'
+        ],
+        answer: 1,
+        explain:
+          'Stiction plus integral action produces a limit cycle. Detuning lengthens its period; repairing the valve removes the cause.'
+      }
+    ],
+    flow: [
+      {
+        q: 'What does a valve’s Cv describe?',
+        options: [
+          'How much flow it passes for a given pressure drop at that opening.',
+          'The flow rate in the pipe.',
+          'The pressure drop across the valve.'
+        ],
+        answer: 0,
+        explain:
+          'Cv is a capacity coefficient. In this liquid model Q = Cv × √(ΔP/SG), so flow needs both Cv and the pressure drop.'
+      },
+      {
+        q: 'In the installed system, opening from 50% to 75% nearly triples Cv but raises flow only about 60%. Why?',
+        options: [
+          'More flow means more piping loss, leaving less of the fixed pressure budget across the valve.',
+          'The equal-percentage curve flattens near full open.',
+          'The liquid becomes compressible.'
+        ],
+        answer: 0,
+        explain:
+          'Pressure balance: total ΔP = valve ΔP + piping losses. In the lab, valve ΔP falls from 18.1 to 6.7 psi over that move.'
+      },
+      {
+        q: 'A valve is badly oversized. Where does it do most of its controlling?',
+        options: [
+          'Evenly across 0–100% travel.',
+          'In a small part of its travel near the seat, where friction and resolution matter most.',
+          'Only above 90% travel.'
+        ],
+        answer: 1,
+        explain:
+          'In the lab, an oversized linear valve already passes 89 of a possible 91 gpm at 25% travel. The rest of the stroke adds almost nothing.'
+      }
+    ],
+    trim: [
+      {
+        q: 'What separates cavitation from flashing?',
+        options: [
+          'In cavitation pressure recovers above vapor pressure and bubbles collapse; in flashing the outlet stays below vapor pressure.',
+          'Cavitation only happens in gas service.',
+          'Flashing is simply louder cavitation.'
+        ],
+        answer: 0,
+        explain:
+          'Both start when local pressure falls below vapor pressure. What happens next depends on whether pressure recovers above it.'
+      },
+      {
+        q: 'Can anti-cavitation (staged) trim prevent flashing?',
+        options: [
+          'Yes, always.',
+          'No. If outlet pressure is below vapor pressure, vapor persists whatever the trim.',
+          'Only on rotary valves.'
+        ],
+        answer: 1,
+        explain:
+          'Outlet conditions decide flashing. Materials and downstream design manage it; trim staging cannot prevent it.'
+      },
+      {
+        q: 'Do rotary valves such as ball and butterfly valves avoid friction problems?',
+        options: [
+          'Yes, they have no packing.',
+          'No. Shaft packing, bearings, seals and couplings bring their own friction and lost motion.',
+          'Only butterfly valves avoid them.'
+        ],
+        answer: 1,
+        explain: 'Rotary valves can stick and lose motion too; the sources are different from a sliding stem.'
+      }
+    ],
+    positioner: [
+      {
+        q: 'With an I/P alone (no positioner), an extra opposing load is applied. What happens to travel?',
+        options: [
+          'It stays at the request.',
+          'It falls short, because nothing measures travel and corrects it.',
+          'It overshoots the request.'
+        ],
+        answer: 1,
+        explain: 'In the lab, a 2 psi load leaves travel near 34% instead of the 50% request.'
+      },
+      {
+        q: 'Positioner output pressure has reached supply pressure, but travel is still short. What does this suggest?',
+        options: [
+          'The positioner is mis-tuned.',
+          'There is not enough air force for the load: check supply, load and friction.',
+          'The process controller needs more gain.'
+        ],
+        answer: 1,
+        explain:
+          'Feedback cannot create force the supply cannot deliver. Trend supply, output pressure and travel together.'
+      },
+      {
+        q: 'What does positioner tuning control?',
+        options: [
+          'The process variable.',
+          'How actual travel follows the travel request: an inner loop separate from process PID tuning.',
+          'The valve’s Cv characteristic.'
+        ],
+        answer: 1,
+        explain: 'The positioner controls position. The process controller controls the process variable.'
+      }
+    ],
+    diagnosis: [
+      {
+        q: 'A process variable is cycling. What is the best first step?',
+        options: [
+          'Replace the valve.',
+          'Compare command, actual travel, actuator pressure and flow before deciding.',
+          'Halve the controller gain.'
+        ],
+        answer: 1,
+        explain: 'One trend shape can fit several causes. Several measurements narrow it down before money is spent.'
+      },
+      {
+        q: 'Where procedures allow, the loop is put in Manual and the cycling stops. What does that suggest?',
+        options: [
+          'The cycle is generated inside the loop, by tuning or valve interaction.',
+          'An outside process disturbance is the cause.',
+          'The transmitter has failed.'
+        ],
+        answer: 0,
+        explain: 'Cycling that stops in Manual comes from inside the loop. Cycling that continues comes from elsewhere.'
+      },
+      {
+        q: 'Why compare valve signatures only under similar conditions?',
+        options: [
+          'Different process load or temperature can make a normal change look like extra friction.',
+          'Signatures expire after a month.',
+          'Positioners can only store one signature.'
+        ],
+        answer: 0,
+        explain:
+          'A signature is evidence under a particular load and temperature. Unlike conditions give misleading comparisons.'
+      }
+    ],
+    pid: [
+      {
+        q: 'Why is the step test run in Manual?',
+        options: [
+          'So the controller does not react, revealing the process’s own gain, delay and time constant.',
+          'Manual mode simulates faster.',
+          'Auto mode cannot change the output.'
+        ],
+        answer: 0,
+        explain:
+          'In Auto the controller would respond to the step and hide the process behavior you are trying to measure.'
+      },
+      {
+        q: 'A step test is run on a valve with stiction. What can happen to the fitted model?',
+        options: [
+          'Nothing; the fit ignores the valve.',
+          'The valve’s dead band and jumps are absorbed into the fit, making it misleading.',
+          'The fit becomes more accurate.'
+        ],
+        answer: 1,
+        explain: 'The fit sees OP to measured PV, valve included. Check the valve before trusting a tuning fit.'
+      },
+      {
+        q: 'What does a bumpless Manual-to-Auto transfer guarantee?',
+        options: [
+          'The PV never changes after transfer.',
+          'The output does not jump at the moment of transfer.',
+          'The setpoint jumps to the PV.'
+        ],
+        answer: 1,
+        explain:
+          'Only the instant of transfer is bump-free. After that the controller acts on any error. In this lab, SP does not track PV in Manual.'
+      }
+    ]
+  };
+  // Material for the managers & trainers page. Claims are qualitative; no plant data is implied.
+  const training = {
+    impact: [
+      [
+        'Process variability',
+        'A valve that sticks, lags or loses motion keeps the loop moving. Cycling pushes product quality and operating margins around.'
+      ],
+      [
+        'Throughput and energy',
+        'Loops that cycle are usually run further from their limits to stay safe, which can cost capacity or energy.'
+      ],
+      [
+        'Wear and maintenance effort',
+        'Constant cycling wears packing, actuators and trim. Retuning around a mechanical fault hides it instead of fixing it.'
+      ],
+      [
+        'Predictable response in upsets',
+        'Operators rely on valves moving when asked. Knowing the difference between output, travel and flow matters most then.'
+      ]
+    ],
+    formats: [
+      {
+        name: 'Self-paced',
+        time: 'About 50 minutes in total',
+        steps: [
+          'Each lesson takes 5–10 minutes and works on a phone.',
+          'Learners follow the guided steps, then answer the three-question knowledge check.',
+          'Progress is saved on their device; the training record prints a summary.'
+        ]
+      },
+      {
+        name: 'Shift toolbox talk',
+        time: '15 minutes',
+        steps: [
+          'Open one lesson, for example 02 Stiction & hysteresis, on a shared screen.',
+          'Read the key idea aloud, then run Show me on guided steps 1 and 2.',
+          'Ask one discussion question from the list below and note the answers.'
+        ]
+      },
+      {
+        name: 'Team workshop',
+        time: '60 minutes',
+        steps: [
+          '0–10 min: walk the signal-to-flow chain on the Start here page.',
+          '10–30 min: everyone works through lessons 01 and 02.',
+          '30–45 min: solve two cases in lesson 06 as a group before revealing the answer.',
+          '45–60 min: one lesson by role (03 engineering, 05 maintenance, 07 control), then the knowledge checks.'
+        ]
+      }
+    ],
+    questions: [
+      'Do our operator displays show actual valve travel, or only controller output?',
+      'Which of our loops cycle in Auto but settle in Manual?',
+      'Which control valves spend most of their time below 20% or above 80% open?',
+      'When did we last compare a valve signature with its baseline under similar conditions?',
+      'Before we retune a loop, how do we confirm the valve moves cleanly in small steps?',
+      'For our critical valves, do we know the fail action from the datasheet rather than from memory?'
+    ]
+  };
+  const release = { version: '2.0.0', date: '10 October 2026' };
   root.ValveContent = {
     components,
     friction,
@@ -785,6 +1075,9 @@
     roles,
     essentials,
     onTheJob,
-    guides
+    guides,
+    quizzes,
+    training,
+    release
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -42,6 +42,16 @@
 * {
   box-sizing: border-box;
 }
+/* The app does not zoom: pan only (no pinch or double-tap zoom). */
+html {
+  touch-action: pan-x pan-y;
+}
+/* 16 px form text stops phones from zooming in when a field is tapped. */
+input,
+select,
+textarea {
+  font-size: 16px !important;
+}
 body {
   margin: 0;
   background: var(--paper);
@@ -1826,6 +1836,437 @@ main:focus-visible {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+}
+/* ---- Knowledge checks ---- */
+.quiz {
+  margin-top: 40px;
+}
+.quiz > h2 {
+  font-size: 24px;
+  letter-spacing: -0.5px;
+  margin: 0 0 14px;
+}
+.quiz-list {
+  list-style: none;
+  counter-reset: quiz;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+.quiz-item {
+  counter-increment: quiz;
+}
+.quiz-item fieldset {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  padding: 16px 18px;
+}
+.quiz-item legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+.quiz-item legend::before {
+  content: counter(quiz) '. ';
+  color: #5d7653;
+}
+.quiz-options {
+  clear: both;
+  display: grid;
+  gap: 8px;
+}
+.quiz-options button {
+  justify-content: flex-start;
+  text-align: left;
+  font-weight: 550;
+  font-size: 14px;
+}
+.quiz-options button[aria-pressed='true'] {
+  background: var(--card);
+}
+.quiz-options button.correct {
+  background: #e8f3dc;
+  border-color: #6f9a4a;
+  color: #24452c;
+}
+.quiz-options button.incorrect {
+  background: #fff1e5;
+  border-color: #c98d5c;
+  color: #6e3f1c;
+}
+.quiz-feedback {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.quiz-feedback:empty {
+  display: none;
+}
+.quiz-feedback.is-correct {
+  color: #2f5a2f;
+}
+.quiz-feedback.is-incorrect {
+  color: #7a4a1e;
+}
+.quiz-score {
+  margin: 14px 0 0;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+/* ---- Progress ---- */
+.progress-panel {
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 28px;
+  background: var(--card);
+  border: 1px solid #b9cf98;
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+.progress-main {
+  flex: 1 1 300px;
+}
+.progress-main h2 {
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #5d7653;
+  margin: 0 0 2px;
+}
+.progress-main p {
+  margin: 0;
+}
+.progress-bar {
+  height: 10px;
+  border-radius: 6px;
+  background: #e7ece1;
+  overflow: hidden;
+  margin: 8px 0 6px;
+}
+.progress-bar span {
+  display: block;
+  height: 100%;
+  background: var(--travel);
+  border-radius: 6px;
+}
+.progress-note {
+  font-size: 12px;
+  color: var(--muted);
+}
+.progress-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.lesson-status {
+  font-size: 12px;
+  font-weight: 650;
+  color: #5d7653;
+}
+.lesson-card.is-complete {
+  border-color: #8fb35f;
+  background: linear-gradient(180deg, #f7fbef, #fff 60%);
+}
+.lesson-card.is-complete .lesson-status {
+  color: #2f6b2f;
+}
+.path-check {
+  margin-left: auto;
+  color: #2f6b2f;
+}
+.team-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 24px;
+  background: var(--leaf-soft);
+  border: 1px solid #c9dca8;
+  border-radius: var(--radius);
+  padding: 20px 22px;
+}
+.team-banner h2 {
+  font-size: 20px !important;
+  margin: 0 0 4px !important;
+}
+.team-banner p {
+  margin: 0;
+  color: #45603a;
+}
+
+/* ---- Managers & trainers ---- */
+.home-section.first {
+  margin-top: 28px;
+}
+.impact-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.impact-card {
+  background: var(--green);
+  color: #e9f0e3;
+  border-radius: 12px;
+  padding: 18px;
+}
+.impact-card h3 {
+  color: #fff;
+  font-size: 16px;
+  margin: 0 0 6px;
+}
+.impact-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #c9d8cc;
+}
+.format-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+.format-card h3 {
+  font-size: 18px !important;
+  margin: 4px 0 10px !important;
+}
+.format-card ol {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.team-questions {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: tq;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.team-questions li {
+  counter-increment: tq;
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.team-questions li::before {
+  content: counter(tq);
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--leaf-soft);
+  color: #2f5a2f;
+  font-size: 13px;
+  font-weight: 700;
+}
+.record-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px 24px;
+}
+.record-head > div {
+  flex: 1 1 320px;
+}
+.record-head h2 {
+  margin-bottom: 4px;
+}
+.record-name {
+  max-width: 420px;
+}
+.record-name input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  padding: 9px 12px;
+  background: #fbfcf8;
+  color: var(--ink);
+}
+.record th[scope='row'] {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+.print-only {
+  display: none;
+}
+
+@media (max-width: 1150px) {
+  .impact-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 920px) {
+  .format-grid,
+  .team-questions {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 719px) {
+  .impact-grid {
+    grid-template-columns: 1fr;
+  }
+  .progress-actions,
+  .progress-actions .button,
+  .progress-actions button {
+    width: 100%;
+  }
+  .team-banner .button {
+    width: 100%;
+  }
+}
+
+/* ---- Print: lessons print as handouts; the training record prints on its own ---- */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  :root,
+  body {
+    background: #fff;
+  }
+  .sidebar,
+  .topbar,
+  footer,
+  .skip,
+  .head-tools,
+  .live-head,
+  .live-foot,
+  .lab-side,
+  .pager,
+  .progress-actions,
+  .team-banner,
+  .hero-actions,
+  .settings,
+  .record-head button,
+  .record-name,
+  .quiz-feedback,
+  .quiz-score,
+  dialog {
+    display: none !important;
+  }
+  .workspace {
+    margin: 0;
+  }
+  main {
+    padding: 0;
+    max-width: none;
+  }
+  .print-only {
+    display: block;
+  }
+  .lab {
+    display: block;
+  }
+  .lab-observation {
+    position: static;
+    box-shadow: none;
+    break-inside: avoid;
+  }
+  .observation-panel[hidden] {
+    display: none !important;
+  }
+  .card,
+  .role-card,
+  .quiz-item fieldset,
+  .lesson-card,
+  .impact-card,
+  .team-questions li,
+  .print-steps li {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+  h1,
+  h2,
+  h3,
+  legend {
+    break-after: avoid;
+  }
+  .print-steps,
+  .on-the-job,
+  .quiz,
+  .deeper {
+    break-before: auto;
+  }
+  .print-steps > h2,
+  .on-the-job > h2,
+  .quiz > h2,
+  .quiz > .section-intro,
+  .deeper > h2 {
+    break-after: avoid;
+    break-inside: avoid;
+  }
+  .print-steps {
+    margin-top: 24px;
+  }
+  .print-steps ol {
+    padding-left: 20px;
+  }
+  .print-steps h3 {
+    margin: 12px 0 4px;
+  }
+  .print-steps p {
+    margin: 2px 0;
+    font-size: 13px;
+  }
+  .quiz-options button {
+    border-style: dashed;
+    min-height: 0;
+    padding: 6px 10px;
+  }
+  .essentials li,
+  .impact-card {
+    background: #fff;
+    color: var(--ink);
+    border: 1px solid var(--line);
+  }
+  .essentials strong,
+  .impact-card h3 {
+    color: var(--ink);
+  }
+  .essentials span,
+  .impact-card p {
+    color: var(--muted);
+  }
+  a {
+    text-decoration: none;
+  }
+  body[data-print='record'] main > :not(.home-section),
+  body[data-print='record'] main > .home-section:not(:has(#training-record)) {
+    display: none !important;
+  }
+  body[data-print='record'] .record {
+    border: 0;
+    padding: 0;
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -16,6 +16,17 @@ The phone/PID pass supersedes the six-module application baseline reviewed on Oc
 - Fixed 0.05 s friction/positioner samples preserve slow sweeps across animation refresh rates; bounded 8,000-sample histories. PID records at 0.1 s with configurable acceleration and a 20,000-sample bound.
 - Paused positioner input edits change parameters without advancing time. Run/resume applies dynamics. Friction manual steps remain explicitly sampled; Hold & settle evolves lag.
 
+## Fifth pass (2026-10-10): no zoom, and build-out for management review
+
+User request: remove any zoom functionality and build the app out for management review (it supports a case for continued Claude subscriptions).
+
+- **Zoom removed:** viewport `maximum-scale=1,user-scalable=no`; `html { touch-action: pan-x pan-y }` (no pinch or double-tap zoom; rapid step-button taps no longer zoom on iPhone); 16 px form text (no iOS auto-zoom on fields); Safari `gesture*` and Ctrl+wheel/trackpad pinch prevented. Desktop keyboard/menu zoom is a browser function left in place. Touch tests in Chromium show page scroll, the horizontal lesson menu and slider drags unchanged. Headless Chromium does not apply pinch zoom even with protections off, so pinch blocking itself is **unverified on a real phone**. axe now reports one **critical `meta-viewport`** finding (WCAG 1.4.4) on every page: an owner-requested trade-off; everything else is clean.
+- **Knowledge checks:** three questions per lesson (`C.quizzes`), feedback without giving the answer away on a miss, explanation on a hit, score; numbers quoted in explanations re-checked against the models in `tests/review.test.cjs`.
+- **Progress:** browser-only localStorage (validated on load; corrupt/blocked storage starts fresh). A lesson is complete when all guided steps are done and all three answers are correct. Home shows a progress panel with Continue and a two-tap reset; lesson cards and role paths show status.
+- **Managers & trainers page** (`#training`, in the nav): why valve performance matters (qualitative, no plant data), self-paced / 15-minute toolbox talk / 60-minute workshop plans, six team questions, printable training record with optional name, About with version 2.0.0 and a factual "built with Claude Code" note.
+- **Print:** lessons print as handouts (chart, all guided steps, role notes, questions, expanded Go deeper); the training record prints on its own. Checked via Chromium PDF output.
+- Evidence: 70 tests pass. Layout sweep at six sizes × 9 pages for source and dist: no overflow or script errors. dist ~254 KB.
+
 ## Fourth pass (2026-10-10): control-valve app icon
 
 User request: make the app look like a control valve when saved as an app.
@@ -36,7 +47,7 @@ User request: make the app intuitive, simple and educational at management-level
 - Behavior: positioner edits run until settled (auto-stop after 2 s still; hunting keeps running); lag-mode manual changes hold and settle; the loop always draws its final frame (fixed a stale "running" status). PID page shows only the current stage's controls. Guide PID tuning step refuses to run without a measured estimate; its Show me restarts at a clean 50% operating point in Auto.
 - Accessibility: axe-core 4.10.2 (WCAG 2 A/AA + best practice) in headless Chromium on all 8 pages at 1280×800 and 390×844: **zero serious/critical violations** after darkening secondary text, link, pressure-unit and tag colors and changing the interactive valve SVG from `role=img` to `role=group`. Remaining: moderate `skip-link` reports for hash-route links (`#flow` etc.), a false positive for this routing. Guide buttons keep keyboard focus.
 - Evidence: 58 tests pass (new `tests/guide.test.cjs` re-checks every number quoted in guide text against the models and runs every Show me step). Headless Chromium at 320×640, 375×667, 390×844, 768×1024, 1280×800, 844×390 for source and dist: no page overflow or script errors. Pinned live view is 358–393 px on 390×844; short/landscape screens do not pin. dist is ~214 KB.
-- Still unverified: real iPhone/Android devices, touch feel, zoom/large text, and an actual screen reader.
+- Still unverified: real iPhone/Android devices, touch feel, large text, and an actual screen reader.
 
 ## Second pass (2026-10-10): browser QA, readability, formatting
 
