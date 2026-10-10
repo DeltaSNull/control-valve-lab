@@ -16,9 +16,16 @@ The phone/PID pass supersedes the six-module application baseline reviewed on Oc
 - Fixed 0.05 s friction/positioner samples preserve slow sweeps across animation refresh rates; bounded 8,000-sample histories. PID records at 0.1 s with configurable acceleration and a 20,000-sample bound.
 - Paused positioner input edits change parameters without advancing time. Run/resume applies dynamics. Friction manual steps remain explicitly sampled; Hold & settle evolves lag.
 
+## Second pass (2026-10-10): browser QA, readability, formatting
+
+- `5331694` fixes from real Chromium checks: compact charts (<220 px tall) use tighter margins and three y ticks; every chart has a numeric `<desc>`; the active module tab scrolls into view in the phone nav; re-clicking the active module no longer duplicates history; paused positioner/lag statuses name the control that evolves the response.
+- `cd59d3a` Prettier-formats js/, tests/ and scripts/ (`.prettierrc.json`, `npm run format`, CI `format:check`). Babel ASTs are identical before/after. dist grows to ~168 KB from whitespace only.
+- Evidence: 46 tests pass, zero skipped. Headless Chromium (Playwright 1.56.1 build) at 320×640, 375×667, 390×844, 768×1024, 1280×800 and 844×390, for both index.html and dist/index.html: no horizontal page overflow, no console/page errors, all seven demos complete, PID record→step→estimate→apply→Auto works (fit K 1.000, τ 20.0 s, θ 4.2 s against true 1/20/4), diagram parts keep focus after keyboard selection.
+- Still unverified: real iPhone Safari / Android Chrome, touch, browser zoom and large text, VoiceOver/TalkBack. Headless Chromium is not device QA.
+
 ## Verification and review
 
-Current checks: **41 tests pass, zero skipped/failing**; syntax checks on all six scripts pass; packaging generates a 145,131-byte standalone HTML and its PID workspace boot passes. Independent read-only review identified drifting baselines, large end travel mismatch and load-change contamination of step fits; these now have rejection/invalidation gates and regression tests. No further critical lifecycle issue was identified in that review.
+First-pass checks: **41 tests pass, zero skipped/failing**; syntax checks on all six scripts pass; packaging generates a 145,131-byte standalone HTML and its PID workspace boot passes. Independent read-only review identified drifting baselines, large end travel mismatch and load-change contamination of step fits; these now have rejection/invalidation gates and regression tests. No further critical lifecycle issue was identified in that review.
 
 Actual iPhone Safari, Android Chrome, desktop rendering, touch and screen-reader QA remain **unverified**. The managed browser-control capability was unavailable. Do not claim phone QA passed because jsdom tests or responsive CSS exist. Check compact screens, safe areas, numeric-input keyboard, plot labels and landscape first on a real device.
 
@@ -57,9 +64,9 @@ GitHub Pages settings/live address remain unverified in this environment. The ex
 
 ## Next pass
 
-1. Real phone/device QA (CVL-003) and remaining screen-reader/chart-accessibility checks (CVL-004).
+1. Real phone/device QA (CVL-003; headless Chromium layout already checked) and an actual screen-reader check of the chart `<desc>` summaries (CVL-004).
 2. Detailed trim sketches (CVL-005), linked force/travel/Cv teaching experiment (CVL-006).
-3. Format/extract the remaining compact app.js code (CVL-011), automate deployment revision labeling (CVL-012).
+3. Optional module extraction of the now-formatted app.js (CVL-011), automate deployment revision labeling (CVL-012). Sites mirror has not been republished with this pass.
 4. Optional integrating processes/series PID, scenario sharing/export and PWA/offline remain extensions, not completed features.
 
 Historical application baseline was GitHub `8752422f0c453121baa9046d7ce04af40e877cd5`, tree `7c74ef9055a5becf15c62c537065e6eaabe6705d`, with 23 tests. The hidden stem, absent seat/body partition and fixed-width phone plot defects were fixed before that baseline. Do not re-open those as uncorrected findings.

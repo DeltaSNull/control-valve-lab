@@ -30,9 +30,10 @@ This is an educational engineering app, maintained in DeltaSNull/control-valve-l
 
 ## Verification
 1. npm ci
-2. npm test
-3. npm run check
-4. npm run package
+2. npm run format:check (run npm run format after edits)
+3. npm test
+4. npm run check
+5. npm run package
 
 Tests must fail on missing dependencies rather than silently skip DOM coverage. Add meaningful regression tests for model or interaction changes. For visual review, inspect both a phone and desktop where browser tooling is available; record unavailable checks honestly.
 
