@@ -61,13 +61,15 @@ The separate PID lab below simulates a normalized process loop. These diagnostic
 
 Use `npm test` for numerical and DOM integration coverage, `npm run check` for JavaScript syntax, and `npm run package` for the standalone build. Browser visual/touch verification remains an explicitly reported limitation in this environment.
 
-## Phone workspace, demos and recording
+## Lesson layout, guided steps, demos and recording
 
-The observation selector chooses one live plot/diagram. Operate, Setup and Learn have independent panel visibility; original controls/IDs are relocated rather than cloned. On phones, only the lower control panel scrolls in portrait. Short landscape viewports use a sticky observation and page scrolling. Browser/device rendering is not yet verified.
+Every lesson is rendered from one template (`ValveWorkspace.lab`): live view (view buttons, plot, key numbers, run controls, status), guided activity, controls with folded **More settings**, role notes and **Go deeper**. Each control exists once in the DOM; hidden views keep their update targets. Tall phones pin the live view; short and landscape screens scroll it. Headless Chromium checks are recorded in the handoff; real devices are not yet verified.
 
-Scripted demos run only after the user presses Run demo. They reset an example, narrate its stages and stop. The PID demo preserves process settings, selected defect and (in Apply tuning) controller tuning. Navigation, backgrounding, Pause and Custom cancel automation. Plot selection does not cancel it. Static examples animate illustrative input changes; diagnosis reveals a selected constructed case.
+Guided steps (text in `content.js`, actions in `app.js` `guideActions`) put the lab into the state each step describes. Numbers quoted in the guides come from the app's own models at the stated settings and are re-checked by `tests/guide.test.cjs`. The PID tuning step refuses to run without a measured step-test estimate; its Show me restarts the process at a clean 50% operating point in Auto before the SP change (SP still does not track PV in Manual).
 
-Friction and positioner integrate/record every 0.05 simulated seconds, with 8,000-sample histories (~400 seconds), independent of animation refresh rate. A full 160-second slow sweep is retained. Plot redraw is throttled to roughly 150 ms. PID samples every 0.1 simulated seconds and permits 1/4/8/16× acceleration; its 20,000-sample history is bounded at ~2,000 simulated seconds. Paused positioner parameter changes do not advance simulated time; Run/resume applies the dynamics. Friction manual steps remain explicit 0.1-second model samples; Hold & settle runs continuing dynamics.
+Scripted demos run only after the user presses Watch the full demo. They reset an example, narrate its stages and stop. The PID demo preserves process settings, selected defect and (in Tune & test) controller tuning. Navigation, backgrounding, Pause, Stop demo and any control change cancel automation. View selection does not cancel it. Static examples animate illustrative input changes; diagnosis reveals a selected constructed case.
+
+Friction and positioner integrate/record every 0.05 simulated seconds, with 8,000-sample histories (~400 seconds), independent of animation refresh rate. A full 160-second slow sweep is retained. Plot redraw is throttled to roughly 150 ms. PID samples every 0.1 simulated seconds and permits 1/4/8/16× acceleration; its 20,000-sample history is bounded at ~2,000 simulated seconds. Positioner parameter changes start the simulation (without jumping simulated time) and it stops by itself after 2 s with negligible velocity and pressure change; a hunting loop keeps running until paused. Friction manual steps remain explicit 0.1-second model samples; in the lag model a manual change also holds the command until travel settles, and Hold & settle runs the same continuing dynamics.
 
 ## PID controller and process
 

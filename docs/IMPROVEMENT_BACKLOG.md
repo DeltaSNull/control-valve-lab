@@ -2,21 +2,21 @@
 
 Reviewed application: `8752422f0c453121baa9046d7ce04af40e877cd5`.
 Review date: 2026-10-09, America/Chicago.
-Status updated 2026-10-10 (second pass: browser QA, chart readability, formatting): original findings below remain review evidence. Current implementation is the phone/PID pass (see handoff); statuses are:
+Status updated 2026-10-10 (third pass: guided-lab redesign; second pass: browser QA, chart readability, formatting): original findings below remain review evidence. Current implementation is the phone/PID pass (see handoff); statuses are:
 
 | ID | Current status | Evidence / remaining work |
 | --- | --- | --- |
 | CVL-001 | Implemented | Fixed 0.05 s recording, 8,000-sample bound; complete slow-sweep DOM tests at 30/120 Hz. |
-| CVL-002 | Partially implemented | Explicit demo/custom/pause/run; paused positioner changes no longer advance 0.02 s. 2026-10-10 (`5331694`): paused positioner and lag statuses name the control that evolves the response. Friction steps remain explicit samples; device QA pending. |
+| CVL-002 | Implemented | Third pass: positioner edits run until settled and say so; lag-mode changes hold and settle; Run/Pause/Reset sit with the live view; status shows running/paused/settled. Device QA still pending. |
 | CVL-003 | Partially verified | 2026-10-10 (`5331694`): headless Chromium (Playwright) at 320×640, 375×667, 390×844, 768×1024, 1280×800 and 844×390, source and dist: no page overflow or script errors; all seven demos complete; PID custom record/step/estimate/apply/Auto flow works. Fixed crowded compact charts and the off-screen active nav tab. Real iPhone Safari, Android Chrome, zoom/large text and touch remain untested. |
-| CVL-004 | Partially implemented | Toggle choices expose aria-pressed; panel state and demo status added. 2026-10-10 (`5331694`): every chart has a `<desc>` with axes, series endpoints/ranges and markers. Actual screen-reader check still needed. |
+| CVL-004 | Partially implemented | Chart `<desc>` summaries (`5331694`). Third pass: axe-core finds no serious/critical WCAG A/AA issues on any page; valve SVG is a group of buttons; guide keeps focus. Actual screen-reader check still needed. |
 | CVL-005 | Open | Detailed trim drawings unchanged. |
 | CVL-006 | Open | Linked force/travel/Cv experiment still proposed. |
-| CVL-007 | Partially implemented | One-button narrated demos in all seven modules; prediction activities not added. |
+| CVL-007 | Implemented | Third pass: every lesson has four guided steps (Try it / Look for / Why it matters / Show me) whose quoted numbers come from the models and are re-checked by tests/guide.test.cjs. Explicit prediction prompts were not added. |
 | CVL-008 | Open | Positioner characterization/configuration lessons unchanged. |
 | CVL-009 | Implemented within current scope | FOPDT PID/step lab, A/B/C ideal form, OP/SP/manual/auto, load and valve defects; integrating processes and series PID remain future work. |
 | CVL-010 | Partially implemented | Fixed-clock DOM tests, PID model and fit rejection tests. 2026-10-10 (`5331694`): UI pressure-balance assertion, compact-plot, chart-summary and history tests. Expanded visual tests remain. |
-| CVL-011 | Partially implemented | Pure PID and shared workspace extracted. 2026-10-10 (`cd59d3a`): all sources Prettier-formatted with AST-identical output; CI runs `format:check`. Module-level extraction of app.js still optional. |
+| CVL-011 | Implemented within current scope | Prettier formatting (`cd59d3a`); third pass replaces DOM relocation with one lesson template and moves lesson text to content.js. |
 | CVL-012 | Open | Both targets are explicitly synchronized this pass; automated cross-host revision labeling still proposed. |
 | CVL-013 | Partially implemented | Push-state module navigation supports history; re-clicking the active module no longer duplicates entries (`5331694`). PWA/offline/scenario sharing/export remain proposed. |
 

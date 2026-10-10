@@ -311,6 +311,16 @@
     ['process', 'Process-side disturbance']
   ];
   const glossary = {
+    'pp (percentage point)':
+      'An absolute change in a percentage. Moving from 50% to 55% travel is a 5 pp change, not a 5% change.',
+    'OP / PV / SP':
+      'Controller output (what the controller asks the valve for), process variable (the measured result) and setpoint (the target).',
+    'Manual / Auto':
+      'In Manual a person sets the controller output. In Auto the PID algorithm sets it from the setpoint and measured PV.',
+    'Limit cycle':
+      'A sustained oscillation generated inside a loop, for example by stiction interacting with integral action. It persists without any outside disturbance.',
+    'Step test':
+      'A single deliberate change, usually of controller output in Manual, used to measure process gain, delay and time constant.',
     'Cv': 'US-unit flow coefficient: the numerical flow in US gpm for water under the reference definition at 1 psi pressure drop. Operating flow requires the applicable sizing equation and correction factors.',
     'Kv': 'Metric flow coefficient, commonly defined using m³/h of water and 1 bar pressure drop. Do not substitute its numerical value into a Cv equation.',
     'Stiction':
@@ -415,5 +425,366 @@
       topic: 'Primary paper: FOPDT-based PI tuning and desired closed-loop response time.'
     }
   );
-  root.ValveContent = { components, friction, styles, trims, cases, answerOptions, glossary, sources };
+  // Lesson metadata, guided activities and role notes. Numbers quoted in guides come from the
+  // app's own models at the stated settings; tests/guide.test.cjs re-checks the key values.
+  const modules = {
+    anatomy: {
+      num: '01',
+      title: 'Inside the valve',
+      question: 'How does a control signal become a moving plug?',
+      keyIdea:
+        'Air pressure on the actuator makes a force; the spring, process and friction resist it. The plug position — not the signal — sets the flow opening.',
+      minutes: 5
+    },
+    friction: {
+      num: '02',
+      title: 'Stiction & hysteresis',
+      question: 'Why does a valve stick, and what does it look like on a trend?',
+      keyIdea:
+        'A sticking valve ignores small command changes, then jumps. Backlash, hysteresis and slow response look similar on a trend but have different causes.',
+      minutes: 8
+    },
+    flow: {
+      num: '03',
+      title: 'Cv & installed flow',
+      question: 'If the valve opens 10% more, how much more flow do I get?',
+      keyIdea:
+        'Travel sets Cv. Flow also depends on the pressure drop the valve actually receives, and in a real system that pressure drop shrinks as the valve opens.',
+      minutes: 7
+    },
+    trim: {
+      num: '04',
+      title: 'Trims & valve styles',
+      question: 'What do the internals change, and what are cavitation and flashing?',
+      keyIdea:
+        'Body style and trim set capacity, characteristic and shutoff. Cavitation and flashing are pressure events inside the valve, not just noise.',
+      minutes: 6
+    },
+    positioner: {
+      num: '05',
+      title: 'Positioners & DVCs',
+      question: 'What does the positioner actually do?',
+      keyIdea:
+        'A positioner measures actual travel and adjusts air pressure until travel matches the request — within the limits of the air supply and the mechanics.',
+      minutes: 6
+    },
+    diagnosis: {
+      num: '06',
+      title: 'Read the symptoms',
+      question: 'The loop is cycling. Is it the valve?',
+      keyIdea:
+        'A cycling trend does not prove stiction. Compare command, actual travel, pressure and flow before deciding what to fix.',
+      minutes: 8
+    },
+    pid: {
+      num: '07',
+      title: 'PID & step testing',
+      question: 'How do I tune a loop, and when will tuning not help?',
+      keyIdea:
+        'Measure the process with a step test before tuning. Check the valve first: tuning cannot fix a sticking, slow or travel-limited valve.',
+      minutes: 10
+    }
+  };
+  // The signal-to-flow chain shown on the home page; each link names the lesson that explains it.
+  const chain = [
+    ['Controller output', 'The controller asks for a valve position, for example 60%.', 'pid'],
+    ['Positioner', 'Compares requested and actual travel, then adjusts the air.', 'positioner'],
+    ['Actuator', 'Air pressure × diaphragm area makes force against the spring.', 'anatomy'],
+    ['Stem travel', 'Friction, backlash and lag decide whether travel follows.', 'friction'],
+    ['Trim & Cv', 'The plug position sets the flow opening, expressed as Cv.', 'trim'],
+    ['Flow', 'Cv and the available pressure drop set the actual flow.', 'flow'],
+    ['Process variable', 'The process responds, and the controller reacts to it.', 'diagnosis']
+  ];
+  const roles = [
+    {
+      id: 'operations',
+      name: 'Operations',
+      who: 'Board operators, shift leads',
+      goal: 'Read valve trends with confidence.',
+      path: ['anatomy', 'friction', 'diagnosis'],
+      remember: 'Controller output is a request. Check actual valve travel before blaming the controller.'
+    },
+    {
+      id: 'maintenance',
+      name: 'Maintenance & instrumentation',
+      who: 'Instrument and valve technicians',
+      goal: 'Find the real cause before adjusting anything.',
+      path: ['anatomy', 'positioner', 'friction', 'diagnosis'],
+      remember:
+        'Compare command, travel and actuator pressure under similar conditions before changing packing or calibration.'
+    },
+    {
+      id: 'engineering',
+      name: 'Process & control engineering',
+      who: 'Process, control and reliability engineers',
+      goal: 'Size, characterize and tune with the valve in mind.',
+      path: ['flow', 'trim', 'pid'],
+      remember: 'The controller sees the installed response of valve plus piping, not the inherent trim curve.'
+    },
+    {
+      id: 'management',
+      name: 'Management & reliability',
+      who: 'Area managers, reliability and project leads',
+      goal: 'Know what drives loop performance.',
+      path: ['anatomy', 'diagnosis', 'pid'],
+      remember:
+        'Many loop problems are valve or sizing problems that tuning cannot fix. Ask for evidence before approving a fix.'
+    }
+  ];
+  const essentials = [
+    ['Signal ≠ position', 'The controller output is a request. The stem may not get there.'],
+    ['Position ≠ flow', 'Flow depends on Cv at that position and on the pressure drop available.'],
+    ['A trend is a symptom', 'Cycling can come from the valve, the tuning, or the process. Use several measurements.'],
+    ['Tuning cannot fix mechanics', 'Stiction, backlash and travel limits must be repaired, not tuned around.'],
+    [
+      'Paint is not a datasheet',
+      'Brand and color do not tell you construction or fail action. Check the nameplate and records.'
+    ]
+  ];
+  // Per-lesson notes for each audience, in the same order as roles.
+  const onTheJob = {
+    anatomy: [
+      'A controller output is a request, not a position. If a display shows output but not travel, ask whether travel feedback is available.',
+      'Confirm fail action from the actuator nameplate and datasheet. Packing, guides and actuator condition all affect how the stem moves.',
+      'Required actuator pressure depends on spring range, process force and friction. Check sizing against worst-case shutoff and flowing forces.',
+      'A control valve is a mechanical system. Its condition, not just its controller, limits how well a loop can perform.'
+    ],
+    friction: [
+      'A trend that holds flat and then jumps while the output keeps ramping is a classic sticking pattern. Report it rather than asking for retuning.',
+      'Compare signatures taken under similar conditions. Tightening packing to stop a leak can raise friction and start cycling.',
+      'Stiction plus integral action produces a limit cycle. Detuning slows the cycle but does not remove it.',
+      'Sticking valves keep loops cycling, adding variability and wear. They are found by reviewing data and fixed by maintenance, not by tuning.'
+    ],
+    flow: [
+      'The same 10% move gives different flow changes at different openings. Expect the loop to feel more sensitive in some ranges.',
+      'A valve that normally runs nearly closed or nearly wide open has little control margin. Flag it for review.',
+      'Size for installed gain and authority. An oversized valve does its work in the first few percent of travel, where friction matters most.',
+      'Oversized valves are a frequent cause of poor control. A sizing review is a low-cost way to explain chronic problem loops.'
+    ],
+    trim: [
+      'Gravel-like noise or vibration at a liquid valve can indicate cavitation. Note the operating rate and pressures when it happens.',
+      'Damage location tells a story: cavitation pits where bubbles collapse; flashing erodes where vapor flows downstream.',
+      'Check the minimum internal pressure against vapor pressure for every operating case, not only the design case.',
+      'Severe-service trim costs more up front but can prevent repeated trim replacement and unplanned outages.'
+    ],
+    positioner: [
+      'If travel does not match the request, the positioner may be at its air limit or the valve may be loaded beyond what it can correct.',
+      'Trend supply, output pressure and travel together. A healthy supply gauge at rest does not prove enough air during a move.',
+      'Positioner tuning is an inner loop. Keep it faster than the process loop, but avoid gain that makes it hunt.',
+      'Digital positioners can report diagnostics, but only if someone reviews the data and acts on it.'
+    ],
+    diagnosis: [
+      'Before calling it a bad valve, note what changed: rate, feed, pressure, mode. Context helps the diagnosis.',
+      'Use several measurements. One trend shape can fit more than one cause.',
+      'Where procedures allow, put the loop in Manual briefly: cycling that stops is generated inside the loop (tuning or valve); cycling that continues comes from elsewhere.',
+      'Structured diagnosis avoids replacing good parts. Ask for the evidence behind a proposed repair.'
+    ],
+    pid: [
+      'In Manual you own the output; in Auto the controller does. A bumpless switch keeps the output steady at the moment of transfer.',
+      'Before a tuning change, confirm the valve moves cleanly in small steps. Tuning cannot fix stiction.',
+      'Fit a model from a clean step test and start from SIMC or a similar method. Valve defects corrupt the fit.',
+      'Good tuning reduces variability, but only after the valve and measurement are healthy.'
+    ]
+  };
+  // Guided activities: do → look for → why. Step actions live in app.js (guideActions).
+  const guides = {
+    anatomy: [
+      {
+        title: 'Follow the air',
+        do: 'Move the travel command to 80%.',
+        look: 'Actuator pressure rises to 12.6 psi, air force to 252 lbf, and the plug lifts 0.60 in.',
+        why: 'Air pressure acting on the diaphragm area makes force. The spring pushes back, so more travel needs more pressure.'
+      },
+      {
+        title: 'Remove the air',
+        do: 'Press Remove air.',
+        look: 'Pressure falls to zero and the spring drives the plug onto the seat: 0% travel.',
+        why: 'This example is air-to-open, spring-to-close, so it fails closed. Other valves fail open or in place: check the datasheet.'
+      },
+      {
+        title: 'Find the packing',
+        do: 'Restore air, then select Packing under Inspect a part.',
+        look: 'The packing rings surround the stem just below the actuator.',
+        why: 'Packing must seal and still let the stem slide. Excess packing friction is a frequent cause of sticking.'
+      },
+      {
+        title: 'Meet the positioner',
+        do: 'Select Positioner under Inspect a part.',
+        look: 'It compares requested travel with measured travel and adjusts the actuator air.',
+        why: 'The signal is a request; actual travel is the result. Lesson 05 shows what happens when they disagree.'
+      }
+    ],
+    friction: [
+      {
+        title: 'Make small moves',
+        do: 'With Stiction selected, press +1% step six times.',
+        look: 'Travel holds at 50% for five steps, then jumps to 54.5%, still 1.5 pp short of the command.',
+        why: 'Breakaway friction must be overcome before the stem moves. Small corrections are ignored, then the valve jumps.'
+      },
+      {
+        title: 'Sweep and read the signature',
+        do: 'Press Run sweep, then view the Response signature.',
+        look: 'Travel against command forms a staircase loop instead of following the diagonal.',
+        why: 'The loop width shows lost motion plus stick–slip. In a control loop this pattern drives continuous cycling.'
+      },
+      {
+        title: 'Compare backlash',
+        do: 'Select Backlash and run the sweep again.',
+        look: 'After each reversal travel waits until the command crosses the 6 pp clearance, then follows smoothly with no jumps.',
+        why: 'Backlash is clearance in linkages or couplings. It loses motion at reversals but does not stick and slip.'
+      },
+      {
+        title: 'Slow is not sticky',
+        do: 'Select Slow response, set Sweep speed (under More settings) to 15 pp/s and run; then repeat at 2 pp/s.',
+        look: 'The loop is wide at 15 pp/s and much narrower at 2 pp/s.',
+        why: 'Lag depends on speed; friction does not. Testing at two speeds separates the two.'
+      }
+    ],
+    flow: [
+      {
+        title: 'Open the valve',
+        do: 'Move travel from 50% to 75%.',
+        look: 'Cv nearly triples (11.3 → 30.1) but flow rises only from 48 to 78 gpm, and valve ΔP falls from 18.1 to 6.7 psi.',
+        why: 'More flow means more piping loss, leaving less of the fixed pressure budget across the valve.'
+      },
+      {
+        title: 'Add more piping loss',
+        do: 'Raise piping resistance K to 0.015.',
+        look: 'At 75% travel flow falls to 39 gpm and the installed curve goes flat above 50%.',
+        why: 'When most of the pressure drop is in the piping, opening further adds little flow: the valve has lost authority.'
+      },
+      {
+        title: 'Compare characteristics',
+        do: 'Set K back to 0.003, choose Linear, and view Inherent Cv.',
+        look: 'Linear Cv rises in equal steps; equal-percentage starts low and climbs steeply.',
+        why: 'The characteristic is chosen so the installed response is as even as possible across the operating range.'
+      },
+      {
+        title: 'Oversize the valve',
+        do: 'With Linear selected, set rated Cv to 300 and travel to 25%.',
+        look: 'Flow is already 89 gpm of a 91 gpm maximum at 25% travel.',
+        why: 'An oversized valve controls in a small part of its travel, where friction and resolution matter most.'
+      }
+    ],
+    trim: [
+      {
+        title: 'Compare valve styles',
+        do: 'Select each style and move the travel slider.',
+        look: 'A globe plug lifts in a straight line; ball, butterfly and eccentric plugs rotate.',
+        why: 'Motion type changes where friction comes from: packing and guides, or shaft bearings, seals and couplings.'
+      },
+      {
+        title: 'Watch cavitation',
+        do: 'View the Pressure profile and choose Cavitation.',
+        look: 'Pressure dips below the 40 psia vapor line at the restriction, then recovers to 60 psia.',
+        why: 'Bubbles form at the low point and collapse as pressure recovers, causing noise, vibration and pitting.'
+      },
+      {
+        title: 'Flashing is different',
+        do: 'Choose Flashing.',
+        look: 'The outlet stays at 25 psia, below vapor pressure, so vapor continues downstream.',
+        why: 'Anti-cavitation trim cannot prevent flashing; outlet conditions decide it. Materials and downstream design matter.'
+      },
+      {
+        title: 'Stage the pressure drop',
+        do: 'Choose Staged pressure reduction.',
+        look: 'Several smaller drops keep every local minimum above vapor pressure and still reach the 60 psia outlet.',
+        why: 'Staging is one way to manage cavitation. Real selection needs the actual service conditions.'
+      }
+    ],
+    positioner: [
+      {
+        title: 'No feedback',
+        do: 'Choose I/P alone, set opposing load to 2 psi, and press Run.',
+        look: 'Travel settles near 34% instead of the 50% request while pressure stays at 9 psi.',
+        why: 'Without feedback nothing notices the error. An I/P only converts signal to pressure.'
+      },
+      {
+        title: 'Add a positioner',
+        do: 'Choose Digital valve controller with the same load and run.',
+        look: 'Pressure rises to about 11 psi and travel returns to 50%.',
+        why: 'The positioner closes an inner loop on travel and supplies the extra force automatically.'
+      },
+      {
+        title: 'Starve the air',
+        do: 'Set supply to 10 psi and request 90% travel.',
+        look: 'Pressure stops at the 10 psi supply and travel stalls near 58%; the status warns of the supply limit.',
+        why: 'Feedback cannot create force the supply cannot deliver. Check supply and output pressure together.'
+      },
+      {
+        title: 'Too much gain',
+        do: 'Restore 22 psi supply, tick Excessive position-loop gain, then press Step to 70%.',
+        look: 'Travel hunts between roughly 24% and 100% instead of settling.',
+        why: 'An inner loop with too much gain oscillates by itself. Positioner tuning is separate from process tuning.'
+      }
+    ],
+    diagnosis: [
+      {
+        title: 'Study the evidence',
+        do: 'In the Packing case, compare command and actual travel.',
+        look: 'Travel holds flat, then jumps, while the command changes smoothly.',
+        why: 'That is a stick–slip pattern. Now test the idea against the other traces.'
+      },
+      {
+        title: 'Check the pressure',
+        do: 'Switch the view to Pressure.',
+        look: 'Pressure keeps changing smoothly while travel holds still.',
+        why: 'Force builds until breakaway. In this case the pressure is a command proxy, not a positioner output.'
+      },
+      {
+        title: 'Make a hypothesis',
+        do: 'Choose the cause you think fits best.',
+        look: 'Feedback says whether it fits; the explanation lists look-alike causes.',
+        why: 'A pattern supports a hypothesis. Confirm it with more evidence before acting.'
+      },
+      {
+        title: 'Try another case',
+        do: 'Press Next case and repeat: travel, pressure, flow.',
+        look: 'Each case changes a different link in the signal-to-flow chain.',
+        why: 'Working through all six builds the habit of checking several measurements.'
+      }
+    ],
+    pid: [
+      {
+        title: 'Run a step test',
+        do: 'In Manual, record a steady baseline, then step OP from 50% to 60%.',
+        look: 'Measured PV starts moving about 4 s after the step and settles near 60%.',
+        why: 'A clean step in Manual shows the process gain, delay and time constant without the controller in the way.'
+      },
+      {
+        title: 'Estimate the model',
+        do: 'When PV has settled, press Estimate from record.',
+        look: 'Gain ≈ 1.0, time constant ≈ 20 s, delay ≈ 4 s, plus a suggested PI tuning.',
+        why: 'These three numbers describe the process well enough to choose a sensible starting tuning.'
+      },
+      {
+        title: 'Apply and test the tuning',
+        do: 'Press Use estimate → tuning, switch to Auto, then change SP by 5 pp.',
+        look: 'PV settles on the new setpoint smoothly, with little or no overshoot. (Show me restarts at 50% first.)',
+        why: 'A model-based starting point gives a predictable response. Fine-tune from there.'
+      },
+      {
+        title: 'Add a sticky valve',
+        do: 'Stay in Auto, choose Stiction as the defect, then raise SP by 5 pp.',
+        look: 'PV keeps cycling around setpoint, OP becomes a sawtooth, and travel moves in jumps.',
+        why: 'Integral action keeps pushing until the valve breaks free, then overshoots. Retuning slows the cycle; fixing the valve stops it.'
+      }
+    ]
+  };
+  root.ValveContent = {
+    components,
+    friction,
+    styles,
+    trims,
+    cases,
+    answerOptions,
+    glossary,
+    sources,
+    modules,
+    chain,
+    roles,
+    essentials,
+    onTheJob,
+    guides
+  };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

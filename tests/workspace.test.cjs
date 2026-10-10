@@ -115,14 +115,39 @@ test('fixed-rate friction record retains a complete slow sweep at 30 and 120 Hz'
     b.d.window.close();
   }
 });
-test('controls tabs and plot selection preserve control identity and expose pressed state', () => {
+test('view buttons and settings preserve control identity and expose pressed state', () => {
   const b = boot('#flow');
-  b.click('[data-panel="setup"]');
-  assert.equal(b.w.document.querySelector('[data-panel="setup"]').getAttribute('aria-pressed'), 'true');
-  assert.equal(b.w.document.getElementById('flow-cvmax').closest('[data-control-panel]').dataset.controlPanel, 'setup');
-  b.input('workspace-plot', '1');
+  const doc = b.w.document;
+  assert.equal(doc.querySelectorAll('#flow-cvmax').length, 1, 'controls are never duplicated');
+  assert.ok(doc.getElementById('flow-rangeability').closest('details.settings'), 'advanced settings are folded away');
+  b.click('[data-view="1"]');
+  assert.equal(doc.querySelector('[data-view="1"]').getAttribute('aria-pressed'), 'true');
+  assert.equal(doc.querySelector('[data-observation="1"]').hidden, false);
+  assert.equal(doc.querySelector('[data-observation="0"]').hidden, true);
   b.input('flow-travel', '80');
-  assert.match(b.w.document.getElementById('flow-q').textContent, /\d/);
+  assert.match(doc.getElementById('flow-q').textContent, /\d/);
+  b.d.window.close();
+});
+test('positioner edits run until settled and report it', () => {
+  const b = boot('#positioner');
+  b.input('position-load', '2');
+  b.tick(20);
+  const p = b.w.ValveLab.getState().positioner;
+  assert.equal(p.running, false, 'the loop stops once the valve settles');
+  assert.ok(Math.abs(p.motion.position - 50) < 0.5, 'feedback restores the requested travel');
+  assert.match(b.w.document.getElementById('position-status').textContent, /settled/);
+  b.d.window.close();
+});
+test('a view change does not cancel a running demo', () => {
+  const b = boot('#friction');
+  b.click('[data-action="demo"]');
+  b.tick(0.5);
+  b.click('[data-view="1"]');
+  assert.ok(b.w.ValveLab.getState().demo, 'demo keeps running');
+  assert.equal(b.w.document.querySelector('[data-action="custom"]').hidden, false, 'Stop is offered while running');
+  b.click('[data-action="custom"]');
+  assert.equal(b.w.ValveLab.getState().demo, null);
+  assert.equal(b.w.document.querySelector('[data-action="demo"]').hidden, false);
   b.d.window.close();
 });
 test('a load change invalidates a step recording and its old estimate', () => {

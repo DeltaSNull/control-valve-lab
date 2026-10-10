@@ -124,11 +124,13 @@ test('clicking the active module does not add a duplicate history entry', () => 
   assert.equal(w.history.length, before + 1);
   d.window.close();
 });
-test('paused positioner changes tell the learner how to see the dynamic response', () => {
+test('positioner changes run the simulation until the valve settles, then stop by themselves', () => {
   const d = boot('#positioner'),
     w = d.window;
   input(w, 'position-load', '2');
-  assert.match(w.document.getElementById('position-status').textContent, /paused · Run \/ resume/);
-  assert.equal(w.ValveLab.getState().positioner.time, 0, 'paused edits must not advance simulated time');
+  const p = w.ValveLab.getState().positioner;
+  assert.equal(p.running, true, 'a change starts the response');
+  assert.equal(p.time, 0, 'the change itself does not jump simulated time');
+  w.ValveLab.pause();
   d.window.close();
 });

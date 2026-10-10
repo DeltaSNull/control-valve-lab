@@ -8,61 +8,1882 @@
   <title>Control Valve Lab — From signal to flow</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23143b32'/%3E%3Cpath d='M10 29h17V14h10v15h17v10H37v11H27V39H10z' fill='%23cfe58b'/%3E%3C/svg%3E">
   <style>
-:root{--ink:#18332d;--muted:#63726a;--green:#143b32;--leaf:#d9ec9f;--paper:#f4f5ef;--card:#fff;--line:#dce2d7;--command:#2d62be;--travel:#158069;--pressure:#b77915;--flow:#bb4b2a;--shadow:0 5px 25px #17332d06;--radius:18px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper);font-synthesis:none}
-*{box-sizing:border-box}body{margin:0}a{color:inherit}button,input,select{font:inherit}button,a,input,select,summary{ -webkit-tap-highlight-color:transparent}button{cursor:pointer}button:disabled{cursor:default;opacity:.55}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid #c87825;outline-offset:4px}button,select{min-height:44px}button{border:1px solid var(--line);background:white;border-radius:9px;padding:10px 15px;color:var(--ink);font-weight:650}button:hover{border-color:#96b49e;background:#f5f8ee}.primary{background:var(--green);color:white;border-color:var(--green)}.primary:hover{background:#265044;color:white}.secondary{background:#edf2e5}.skip{position:fixed;top:-80px;left:20px;z-index:50;background:white;padding:15px}.skip:focus{top:15px}
-.sidebar{position:fixed;inset:0 auto 0 0;width:260px;background:#143b32;color:#f0f3e8;padding:31px 22px 24px;display:flex;flex-direction:column;z-index:5;overflow-y:auto}.brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:750;font-size:21px;line-height:1.15}.brand-icon{display:grid;place-items:center;width:39px;height:43px;background:var(--leaf);color:var(--green);border-radius:10px;font-size:30px;flex-shrink:0}.brand-sub{display:block;font-size:10px;letter-spacing:2.2px;color:#b9c8bc;margin-top:9px}.nav-label{font-size:10px;color:#b0c5b6;letter-spacing:1.9px;margin:46px 12px 14px}nav{display:grid;gap:5px}nav a{display:flex;gap:13px;align-items:center;padding:13px 11px;font-size:13px;font-weight:550;text-decoration:none;border-radius:9px;min-height:48px}nav a span{font-size:11px;color:#bdd0bb;font-variant-numeric:tabular-nums}nav a:hover{background:#ffffff0c}nav a.active{background:var(--leaf);color:#143b32}nav a.active span{color:#44633e}.sidebar-note{margin:35px 11px 20px;border-top:1px solid #ffffff20;padding-top:24px}.sidebar-note strong{font-size:13px}.sidebar-note p{font-size:12px;line-height:1.85;color:#bdcfc2}.small-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--leaf);margin-right:8px}.utility{display:block;font-size:11px;color:#dce7d6;background:transparent;border:0;padding:9px 10px;text-align:left;min-height:38px;text-decoration:none;font-weight:550}.utility:hover{background:#ffffff0c;color:white}.workspace{margin-left:260px}.topbar{height:68px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:0 40px;color:var(--muted);font-size:10px;letter-spacing:1.9px;font-weight:700}.top-tag{letter-spacing:1.3px;background:#e8edde;border-radius:20px;padding:7px 12px;color:#5c6b4b}main{max-width:1440px;margin:auto;padding:35px 40px 24px;outline:none}.eyebrow{font-size:11px;color:#5d7653;font-weight:750;letter-spacing:1.8px;margin:0 0 12px}.page-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:26px}.page-head h1{font-size:clamp(29px,3.3vw,45px);letter-spacing:-1.7px;line-height:1.12;margin:0 0 13px;font-weight:720}.page-head p{color:var(--muted);font-size:14px;line-height:1.75;max-width:700px;margin:0}.page-number{font-size:69px;line-height:1;color:#dce3d3;font-weight:650;letter-spacing:-5px}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);min-width:0}.card h2{font-size:18px;letter-spacing:-.4px;margin:0 0 13px}.card h3{font-size:14px;margin:20px 0 8px}.card p,.body-copy{font-size:13px;line-height:1.8;color:var(--muted)}.card p:first-child{margin-top:0}.grid-main{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(285px,1fr);gap:22px;align-items:start}.grid-equal{display:grid;grid-template-columns:1fr 1fr;gap:22px}.stack{display:grid;gap:20px}.card-top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:16px}.card-top h2{margin:0}.badge{font-size:9px;letter-spacing:1.1px;padding:6px 8px;border-radius:5px;background:#ecf1e4;color:#5e7250;white-space:nowrap;font-weight:750}.diagram-stage{background:#f2f6ee;border-radius:13px;border:1px solid #e1e9da;padding:12px;position:relative}.diagram-stage svg{display:block;width:100%;height:auto;max-height:530px}.diagram-note{font-size:10px;line-height:1.6;color:var(--muted);margin:10px 0 0}.control{margin:18px 0}.control label{display:flex;justify-content:space-between;align-items:center;gap:15px;font-size:12px;font-weight:650;margin-bottom:10px}.control label output{color:var(--green);font-size:14px;font-variant-numeric:tabular-nums}.control input[type=range]{width:100%;accent-color:var(--travel);height:22px;cursor:pointer}.range-ends{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:3px}.control select{width:100%;border:1px solid var(--line);border-radius:9px;background:#fbfcf8;padding:9px 12px;color:var(--ink);font-size:12px}.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.btn-row button{font-size:11px;flex:1;white-space:nowrap}.component-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.component-grid button{font-size:11px;padding:7px 9px}.component-grid button.selected,.pill.selected{border-color:#7ca459;background:#e9f1d7;color:#24452c}.component-detail{border-top:1px solid var(--line);margin-top:18px;padding-top:18px}.component-detail h3{margin:0 0 8px;font-size:18px}.hint{background:#eef4e1;border-left:3px solid #96b96a;padding:13px 15px;border-radius:0 8px 8px 0;font-size:12px;line-height:1.8;color:#4b623d;margin:15px 0}.hint strong{color:#284629}.warning-note{background:#fff4e4;border-left-color:#c68a36;color:#806039}.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}.kpi{border:1px solid var(--line);border-radius:10px;padding:13px 11px;background:#fbfcf8}.kpi small{display:block;font-size:9px;color:var(--muted);letter-spacing:.6px;margin-bottom:7px;text-transform:uppercase}.kpi strong{font-size:22px;letter-spacing:-.7px;font-variant-numeric:tabular-nums}.kpi strong em{font-size:11px;font-style:normal;letter-spacing:0;margin-left:3px}.command{color:var(--command)}.travel{color:var(--travel)}.pressure{color:var(--pressure)}.flow{color:var(--flow)}.lesson-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:24px}.lesson-strip article{border-top:2px solid #b4c998;padding:14px 2px}.lesson-strip h3{font-size:13px;margin:0 0 8px}.lesson-strip p{font-size:12px;line-height:1.8;color:var(--muted);margin:0}.detail{margin-top:18px;border:1px solid var(--line);border-radius:12px;padding:14px 17px;background:white}.detail summary{cursor:pointer;font-size:12px;font-weight:650;min-height:24px}.detail p,.detail li{font-size:12px;line-height:1.85;color:var(--muted)}.detail li{margin:8px 0}.detail ul{padding-left:20px}.chart{width:100%;display:block;height:auto}.chart text{font-family:inherit;fill:#607269}.legend{display:flex;flex-wrap:wrap;gap:10px 16px;font-size:11px;margin:10px 0 5px;color:var(--muted)}.legend span:before{content:"";display:inline-block;width:17px;border-top:3px solid var(--color);vertical-align:middle;margin-right:6px}.legend .dashed:before{border-top-style:dashed}.legend .dotted:before{border-top-style:dotted}.plot-caption{font-size:10px;color:var(--muted);line-height:1.7;margin-top:8px}.status{font-size:11px;line-height:1.6;padding:7px 11px;border-radius:6px;background:#f3f5ec;color:#596d47;font-weight:600}.status.stuck{background:#fff0d4;color:#916221}.tabs,.pills{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:19px}.pill{font-size:11px;padding:8px 13px;min-height:40px;border-radius:25px}.small-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px}.formula{border:1px solid #dde7d6;background:#f6f9f1;padding:16px;border-radius:10px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;line-height:1.9;overflow-wrap:anywhere}.formula small{font-family:inherit;font-size:10px;color:var(--muted);display:block;margin-top:7px}.facts{display:grid;gap:11px}.fact{border-bottom:1px solid var(--line);padding-bottom:11px}.fact b{font-size:12px}.fact p{margin:5px 0 0;font-size:12px}.style-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:22px}.style-card{padding:14px 10px;text-align:left;border-radius:12px;min-width:0}.style-card svg{width:100%;height:82px;display:block}.style-card strong{display:block;font-size:11px;margin-top:8px}.style-card small{display:block;font-size:10px;font-weight:400;color:var(--muted);margin-top:5px}.style-card.selected{border-color:#8aa765;background:#eef4e0}.check-row{display:flex;align-items:center;gap:10px;font-size:12px;line-height:1.7;margin:14px 0}.check-row input{width:19px;height:19px;accent-color:var(--travel)}.signal-chain{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:17px 0}.signal-block{padding:15px;border-radius:10px;border:1px solid var(--line);background:#f8faf4}.signal-block small{font-size:9px;color:var(--muted);letter-spacing:1px;display:block;margin-bottom:6px}.signal-block strong{font-size:12px}.signal-block p{font-size:11px;margin:5px 0 0}.case-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}.case-options button{text-align:left;font-size:12px;font-weight:550}.case-options button.correct{background:#e8f3dc;border-color:#80a65c}.case-options button.incorrect{background:#fff1e5;border-color:#d7a275}.case-feedback{font-size:12px;line-height:1.7;color:var(--muted)}.answer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}.answer h3{margin-top:0}.tag-line{font-size:10px;letter-spacing:1px;color:#789060;font-weight:700}.empty-answer{font-size:12px;color:var(--muted);line-height:1.8}.source-link{font-size:11px;color:#4f7458;display:inline-block;margin-top:10px}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:12px}th,td{text-align:left;vertical-align:top;padding:12px 10px;border-bottom:1px solid var(--line);line-height:1.7}th{color:var(--green);font-size:11px}td{color:var(--muted)}footer{padding:25px 40px 30px;text-align:center;font-size:10px;color:#7b897c;border-top:1px solid var(--line);line-height:1.8}dialog{border:1px solid var(--line);border-radius:18px;width:min(760px,94vw);max-height:85vh;padding:25px;color:var(--ink);box-shadow:0 25px 100px #142b3040}dialog::backdrop{background:#142d286b}.dialog-head{display:flex;justify-content:space-between;gap:20px;align-items:center}.dialog-head h2{font-size:22px;margin:0}.dialog-head button{font-size:25px;width:44px;padding:0}.dialog-head{position:sticky;top:-25px;padding:5px 0 15px;background:white;z-index:2}#dialog-content{font-size:13px;line-height:1.85;color:var(--muted)}#dialog-content h3{color:var(--ink);font-size:15px;margin:20px 0 8px}#dialog-content a{color:var(--travel)}.glossary-item{border-bottom:1px solid var(--line);padding:12px 0}.glossary-item strong{color:var(--ink)}.glossary-item p{margin:5px 0}.noscript{padding:30px;background:#fff0d4}.svg-part{cursor:pointer}.svg-part:hover,.svg-part.selected{filter:drop-shadow(0 0 5px #a4c470)}.svg-label{font-size:12px;fill:#4c6555}.flow-path{stroke-dasharray:7 7;animation:flow-dash 1.2s linear infinite}.no-flow .flow-path{animation:none;opacity:.15}@keyframes flow-dash{to{stroke-dashoffset:-28}}
-@media(min-width:1550px){.sidebar{width:285px}.workspace{margin-left:285px}main{padding-top:42px}}
-@media(max-width:1150px){.sidebar{width:230px;padding:27px 17px}.workspace{margin-left:230px}.topbar,footer{padding-left:26px;padding-right:26px}main{padding:28px 26px}.grid-main{grid-template-columns:1.1fr 1fr;gap:17px}.card{padding:19px}.kpi strong{font-size:19px}.kpi-grid{gap:7px}.page-head h1{font-size:34px}.page-number{font-size:55px}.style-list{grid-template-columns:1fr 1fr}}
-@media(max-width:920px){.sidebar{position:relative;width:100%;padding:19px 22px 12px;display:block}.brand{font-size:20px}.brand-sub{font-size:9px;margin-top:5px}.brand-icon{height:36px;width:35px;font-size:25px}.nav-label,.sidebar-note,.sidebar .utility{display:none}nav{display:flex;overflow-x:auto;gap:7px;margin-top:18px;padding-bottom:5px}nav a{flex:0 0 auto;font-size:11px;min-height:40px;padding:9px 12px}nav a span{font-size:10px}nav a.active{background:var(--leaf)}.workspace{margin:0}.topbar{height:49px;font-size:9px;letter-spacing:1px}main{padding:26px 22px}.grid-main{grid-template-columns:1fr 1fr}.grid-equal{gap:17px}.top-tag{padding:5px 8px;font-size:8px}.mobile-resources{display:flex}.page-head p{font-size:13px}.page-head h1{font-size:34px}.lesson-strip{gap:15px}}
-@media(max-width:690px){main{padding:25px 16px 20px}.topbar{padding:0 17px}.top-tag{display:none}.page-head{gap:12px;margin-bottom:21px}.page-head h1{font-size:32px;letter-spacing:-1.2px}.page-head p{font-size:12px}.page-number{font-size:43px;letter-spacing:-3px}.grid-main,.grid-equal{grid-template-columns:1fr;gap:17px}.card{padding:18px}.diagram-stage svg{max-height:420px}.card h2{font-size:17px}.kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}.kpi small{font-size:10px}.kpi strong{font-size:24px}.lesson-strip{grid-template-columns:1fr;gap:9px;margin-top:18px}.lesson-strip article{padding-top:12px}.lesson-strip h3{font-size:13px}.lesson-strip p{font-size:12px}.badge{font-size:8px}.style-card svg{height:70px}.style-list{gap:9px}.small-grid{gap:2px 17px}.case-options{grid-template-columns:1fr}.formula{font-size:12px}.component-grid button{font-size:11px}.legend{font-size:11px;gap:8px 12px}.plot-caption{font-size:11px}.sidebar{padding:17px 16px 9px}nav{margin-top:15px}.page-head .page-number{display:none}footer{padding:20px 16px;font-size:10px}.btn-row button{flex:1 0 auto}.detail{padding:14px}.chart{min-width:0}dialog{padding:18px}.signal-chain{gap:8px}}
-.card-top{flex-wrap:wrap}.card-top select{max-width:100%;font-size:12px;padding:8px;border:1px solid var(--line);border-radius:8px;background:#fafcf6}
-@media(max-width:690px){.diagram-stage .svg-label{display:none}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;scroll-behavior:auto!important}}
+/* Control Valve Lab — one visual system for every lesson.
+   Sections: tokens · base · app frame · page header · lab layout · guide · controls ·
+   lesson sections · home · dialog · diagrams · responsive. */
 
-/* App workspace: observation stays in view while its controls scroll. */
-[hidden]{display:none!important}
-.lab-shell{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(300px,1fr);grid-template-rows:auto minmax(0,1fr);gap:16px;min-width:0;min-height:0}
-.lab-toolbar{grid-column:1/-1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#e8efdf;border-radius:12px;padding:10px}
-.lab-toolbar button{font-size:13px;flex-shrink:0}
-#demo-status{flex:1;min-width:170px;font-size:12px;line-height:1.5;color:#486145}
-.lab-observation,.lab-controls{border:1px solid var(--line);background:white;border-radius:16px;min-width:0;min-height:0;overflow:hidden}
-.lab-observation{align-self:start;padding:16px;position:sticky;top:16px}
-.plot-picker{display:flex;align-items:center;gap:12px;font-size:12px;font-weight:700;margin-bottom:8px}
-.plot-picker select{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;background:#f3f6ed;padding:6px 10px;font-size:13px}
-.observation-panel{min-height:0;min-width:0}.observation-panel .legend{margin:6px 0;font-size:11px}.observation-panel .diagram-stage{padding:4px}
-.observation-metrics .kpi-grid{margin:8px 0 0;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}.observation-metrics .kpi{padding:7px 6px}.observation-metrics .kpi small{font-size:9px;letter-spacing:0}.observation-metrics .kpi strong{font-size:19px;letter-spacing:0}
-.control-tabs{display:flex;gap:4px;padding:8px;border-bottom:1px solid var(--line);background:#f2f5ec;position:sticky;top:0;z-index:2}.control-tabs button{flex:1;font-size:13px}
-button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
-.lab-controls>[data-control-panel]{padding:10px 16px 20px;min-width:0}.lab-controls .control{margin:12px 0}.lab-controls .control label{font-size:13px;margin-bottom:6px}.lab-controls .control input[type=number]{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;min-height:44px;font-size:16px;background:#fbfcf8}.lab-controls .control input[aria-invalid=true]{border:2px solid #aa4428}.lab-controls .btn-row{margin-top:10px}.lab-controls .btn-row button{white-space:normal;min-width:80px;font-size:12px}.lab-controls .tabs,.lab-controls .pills{margin:10px 0}.lab-controls .control input[type=range]{height:28px}
-.workspace-lessons .grid-main,.workspace-lessons .grid-equal{display:block}.workspace-lessons .card{box-shadow:none;margin:12px 0;padding:14px}.workspace-lessons .stack{gap:0}.workspace-lessons .card-top{margin-bottom:5px}.workspace-lessons .card-top select{display:none}.workspace-lessons .lesson-strip{display:block}.workspace-intro{font-size:13px;color:var(--muted);line-height:1.7}
-@media(max-width:920px){
- body{height:100dvh;overflow:hidden;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
- .sidebar{flex:none;padding:4px 8px}.sidebar .brand{display:none}.sidebar nav{margin:0;padding:0;gap:4px}.sidebar nav a{min-height:44px;font-size:12px;padding:8px}.sidebar nav a span{display:none}
- .workspace{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}.topbar,footer{display:none}
- main{width:100%;max-width:none;padding:6px 8px calc(6px + env(safe-area-inset-bottom));flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
- .page-head{margin:0 0 5px;flex:none}.page-head h1{font-size:20px;letter-spacing:-.5px;margin:0;line-height:1.2}.page-head p{display:none}
- .lab-shell{flex:1;min-height:0;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(190px,.48fr) minmax(140px,.52fr);gap:6px}
- .lab-toolbar{gap:6px;padding:5px 7px;border-radius:8px}.lab-toolbar button{padding:7px 10px;min-height:44px;font-size:12px}#demo-status{font-size:11px;min-width:100px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
- .lab-observation{position:relative;top:0;align-self:stretch;padding:6px 8px;display:flex;flex-direction:column;border-radius:10px}
- .plot-picker{margin:0 0 2px;flex:none;font-size:11px}.plot-picker select{min-height:36px;padding:4px 8px;font-size:12px}
- .observation-plots{flex:1;min-height:0}.observation-panel{height:100%;display:flex;flex-direction:column}.observation-panel>div:first-child{min-height:0;flex:1}.observation-panel svg{display:block;width:100%;height:100%;max-height:none}.observation-panel .legend{font-size:10px;gap:6px;flex:none;margin:0 0 2px}
- .observation-panel .diagram-stage{overflow:hidden}.observation-metrics{flex:none}.observation-metrics .kpi-grid{margin:2px 0 0}.observation-metrics .kpi{padding:3px 4px;border-radius:5px}.observation-metrics .kpi small{font-size:8px;margin-bottom:2px}.observation-metrics .kpi strong{font-size:16px}.observation-metrics .kpi strong em{font-size:9px}
- .lab-controls{display:flex;flex-direction:column;min-height:0;border-radius:10px}.control-tabs{position:static;flex:none;padding:3px;gap:3px}.control-tabs button{min-height:38px;padding:6px;font-size:12px}
- .lab-controls>[data-control-panel]{flex:1;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:5px 10px 20px;min-height:0}
- .lab-controls .control{margin:9px 0}.lab-controls .control select{font-size:16px}.lab-controls .control label{font-size:12px}.lab-controls .range-ends{display:none}.lab-controls .component-grid{gap:4px}.lab-controls .style-list{grid-template-columns:repeat(2,1fr)}
- .workspace-lessons .page-head{display:none}.workspace-lessons .diagram-note{font-size:12px}
+:root {
+  --ink: #17322b;
+  --muted: #586a61;
+  --soft: #5f6e66;
+  --green: #143b32;
+  --green-2: #23564a;
+  --leaf: #d9ec9f;
+  --leaf-soft: #eef5dc;
+  --paper: #f4f5ef;
+  --card: #ffffff;
+  --line: #dde3d7;
+  --line-strong: #c7d2c0;
+  --focus: #c87825;
+  --command: #2d62be;
+  --travel: #158069;
+  --pressure: #94600d;
+  --flow: #bb4b2a;
+  --warn-bg: #fff4e4;
+  --warn-line: #c68a36;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 2px #17332d0d, 0 6px 24px #17332d08;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  font-synthesis: none;
+  -webkit-text-size-adjust: 100%;
 }
-/* In short landscape viewports allow page scrolling instead of crushing the plot. */
-@media(max-width:920px) and (max-height:540px){body{height:auto;min-height:100dvh;overflow:auto}.workspace,main{overflow:visible}.lab-shell{display:block}.lab-observation{position:sticky;top:0;height:250px;z-index:3}.lab-toolbar{margin-bottom:6px}.lab-controls{margin-top:6px;max-height:400px}.lab-controls>[data-control-panel]{max-height:320px}.page-head{display:none}}
+
+/* ---- Base ---- */
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--paper);
+  line-height: 1.5;
+}
+[hidden] {
+  display: none !important;
+}
+a {
+  color: inherit;
+}
+button,
+input,
+select {
+  font: inherit;
+}
+button,
+a,
+input,
+select,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+button,
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  border: 1px solid var(--line-strong);
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  padding: 9px 15px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.25;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: center;
+}
+button:hover,
+.button:hover {
+  border-color: #8fae96;
+  background: #f5f8ee;
+}
+button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+button:disabled:hover {
+  border-color: var(--line-strong);
+  background: var(--card);
+}
+.primary,
+.button.primary {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+.primary:hover,
+.button.primary:hover {
+  background: var(--green-2);
+  border-color: var(--green-2);
+  color: #fff;
+}
+button[aria-pressed='true'] {
+  background: var(--leaf-soft);
+  border-color: #7ca459;
+  color: #24452c;
+}
+.link-button {
+  min-height: 36px;
+  border: 0;
+  background: none;
+  padding: 6px 2px;
+  color: #11654f;
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.link-button:hover {
+  background: none;
+  color: var(--green);
+}
+.skip {
+  position: fixed;
+  top: -80px;
+  left: 20px;
+  z-index: 50;
+  background: #fff;
+  padding: 15px;
+}
+.skip:focus {
+  top: 15px;
+}
+
+/* ---- App frame: sidebar, top bar, footer ---- */
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 260px;
+  background: var(--green);
+  color: #f0f3e8;
+  padding: 28px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  z-index: 5;
+  overflow-y: auto;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  font-weight: 750;
+  font-size: 20px;
+  line-height: 1.15;
+}
+.brand-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 40px;
+  background: var(--leaf);
+  color: var(--green);
+  border-radius: 10px;
+  font-size: 26px;
+  flex-shrink: 0;
+}
+.brand-sub {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #b9c8bc;
+  margin-top: 6px;
+}
+.nav-label {
+  font-size: 10px;
+  color: #b0c5b6;
+  letter-spacing: 1.8px;
+  margin: 36px 12px 10px;
+}
+nav#module-nav {
+  display: grid;
+  gap: 3px;
+}
+#module-nav a {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 11px;
+  font-size: 13.5px;
+  font-weight: 550;
+  text-decoration: none;
+  border-radius: 9px;
+  min-height: 44px;
+}
+#module-nav a span {
+  font-size: 11px;
+  color: #bdd0bb;
+  font-variant-numeric: tabular-nums;
+  min-width: 14px;
+}
+#module-nav a:hover {
+  background: #ffffff12;
+}
+#module-nav a.active {
+  background: var(--leaf);
+  color: var(--green);
+}
+#module-nav a.active span {
+  color: #44633e;
+}
+.sidebar-note {
+  margin: 28px 11px 16px;
+  border-top: 1px solid #ffffff20;
+  padding-top: 20px;
+}
+.sidebar-note strong {
+  font-size: 13px;
+}
+.sidebar-note p {
+  font-size: 12px;
+  line-height: 1.85;
+  color: #bdcfc2;
+  margin: 6px 0 0;
+}
+.small-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--leaf);
+  margin-right: 8px;
+}
+.utility {
+  display: flex;
+  justify-content: flex-start;
+  font-size: 12px;
+  color: #dce7d6;
+  background: transparent;
+  border: 0;
+  padding: 8px 10px;
+  min-height: 38px;
+  text-decoration: none;
+  font-weight: 550;
+}
+.utility:hover {
+  background: #ffffff12;
+  color: #fff;
+}
+.workspace {
+  margin-left: 260px;
+}
+.topbar {
+  height: 56px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  padding: 0 40px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.top-tag {
+  background: #e8edde;
+  border-radius: 20px;
+  padding: 5px 12px;
+  color: #5c6b4b;
+  font-size: 11px;
+}
+main {
+  max-width: 1380px;
+  margin: auto;
+  padding: 32px 40px 32px;
+  outline: none;
+}
+footer {
+  padding: 22px 40px 28px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  line-height: 1.8;
+}
+
+/* ---- Page header ---- */
+.eyebrow {
+  font-size: 12px;
+  color: #5d7653;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  margin: 0 0 8px;
+}
+.page-head {
+  margin-bottom: 22px;
+  max-width: 900px;
+}
+.page-head h1 {
+  font-size: clamp(30px, 3.2vw, 42px);
+  letter-spacing: -1.2px;
+  line-height: 1.1;
+  margin: 0 0 6px;
+  font-weight: 750;
+}
+.question {
+  font-size: 19px;
+  line-height: 1.45;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+.key-idea {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: baseline;
+  margin: 0;
+  background: var(--leaf-soft);
+  border-left: 4px solid #8fb35f;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 12px 16px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #2f4a33;
+}
+.key-idea strong {
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #4c6b37;
+}
+.head-tools {
+  display: flex;
+  gap: 16px;
+  margin-top: 6px;
+}
+
+/* ---- Lab layout: live view beside guide and controls ---- */
+.lab {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(330px, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.lab-observation {
+  position: relative;
+  z-index: 3;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px 16px 12px;
+  min-width: 0;
+}
+.lab-side {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.live-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.view-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 3px;
+  background: #eef2e8;
+  border-radius: 11px;
+}
+.view-switch button {
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border-color: transparent;
+  background: transparent;
+}
+.view-switch button[aria-pressed='true'] {
+  background: var(--card);
+  border-color: var(--line-strong);
+  box-shadow: 0 1px 2px #17332d14;
+}
+.view-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.observation-panel {
+  min-width: 0;
+}
+.observation-panel .legend {
+  margin: 4px 0 0;
+}
+.observation-panel .diagram-stage svg {
+  max-height: min(56vh, 520px);
+}
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 10px 0 0;
+}
+.kpi {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  background: #fafbf7;
+  min-width: 0;
+}
+.kpi small {
+  display: block;
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+.kpi strong {
+  font-size: 21px;
+  letter-spacing: -0.4px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.kpi strong em {
+  font-size: 11px;
+  font-style: normal;
+  letter-spacing: 0;
+  margin-left: 3px;
+}
+.command {
+  color: var(--command);
+}
+.travel {
+  color: var(--travel);
+}
+.pressure {
+  color: var(--pressure);
+}
+.flow {
+  color: var(--flow);
+}
+.live-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 10px;
+}
+.transport {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.transport button {
+  min-height: 40px;
+  padding: 7px 12px;
+  font-size: 13px;
+}
+.live-foot .status {
+  flex: 1 1 200px;
+  margin: 0;
+}
+.status {
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 7px 11px;
+  border-radius: 8px;
+  background: #f1f4ea;
+  color: #4b5f3c;
+  font-weight: 600;
+  margin: 0;
+}
+.status:empty {
+  display: none;
+}
+.status.stuck {
+  background: #fff0d4;
+  color: #8a5b1c;
+}
+/* Pressure budget bar: valve share vs piping share of the total ΔP. */
+.dp-split {
+  display: flex;
+  height: 10px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #edf0e8;
+  margin-top: 10px;
+}
+.dp-valve {
+  background: var(--pressure);
+}
+.dp-pipe {
+  background: #c9d3c3;
+}
+.dp-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 14px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.dp-legend b {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+/* ---- Cards and guide ---- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+.card h2 {
+  font-size: 19px;
+  letter-spacing: -0.3px;
+  margin: 0 0 12px;
+}
+.card h3 {
+  font-size: 15px;
+  margin: 0 0 8px;
+}
+.card p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.guide {
+  border-color: #b9cf98;
+  background: linear-gradient(180deg, #fbfdf6, #fff 120px);
+}
+.guide-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.kicker {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #5d7653;
+  letter-spacing: 0.3px;
+}
+.guide-dots {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.guide-dots button {
+  min-height: 32px;
+  width: 32px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 13px;
+}
+.guide-dots button[aria-current='step'] {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+.guide-dots button.done:not([aria-current='step']) {
+  background: var(--leaf-soft);
+  border-color: #8fb35f;
+  color: #2f5a2f;
+}
+.guide h2 {
+  margin: 12px 0 10px;
+  font-size: 21px;
+}
+.guide-body {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+.guide-body div {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 10px;
+}
+.guide-body dt {
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: #5d7653;
+  padding-top: 2px;
+}
+.guide-body dd {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.guide-body div:first-child dd {
+  font-weight: 650;
+}
+.guide-note {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #8a5b1c;
+}
+.guide-note:empty {
+  display: none;
+}
+.guide-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.guide-actions .primary {
+  min-width: 120px;
+}
+.demo-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.demo-row button {
+  min-height: 38px;
+  font-size: 13px;
+}
+#demo-status {
+  flex: 1 1 180px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #486145;
+}
+
+/* ---- Controls ---- */
+.section-label {
+  font-size: 12px !important;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin: 0 0 4px !important;
+}
+.control-heading {
+  font-size: 14px !important;
+  margin: 18px 0 8px !important;
+}
+.control {
+  margin: 14px 0;
+}
+.control label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 650;
+  margin-bottom: 6px;
+}
+.control label span {
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 12px;
+}
+.control label output {
+  color: var(--green);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.control input[type='range'] {
+  width: 100%;
+  accent-color: var(--travel);
+  height: 28px;
+  cursor: pointer;
+  margin: 0;
+}
+.range-ends {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--soft);
+}
+.control select,
+.control input[type='number'] {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  background: #fbfcf8;
+  padding: 9px 12px;
+  color: var(--ink);
+  font-size: 15px;
+}
+.control input[aria-invalid='true'] {
+  border: 2px solid #aa4428;
+}
+.btn-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.btn-row button {
+  flex: 1 1 auto;
+  font-size: 13px;
+}
+.segmented {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  background: #eef2e8;
+  border-radius: 11px;
+  margin: 4px 0 12px;
+}
+.segmented button {
+  flex: 1;
+  border-color: transparent;
+  background: transparent;
+  font-size: 13px;
+}
+.segmented button[aria-pressed='true'] {
+  background: var(--card);
+  border-color: var(--line-strong);
+  box-shadow: 0 1px 2px #17332d14;
+}
+.stage-note {
+  font-size: 13px !important;
+  margin: 6px 0 0;
+}
+.pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.pill {
+  font-size: 13px;
+  padding: 7px 13px;
+  min-height: 40px;
+  border-radius: 22px;
+}
+.pill.selected,
+.component-grid button.selected,
+.style-card.selected {
+  border-color: #7ca459;
+  background: var(--leaf-soft);
+  color: #24452c;
+}
+.mode-note {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: #f6f8f2;
+  border: 1px solid var(--line);
+}
+.mode-note strong {
+  font-size: 14px;
+}
+.mode-note p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.mode-note .look-for {
+  color: #3e5a35;
+}
+.component-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.component-grid button {
+  font-size: 13px;
+  padding: 7px 6px;
+}
+.component-detail,
+.selection-detail {
+  margin-top: 14px;
+}
+.component-detail h3,
+.selection-detail h3 {
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+.component-detail .tag-line {
+  margin: 0 0 4px;
+}
+.style-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.style-card {
+  display: block;
+  padding: 10px 8px;
+  text-align: left;
+  border-radius: 12px;
+  min-width: 0;
+}
+.style-card svg {
+  width: 100%;
+  height: 64px;
+  display: block;
+}
+.style-card strong {
+  display: block;
+  font-size: 13px;
+  margin-top: 6px;
+}
+.style-card small {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 12px 0;
+  min-height: 32px;
+}
+.check-row input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--travel);
+}
+.settings {
+  margin-top: 18px;
+  border-top: 1px solid var(--line);
+  padding-top: 6px;
+}
+.settings summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  color: var(--green);
+}
+.settings-body {
+  padding-bottom: 4px;
+}
+.case-question {
+  font-size: 17px !important;
+  line-height: 1.4;
+  margin: 2px 0 10px !important;
+}
+.case-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.case-options button {
+  justify-content: flex-start;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 550;
+}
+.case-options button.correct {
+  background: #e8f3dc;
+  border-color: #80a65c;
+}
+.case-options button.incorrect {
+  background: #fff1e5;
+  border-color: #d7a275;
+}
+.case-feedback {
+  font-size: 14px !important;
+  line-height: 1.6;
+}
+.answer {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.empty-answer {
+  font-size: 13px !important;
+}
+.tag-line {
+  font-size: 11px !important;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #5d7653 !important;
+  font-weight: 700;
+  margin: 14px 0 2px;
+}
+
+/* ---- Shared content blocks ---- */
+.hint {
+  background: #eef4e1;
+  border-left: 3px solid #96b96a;
+  padding: 11px 14px;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: #45603a;
+  margin: 12px 0;
+}
+.hint strong {
+  color: #284629;
+}
+.warning-note {
+  background: var(--warn-bg);
+  border-left-color: var(--warn-line);
+  color: #7a5a33;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.legend span:before {
+  content: '';
+  display: inline-block;
+  width: 18px;
+  border-top: 3px solid var(--color);
+  vertical-align: middle;
+  margin-right: 6px;
+}
+.legend .dashed:before {
+  border-top-style: dashed;
+}
+.plot-caption {
+  font-size: 12px !important;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 8px 0 0;
+}
+.diagram-stage {
+  background: #f2f6ee;
+  border-radius: 12px;
+  border: 1px solid #e1e9da;
+  padding: 8px;
+}
+.diagram-stage svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 520px;
+}
+.diagram-note {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 8px 0 0;
+}
+.formula {
+  border: 1px solid #dde7d6;
+  background: #f6f9f1;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.formula small {
+  font-family: inherit;
+  font-size: 11px;
+  color: var(--muted);
+  display: block;
+  margin-top: 6px;
+}
+.facts {
+  display: grid;
+  gap: 10px;
+}
+.fact {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+}
+.fact b {
+  font-size: 14px;
+}
+.fact p {
+  margin: 4px 0 0;
+  font-size: 14px;
+}
+.lesson-strip {
+  display: grid;
+  gap: 10px;
+}
+.lesson-strip article {
+  border-top: 2px solid #b4c998;
+  padding: 10px 2px 0;
+}
+.lesson-strip h3 {
+  font-size: 14px;
+  margin: 0 0 4px;
+}
+.lesson-strip p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--muted);
+  margin: 0;
+}
+.deeper > .lesson-strip {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+.detail {
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 4px 18px;
+  background: var(--card);
+}
+.detail summary {
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 650;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+.detail p,
+.detail li {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--muted);
+}
+.source-link {
+  font-size: 13px;
+  color: #3f6a4b;
+  display: inline-block;
+  margin-top: 8px;
+}
+.signal-chain {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 4px 0 12px;
+}
+.signal-block {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #f8faf4;
+}
+.signal-block small {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.6px;
+  display: block;
+  margin-bottom: 4px;
+}
+.signal-block strong {
+  font-size: 14px;
+}
+.signal-block p {
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+.table-wrap {
+  overflow-x: auto;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+}
+th,
+td {
+  text-align: left;
+  vertical-align: top;
+  padding: 10px;
+  border-bottom: 1px solid var(--line);
+  line-height: 1.6;
+}
+th {
+  color: var(--green);
+  font-size: 13px;
+}
+td {
+  color: var(--muted);
+}
+
+/* ---- Lesson sections below the lab ---- */
+.on-the-job,
+.deeper {
+  margin-top: 40px;
+}
+.on-the-job > h2,
+.deeper > h2,
+.home-section > h2 {
+  font-size: 24px;
+  letter-spacing: -0.5px;
+  margin: 0 0 14px;
+}
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.role-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--role, #8fb35f);
+  border-radius: 12px;
+  padding: 16px;
+}
+.role-card h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+.role-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.role-operations {
+  --role: #2d62be;
+}
+.role-maintenance {
+  --role: #b77915;
+}
+.role-engineering {
+  --role: #158069;
+}
+.role-management {
+  --role: #6b4fa0;
+}
+.deeper-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.pager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 40px;
+}
+.pager-link {
+  display: block;
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  padding: 14px 18px;
+  min-height: 44px;
+}
+.pager-link:hover {
+  border-color: #8fae96;
+}
+.pager-link small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+.pager-link strong {
+  font-size: 15px;
+}
+.pager-link.next {
+  text-align: right;
+}
+
+/* ---- Home ---- */
+.hero {
+  max-width: 860px;
+  padding: 18px 0 8px;
+}
+.hero h1 {
+  font-size: clamp(34px, 4.4vw, 54px);
+  line-height: 1.05;
+  letter-spacing: -1.8px;
+  margin: 0 0 16px;
+}
+.lede {
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0 0 22px;
+}
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.hero-actions .button,
+.hero-actions button {
+  min-height: 48px;
+  padding: 10px 20px;
+  font-size: 15px;
+}
+.home-section {
+  margin-top: 48px;
+  scroll-margin-top: 16px;
+}
+.section-intro {
+  font-size: 16px;
+  color: var(--muted);
+  margin: -6px 0 16px;
+  max-width: 760px;
+}
+.chain {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 10px;
+  counter-reset: chain;
+}
+.chain li {
+  position: relative;
+}
+.chain li:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -10px;
+  top: 22px;
+  color: #8fae96;
+  font-weight: 700;
+  font-size: 14px;
+  z-index: 1;
+}
+.chain a {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
+  text-decoration: none;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 12px;
+}
+.chain a:hover {
+  border-color: #8fae96;
+  background: #fbfdf6;
+}
+.chain-num {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+.chain strong {
+  font-size: 14px;
+}
+.chain-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  flex: 1;
+}
+.chain em,
+.lesson-card em {
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--travel);
+}
+.path-card .who {
+  font-size: 13px !important;
+  color: var(--soft) !important;
+  margin-bottom: 8px !important;
+}
+.path-card .goal {
+  font-weight: 650;
+  color: var(--ink) !important;
+}
+.path {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+  display: grid;
+  gap: 6px;
+}
+.path a {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #f5f7f1;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+.path a:hover {
+  background: var(--leaf-soft);
+}
+.path a span {
+  font-size: 12px;
+  color: var(--soft);
+  font-variant-numeric: tabular-nums;
+}
+.remember {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  margin-top: 4px !important;
+}
+.remember strong {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #5d7653;
+  margin-bottom: 2px;
+}
+.lesson-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
+}
+.lesson-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-decoration: none;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+.lesson-card:hover {
+  border-color: #8fae96;
+}
+.lesson-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: #5d7653;
+}
+.lesson-card strong {
+  font-size: 18px;
+  letter-spacing: -0.2px;
+}
+.lesson-q {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+  flex: 1;
+}
+.essentials {
+  list-style: none;
+  counter-reset: ess;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+.essentials li {
+  counter-increment: ess;
+  background: var(--green);
+  color: #e9f0e3;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.essentials li::before {
+  content: counter(ess);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--leaf);
+}
+.essentials strong {
+  color: #fff;
+  font-size: 15px;
+}
+.essentials span {
+  font-size: 13px;
+  line-height: 1.55;
+  color: #c9d8cc;
+}
+.disclaimer {
+  margin: 40px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+  max-width: 760px;
+}
+
+/* ---- Dialog ---- */
+dialog {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  width: min(760px, 94vw);
+  max-height: 85vh;
+  padding: 24px;
+  color: var(--ink);
+  box-shadow: 0 25px 100px #142b3040;
+}
+dialog::backdrop {
+  background: #142d286b;
+}
+.dialog-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+  position: sticky;
+  top: -24px;
+  padding: 4px 0 14px;
+  background: #fff;
+  z-index: 2;
+}
+.dialog-head h2 {
+  font-size: 22px;
+  margin: 0;
+}
+.dialog-head button {
+  font-size: 24px;
+  width: 44px;
+  padding: 0;
+}
+#dialog-content {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--muted);
+}
+#dialog-content h3 {
+  color: var(--ink);
+  font-size: 16px;
+  margin: 20px 0 8px;
+}
+#dialog-content a {
+  color: var(--travel);
+}
+.glossary-item {
+  border-bottom: 1px solid var(--line);
+  padding: 10px 0;
+}
+.glossary-item strong {
+  color: var(--ink);
+}
+.glossary-item p {
+  margin: 4px 0;
+}
+.noscript {
+  padding: 30px;
+  background: #fff0d4;
+}
+
+/* ---- Diagrams and charts ---- */
+.chart {
+  width: 100%;
+  display: block;
+  height: auto;
+}
+.chart text {
+  font-family: inherit;
+  fill: #5b6d63;
+}
+.svg-part {
+  cursor: pointer;
+}
+.svg-part:hover,
+.svg-part.selected {
+  filter: drop-shadow(0 0 5px #a4c470);
+}
+.svg-label {
+  font-size: 12px;
+  fill: #4c6555;
+}
+.flow-path {
+  stroke-dasharray: 7 7;
+  animation: flow-dash 1.2s linear infinite;
+}
+.no-flow .flow-path {
+  animation: none;
+  opacity: 0.15;
+}
+@keyframes flow-dash {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
+/* ---- Responsive ---- */
+/* Pin the live view beside the controls only where the screen is tall enough to show all of it. */
+@media (min-width: 720px) and (min-height: 600px) {
+  .lab-observation {
+    position: sticky;
+    top: 16px;
+  }
+}
+main:focus-visible {
+  outline: none;
+}
+@media (max-width: 1280px) {
+  .chain {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .chain li:nth-child(4)::after {
+    display: none;
+  }
+  .essentials {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 1150px) {
+  .sidebar {
+    width: 228px;
+    padding: 24px 15px;
+  }
+  .workspace {
+    margin-left: 228px;
+  }
+  .topbar,
+  footer {
+    padding-left: 26px;
+    padding-right: 26px;
+  }
+  main {
+    padding: 26px;
+  }
+  .role-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .style-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .kpi strong {
+    font-size: 18px;
+  }
+}
+/* Tablets and phones: the sidebar becomes a top bar with a scrolling lesson menu. */
+@media (max-width: 920px) {
+  body {
+    padding-top: env(safe-area-inset-top);
+  }
+  .sidebar {
+    position: relative;
+    width: 100%;
+    padding: 10px 12px 8px;
+    display: block;
+  }
+  .brand {
+    font-size: 17px;
+  }
+  .brand-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 21px;
+  }
+  .brand-sub {
+    font-size: 9px;
+    margin-top: 3px;
+  }
+  .nav-label,
+  .sidebar-note,
+  .sidebar .utility {
+    display: none;
+  }
+  nav#module-nav {
+    display: flex;
+    overflow-x: auto;
+    gap: 4px;
+    margin-top: 10px;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+  #module-nav a {
+    flex: 0 0 auto;
+    font-size: 13px;
+    min-height: 44px;
+    padding: 8px 12px;
+  }
+  #module-nav a span {
+    display: none;
+  }
+  .workspace {
+    margin: 0;
+  }
+  .topbar {
+    display: none;
+  }
+  main {
+    padding: 20px 16px 28px;
+  }
+  .lab {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 14px;
+  }
+  .deeper-grid {
+    grid-template-columns: 1fr;
+  }
+  .chain {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .chain li::after {
+    display: none;
+  }
+  .essentials {
+    grid-template-columns: 1fr 1fr;
+  }
+  footer {
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+  }
+}
+/* Phones in portrait: single column; the live view stays pinned while you work the controls. */
+@media (max-width: 719px) {
+  .page-head h1 {
+    font-size: 30px;
+    letter-spacing: -0.8px;
+  }
+  .question {
+    font-size: 17px;
+    margin-bottom: 12px;
+  }
+  .key-idea {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+  .lab {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .lab-observation {
+    position: relative;
+    top: 0;
+    padding: 10px 10px 8px;
+    border-radius: 12px;
+  }
+  .view-switch button {
+    padding: 6px 10px;
+  }
+  .observation-panel .diagram-stage svg {
+    max-height: 36vh;
+  }
+  .kpi-grid {
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .kpi {
+    padding: 5px 6px;
+    border-radius: 7px;
+  }
+  .kpi small {
+    font-size: 10px;
+  }
+  .kpi strong {
+    font-size: 16px;
+  }
+  .kpi strong em {
+    font-size: 10px;
+  }
+  .live-foot {
+    margin-top: 8px;
+    gap: 6px 8px;
+  }
+  .transport button {
+    min-height: 40px;
+    padding: 6px 10px;
+  }
+  .status {
+    font-size: 12px;
+    padding: 6px 9px;
+  }
+  .card {
+    padding: 16px;
+  }
+  .guide h2 {
+    font-size: 19px;
+  }
+  .guide-body div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  .guide-body dd {
+    font-size: 15px;
+  }
+  .guide-actions button,
+  .guide-actions .button {
+    flex: 1 1 auto;
+  }
+  .role-grid,
+  .case-options,
+  .signal-chain,
+  .pager,
+  .deeper > .lesson-strip,
+  .chain,
+  .essentials {
+    grid-template-columns: 1fr;
+  }
+  .component-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .pager-link.next {
+    text-align: left;
+  }
+  .hero h1 {
+    font-size: 34px;
+    letter-spacing: -1px;
+  }
+  .lede {
+    font-size: 17px;
+  }
+  .chain a {
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    column-gap: 12px;
+    row-gap: 2px;
+  }
+  .chain a > :not(.chain-num) {
+    grid-column: 2;
+  }
+  .chain-num {
+    grid-row: span 3;
+  }
+  .detail {
+    padding: 2px 14px;
+  }
+  .diagram-stage .svg-label {
+    display: none;
+  }
+}
+/* Tall phones pin a compact live view so the chart stays visible while you work the controls;
+   short phones scroll it normally. */
+@media (max-width: 719px) and (min-height: 700px) {
+  .lab-observation {
+    position: sticky;
+    top: 0;
+    box-shadow: 0 6px 18px #17332d1f;
+    border-radius: 0 0 12px 12px;
+    margin: 0 -6px;
+    padding: 6px 8px 6px;
+  }
+  .live-head {
+    margin-bottom: 2px;
+  }
+  .view-switch button {
+    min-height: 34px;
+    padding: 4px 10px;
+    font-size: 12.5px;
+  }
+  .view-title,
+  .diagram-note,
+  .observation-panel .plot-caption {
+    display: none;
+  }
+  .observation-panel .diagram-stage {
+    padding: 2px;
+  }
+  .observation-panel .diagram-stage svg {
+    max-height: 27vh;
+  }
+  .observation-panel .legend {
+    font-size: 11px;
+    gap: 2px 12px;
+  }
+  .kpi small {
+    font-size: 9.5px;
+    margin-bottom: 1px;
+  }
+  .dp-split {
+    margin-top: 6px;
+    height: 8px;
+  }
+  .dp-legend {
+    font-size: 11px;
+  }
+  .live-foot {
+    margin-top: 6px;
+    gap: 4px;
+  }
+  .transport {
+    flex-wrap: nowrap;
+    flex: none;
+    gap: 4px;
+  }
+  .transport button {
+    min-height: 36px;
+    padding: 4px 9px;
+    font-size: 12px;
+  }
+  .live-foot .status {
+    flex: 1 1 100%;
+    min-width: 0;
+    font-size: 11.5px;
+    line-height: 1.35;
+    padding: 4px 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* Short landscape screens: keep the lesson header compact so the lab starts near the top. */
+@media (max-height: 540px) and (min-width: 600px) {
+  .sidebar .brand {
+    display: none;
+  }
+  nav#module-nav {
+    margin-top: 0;
+  }
+  main {
+    padding-top: 12px;
+  }
+  .page-head {
+    margin-bottom: 12px;
+  }
+  .page-head .eyebrow,
+  .head-tools {
+    display: none;
+  }
+  .page-head h1 {
+    font-size: 24px;
+    display: inline;
+    margin-right: 10px;
+  }
+  .question {
+    display: inline;
+    font-size: 15px;
+  }
+  .key-idea {
+    margin-top: 8px;
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+}
 
 </style>
 </head>
 <body>
   <a class="skip" href="#main">Skip to the lab</a>
   <aside class="sidebar" aria-label="Learning modules">
-    <a class="brand" href="#anatomy"><span class="brand-icon" aria-hidden="true">↗</span><span>Control Valve<span class="brand-sub">LAB / ENGINEERING</span></span></a>
+    <a class="brand" href="#home" data-module="home"><span class="brand-icon" aria-hidden="true">↗</span><span>Control Valve<span class="brand-sub">LEARNING LAB</span></span></a>
     <p class="nav-label">FROM SIGNAL TO FLOW</p>
-    <nav id="module-nav">
+    <nav id="module-nav" aria-label="Lessons">
+      <a href="#home" data-module="home"><span aria-hidden="true">⌂</span>Start here</a>
       <a href="#anatomy" data-module="anatomy"><span>01</span>Inside the valve</a>
       <a href="#friction" data-module="friction"><span>02</span>Stiction & hysteresis</a>
       <a href="#flow" data-module="flow"><span>03</span>Cv & installed flow</a>
@@ -71,15 +1892,15 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       <a href="#diagnosis" data-module="diagnosis"><span>06</span>Read the symptoms</a>
       <a href="#pid" data-module="pid"><span>07</span>PID & step testing</a>
     </nav>
-    <div class="sidebar-note"><span class="small-dot"></span><strong>A working mental model.</strong><p>Change one thing.<br>Watch the mechanism.<br>Connect it to the trend.</p></div>
+    <div class="sidebar-note"><span class="small-dot"></span><strong>How each lesson works</strong><p>1. Read the key idea.<br>2. Follow the guided steps.<br>3. Explore the controls.</p></div>
     <button class="utility" data-action="references">References & model notes ↗</button>
     <button class="utility" data-action="glossary">Engineering glossary ↗</button>
     <a class="utility repo-link" href="https://github.com/DeltaSNull/control-valve-lab" target="_blank" rel="noopener">Source on GitHub ↗</a>
   </aside>
   <div class="workspace">
-    <header class="topbar"><span>THE CONTROL VALVE FIELD GUIDE</span><span class="top-tag">INTERACTIVE LEARNING</span></header>
+    <header class="topbar"><span>The control valve field guide</span><span class="top-tag">Simulated data · for training</span></header>
     <main id="main" tabindex="-1"></main>
-    <footer>Original educational schematics · Simulated data · Built for engineers, technicians & operations</footer>
+    <footer>Original educational schematics · Simulated data · Built for operations, maintenance, engineering and management</footer>
   </div>
   <dialog id="resource-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title">References</h2><button data-action="close-dialog" aria-label="Close dialog">×</button></div><div id="dialog-content"></div></dialog>
   <noscript><p class="noscript">Enable JavaScript to use the valve simulations. The source and model notes are available in the GitHub repository.</p></noscript>
@@ -710,6 +2531,16 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     ['process', 'Process-side disturbance']
   ];
   const glossary = {
+    'pp (percentage point)':
+      'An absolute change in a percentage. Moving from 50% to 55% travel is a 5 pp change, not a 5% change.',
+    'OP / PV / SP':
+      'Controller output (what the controller asks the valve for), process variable (the measured result) and setpoint (the target).',
+    'Manual / Auto':
+      'In Manual a person sets the controller output. In Auto the PID algorithm sets it from the setpoint and measured PV.',
+    'Limit cycle':
+      'A sustained oscillation generated inside a loop, for example by stiction interacting with integral action. It persists without any outside disturbance.',
+    'Step test':
+      'A single deliberate change, usually of controller output in Manual, used to measure process gain, delay and time constant.',
     'Cv': 'US-unit flow coefficient: the numerical flow in US gpm for water under the reference definition at 1 psi pressure drop. Operating flow requires the applicable sizing equation and correction factors.',
     'Kv': 'Metric flow coefficient, commonly defined using m³/h of water and 1 bar pressure drop. Do not substitute its numerical value into a Cv equation.',
     'Stiction':
@@ -814,7 +2645,368 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       topic: 'Primary paper: FOPDT-based PI tuning and desired closed-loop response time.'
     }
   );
-  root.ValveContent = { components, friction, styles, trims, cases, answerOptions, glossary, sources };
+  // Lesson metadata, guided activities and role notes. Numbers quoted in guides come from the
+  // app's own models at the stated settings; tests/guide.test.cjs re-checks the key values.
+  const modules = {
+    anatomy: {
+      num: '01',
+      title: 'Inside the valve',
+      question: 'How does a control signal become a moving plug?',
+      keyIdea:
+        'Air pressure on the actuator makes a force; the spring, process and friction resist it. The plug position — not the signal — sets the flow opening.',
+      minutes: 5
+    },
+    friction: {
+      num: '02',
+      title: 'Stiction & hysteresis',
+      question: 'Why does a valve stick, and what does it look like on a trend?',
+      keyIdea:
+        'A sticking valve ignores small command changes, then jumps. Backlash, hysteresis and slow response look similar on a trend but have different causes.',
+      minutes: 8
+    },
+    flow: {
+      num: '03',
+      title: 'Cv & installed flow',
+      question: 'If the valve opens 10% more, how much more flow do I get?',
+      keyIdea:
+        'Travel sets Cv. Flow also depends on the pressure drop the valve actually receives, and in a real system that pressure drop shrinks as the valve opens.',
+      minutes: 7
+    },
+    trim: {
+      num: '04',
+      title: 'Trims & valve styles',
+      question: 'What do the internals change, and what are cavitation and flashing?',
+      keyIdea:
+        'Body style and trim set capacity, characteristic and shutoff. Cavitation and flashing are pressure events inside the valve, not just noise.',
+      minutes: 6
+    },
+    positioner: {
+      num: '05',
+      title: 'Positioners & DVCs',
+      question: 'What does the positioner actually do?',
+      keyIdea:
+        'A positioner measures actual travel and adjusts air pressure until travel matches the request — within the limits of the air supply and the mechanics.',
+      minutes: 6
+    },
+    diagnosis: {
+      num: '06',
+      title: 'Read the symptoms',
+      question: 'The loop is cycling. Is it the valve?',
+      keyIdea:
+        'A cycling trend does not prove stiction. Compare command, actual travel, pressure and flow before deciding what to fix.',
+      minutes: 8
+    },
+    pid: {
+      num: '07',
+      title: 'PID & step testing',
+      question: 'How do I tune a loop, and when will tuning not help?',
+      keyIdea:
+        'Measure the process with a step test before tuning. Check the valve first: tuning cannot fix a sticking, slow or travel-limited valve.',
+      minutes: 10
+    }
+  };
+  // The signal-to-flow chain shown on the home page; each link names the lesson that explains it.
+  const chain = [
+    ['Controller output', 'The controller asks for a valve position, for example 60%.', 'pid'],
+    ['Positioner', 'Compares requested and actual travel, then adjusts the air.', 'positioner'],
+    ['Actuator', 'Air pressure × diaphragm area makes force against the spring.', 'anatomy'],
+    ['Stem travel', 'Friction, backlash and lag decide whether travel follows.', 'friction'],
+    ['Trim & Cv', 'The plug position sets the flow opening, expressed as Cv.', 'trim'],
+    ['Flow', 'Cv and the available pressure drop set the actual flow.', 'flow'],
+    ['Process variable', 'The process responds, and the controller reacts to it.', 'diagnosis']
+  ];
+  const roles = [
+    {
+      id: 'operations',
+      name: 'Operations',
+      who: 'Board operators, shift leads',
+      goal: 'Read valve trends with confidence.',
+      path: ['anatomy', 'friction', 'diagnosis'],
+      remember: 'Controller output is a request. Check actual valve travel before blaming the controller.'
+    },
+    {
+      id: 'maintenance',
+      name: 'Maintenance & instrumentation',
+      who: 'Instrument and valve technicians',
+      goal: 'Find the real cause before adjusting anything.',
+      path: ['anatomy', 'positioner', 'friction', 'diagnosis'],
+      remember:
+        'Compare command, travel and actuator pressure under similar conditions before changing packing or calibration.'
+    },
+    {
+      id: 'engineering',
+      name: 'Process & control engineering',
+      who: 'Process, control and reliability engineers',
+      goal: 'Size, characterize and tune with the valve in mind.',
+      path: ['flow', 'trim', 'pid'],
+      remember: 'The controller sees the installed response of valve plus piping, not the inherent trim curve.'
+    },
+    {
+      id: 'management',
+      name: 'Management & reliability',
+      who: 'Area managers, reliability and project leads',
+      goal: 'Know what drives loop performance.',
+      path: ['anatomy', 'diagnosis', 'pid'],
+      remember:
+        'Many loop problems are valve or sizing problems that tuning cannot fix. Ask for evidence before approving a fix.'
+    }
+  ];
+  const essentials = [
+    ['Signal ≠ position', 'The controller output is a request. The stem may not get there.'],
+    ['Position ≠ flow', 'Flow depends on Cv at that position and on the pressure drop available.'],
+    ['A trend is a symptom', 'Cycling can come from the valve, the tuning, or the process. Use several measurements.'],
+    ['Tuning cannot fix mechanics', 'Stiction, backlash and travel limits must be repaired, not tuned around.'],
+    [
+      'Paint is not a datasheet',
+      'Brand and color do not tell you construction or fail action. Check the nameplate and records.'
+    ]
+  ];
+  // Per-lesson notes for each audience, in the same order as roles.
+  const onTheJob = {
+    anatomy: [
+      'A controller output is a request, not a position. If a display shows output but not travel, ask whether travel feedback is available.',
+      'Confirm fail action from the actuator nameplate and datasheet. Packing, guides and actuator condition all affect how the stem moves.',
+      'Required actuator pressure depends on spring range, process force and friction. Check sizing against worst-case shutoff and flowing forces.',
+      'A control valve is a mechanical system. Its condition, not just its controller, limits how well a loop can perform.'
+    ],
+    friction: [
+      'A trend that holds flat and then jumps while the output keeps ramping is a classic sticking pattern. Report it rather than asking for retuning.',
+      'Compare signatures taken under similar conditions. Tightening packing to stop a leak can raise friction and start cycling.',
+      'Stiction plus integral action produces a limit cycle. Detuning slows the cycle but does not remove it.',
+      'Sticking valves keep loops cycling, adding variability and wear. They are found by reviewing data and fixed by maintenance, not by tuning.'
+    ],
+    flow: [
+      'The same 10% move gives different flow changes at different openings. Expect the loop to feel more sensitive in some ranges.',
+      'A valve that normally runs nearly closed or nearly wide open has little control margin. Flag it for review.',
+      'Size for installed gain and authority. An oversized valve does its work in the first few percent of travel, where friction matters most.',
+      'Oversized valves are a frequent cause of poor control. A sizing review is a low-cost way to explain chronic problem loops.'
+    ],
+    trim: [
+      'Gravel-like noise or vibration at a liquid valve can indicate cavitation. Note the operating rate and pressures when it happens.',
+      'Damage location tells a story: cavitation pits where bubbles collapse; flashing erodes where vapor flows downstream.',
+      'Check the minimum internal pressure against vapor pressure for every operating case, not only the design case.',
+      'Severe-service trim costs more up front but can prevent repeated trim replacement and unplanned outages.'
+    ],
+    positioner: [
+      'If travel does not match the request, the positioner may be at its air limit or the valve may be loaded beyond what it can correct.',
+      'Trend supply, output pressure and travel together. A healthy supply gauge at rest does not prove enough air during a move.',
+      'Positioner tuning is an inner loop. Keep it faster than the process loop, but avoid gain that makes it hunt.',
+      'Digital positioners can report diagnostics, but only if someone reviews the data and acts on it.'
+    ],
+    diagnosis: [
+      'Before calling it a bad valve, note what changed: rate, feed, pressure, mode. Context helps the diagnosis.',
+      'Use several measurements. One trend shape can fit more than one cause.',
+      'Where procedures allow, put the loop in Manual briefly: cycling that stops is generated inside the loop (tuning or valve); cycling that continues comes from elsewhere.',
+      'Structured diagnosis avoids replacing good parts. Ask for the evidence behind a proposed repair.'
+    ],
+    pid: [
+      'In Manual you own the output; in Auto the controller does. A bumpless switch keeps the output steady at the moment of transfer.',
+      'Before a tuning change, confirm the valve moves cleanly in small steps. Tuning cannot fix stiction.',
+      'Fit a model from a clean step test and start from SIMC or a similar method. Valve defects corrupt the fit.',
+      'Good tuning reduces variability, but only after the valve and measurement are healthy.'
+    ]
+  };
+  // Guided activities: do → look for → why. Step actions live in app.js (guideActions).
+  const guides = {
+    anatomy: [
+      {
+        title: 'Follow the air',
+        do: 'Move the travel command to 80%.',
+        look: 'Actuator pressure rises to 12.6 psi, air force to 252 lbf, and the plug lifts 0.60 in.',
+        why: 'Air pressure acting on the diaphragm area makes force. The spring pushes back, so more travel needs more pressure.'
+      },
+      {
+        title: 'Remove the air',
+        do: 'Press Remove air.',
+        look: 'Pressure falls to zero and the spring drives the plug onto the seat: 0% travel.',
+        why: 'This example is air-to-open, spring-to-close, so it fails closed. Other valves fail open or in place: check the datasheet.'
+      },
+      {
+        title: 'Find the packing',
+        do: 'Restore air, then select Packing under Inspect a part.',
+        look: 'The packing rings surround the stem just below the actuator.',
+        why: 'Packing must seal and still let the stem slide. Excess packing friction is a frequent cause of sticking.'
+      },
+      {
+        title: 'Meet the positioner',
+        do: 'Select Positioner under Inspect a part.',
+        look: 'It compares requested travel with measured travel and adjusts the actuator air.',
+        why: 'The signal is a request; actual travel is the result. Lesson 05 shows what happens when they disagree.'
+      }
+    ],
+    friction: [
+      {
+        title: 'Make small moves',
+        do: 'With Stiction selected, press +1% step six times.',
+        look: 'Travel holds at 50% for five steps, then jumps to 54.5%, still 1.5 pp short of the command.',
+        why: 'Breakaway friction must be overcome before the stem moves. Small corrections are ignored, then the valve jumps.'
+      },
+      {
+        title: 'Sweep and read the signature',
+        do: 'Press Run sweep, then view the Response signature.',
+        look: 'Travel against command forms a staircase loop instead of following the diagonal.',
+        why: 'The loop width shows lost motion plus stick–slip. In a control loop this pattern drives continuous cycling.'
+      },
+      {
+        title: 'Compare backlash',
+        do: 'Select Backlash and run the sweep again.',
+        look: 'After each reversal travel waits until the command crosses the 6 pp clearance, then follows smoothly with no jumps.',
+        why: 'Backlash is clearance in linkages or couplings. It loses motion at reversals but does not stick and slip.'
+      },
+      {
+        title: 'Slow is not sticky',
+        do: 'Select Slow response, set Sweep speed (under More settings) to 15 pp/s and run; then repeat at 2 pp/s.',
+        look: 'The loop is wide at 15 pp/s and much narrower at 2 pp/s.',
+        why: 'Lag depends on speed; friction does not. Testing at two speeds separates the two.'
+      }
+    ],
+    flow: [
+      {
+        title: 'Open the valve',
+        do: 'Move travel from 50% to 75%.',
+        look: 'Cv nearly triples (11.3 → 30.1) but flow rises only from 48 to 78 gpm, and valve ΔP falls from 18.1 to 6.7 psi.',
+        why: 'More flow means more piping loss, leaving less of the fixed pressure budget across the valve.'
+      },
+      {
+        title: 'Add more piping loss',
+        do: 'Raise piping resistance K to 0.015.',
+        look: 'At 75% travel flow falls to 39 gpm and the installed curve goes flat above 50%.',
+        why: 'When most of the pressure drop is in the piping, opening further adds little flow: the valve has lost authority.'
+      },
+      {
+        title: 'Compare characteristics',
+        do: 'Set K back to 0.003, choose Linear, and view Inherent Cv.',
+        look: 'Linear Cv rises in equal steps; equal-percentage starts low and climbs steeply.',
+        why: 'The characteristic is chosen so the installed response is as even as possible across the operating range.'
+      },
+      {
+        title: 'Oversize the valve',
+        do: 'With Linear selected, set rated Cv to 300 and travel to 25%.',
+        look: 'Flow is already 89 gpm of a 91 gpm maximum at 25% travel.',
+        why: 'An oversized valve controls in a small part of its travel, where friction and resolution matter most.'
+      }
+    ],
+    trim: [
+      {
+        title: 'Compare valve styles',
+        do: 'Select each style and move the travel slider.',
+        look: 'A globe plug lifts in a straight line; ball, butterfly and eccentric plugs rotate.',
+        why: 'Motion type changes where friction comes from: packing and guides, or shaft bearings, seals and couplings.'
+      },
+      {
+        title: 'Watch cavitation',
+        do: 'View the Pressure profile and choose Cavitation.',
+        look: 'Pressure dips below the 40 psia vapor line at the restriction, then recovers to 60 psia.',
+        why: 'Bubbles form at the low point and collapse as pressure recovers, causing noise, vibration and pitting.'
+      },
+      {
+        title: 'Flashing is different',
+        do: 'Choose Flashing.',
+        look: 'The outlet stays at 25 psia, below vapor pressure, so vapor continues downstream.',
+        why: 'Anti-cavitation trim cannot prevent flashing; outlet conditions decide it. Materials and downstream design matter.'
+      },
+      {
+        title: 'Stage the pressure drop',
+        do: 'Choose Staged pressure reduction.',
+        look: 'Several smaller drops keep every local minimum above vapor pressure and still reach the 60 psia outlet.',
+        why: 'Staging is one way to manage cavitation. Real selection needs the actual service conditions.'
+      }
+    ],
+    positioner: [
+      {
+        title: 'No feedback',
+        do: 'Choose I/P alone, set opposing load to 2 psi, and press Run.',
+        look: 'Travel settles near 34% instead of the 50% request while pressure stays at 9 psi.',
+        why: 'Without feedback nothing notices the error. An I/P only converts signal to pressure.'
+      },
+      {
+        title: 'Add a positioner',
+        do: 'Choose Digital valve controller with the same load and run.',
+        look: 'Pressure rises to about 11 psi and travel returns to 50%.',
+        why: 'The positioner closes an inner loop on travel and supplies the extra force automatically.'
+      },
+      {
+        title: 'Starve the air',
+        do: 'Set supply to 10 psi and request 90% travel.',
+        look: 'Pressure stops at the 10 psi supply and travel stalls near 58%; the status warns of the supply limit.',
+        why: 'Feedback cannot create force the supply cannot deliver. Check supply and output pressure together.'
+      },
+      {
+        title: 'Too much gain',
+        do: 'Restore 22 psi supply, tick Excessive position-loop gain, then press Step to 70%.',
+        look: 'Travel hunts between roughly 24% and 100% instead of settling.',
+        why: 'An inner loop with too much gain oscillates by itself. Positioner tuning is separate from process tuning.'
+      }
+    ],
+    diagnosis: [
+      {
+        title: 'Study the evidence',
+        do: 'In the Packing case, compare command and actual travel.',
+        look: 'Travel holds flat, then jumps, while the command changes smoothly.',
+        why: 'That is a stick–slip pattern. Now test the idea against the other traces.'
+      },
+      {
+        title: 'Check the pressure',
+        do: 'Switch the view to Pressure.',
+        look: 'Pressure keeps changing smoothly while travel holds still.',
+        why: 'Force builds until breakaway. In this case the pressure is a command proxy, not a positioner output.'
+      },
+      {
+        title: 'Make a hypothesis',
+        do: 'Choose the cause you think fits best.',
+        look: 'Feedback says whether it fits; the explanation lists look-alike causes.',
+        why: 'A pattern supports a hypothesis. Confirm it with more evidence before acting.'
+      },
+      {
+        title: 'Try another case',
+        do: 'Press Next case and repeat: travel, pressure, flow.',
+        look: 'Each case changes a different link in the signal-to-flow chain.',
+        why: 'Working through all six builds the habit of checking several measurements.'
+      }
+    ],
+    pid: [
+      {
+        title: 'Run a step test',
+        do: 'In Manual, record a steady baseline, then step OP from 50% to 60%.',
+        look: 'Measured PV starts moving about 4 s after the step and settles near 60%.',
+        why: 'A clean step in Manual shows the process gain, delay and time constant without the controller in the way.'
+      },
+      {
+        title: 'Estimate the model',
+        do: 'When PV has settled, press Estimate from record.',
+        look: 'Gain ≈ 1.0, time constant ≈ 20 s, delay ≈ 4 s, plus a suggested PI tuning.',
+        why: 'These three numbers describe the process well enough to choose a sensible starting tuning.'
+      },
+      {
+        title: 'Apply and test the tuning',
+        do: 'Press Use estimate → tuning, switch to Auto, then change SP by 5 pp.',
+        look: 'PV settles on the new setpoint smoothly, with little or no overshoot. (Show me restarts at 50% first.)',
+        why: 'A model-based starting point gives a predictable response. Fine-tune from there.'
+      },
+      {
+        title: 'Add a sticky valve',
+        do: 'Stay in Auto, choose Stiction as the defect, then raise SP by 5 pp.',
+        look: 'PV keeps cycling around setpoint, OP becomes a sawtooth, and travel moves in jumps.',
+        why: 'Integral action keeps pushing until the valve breaks free, then overshoots. Retuning slows the cycle; fixing the valve stops it.'
+      }
+    ]
+  };
+  root.ValveContent = {
+    components,
+    friction,
+    styles,
+    trims,
+    cases,
+    answerOptions,
+    glossary,
+    sources,
+    modules,
+    chain,
+    roles,
+    essentials,
+    onTheJob,
+    guides
+  };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 (function (root) {
@@ -890,7 +3082,7 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       (_, i) =>
         `${i ? 'L' : 'M'}${i === 0 || i === 14 ? 260 : i % 2 ? 245 : 275} ${(87 + ((d - 104) * i) / 14).toFixed(1)}`
     ).join(' ');
-    return `<svg viewBox="0 0 520 610" role="img" aria-label="Air-to-open spring-to-close globe valve at ${x.toFixed(1)} percent travel" class="${x === 0 ? 'no-flow' : ''}"><title>Representative globe valve cutaway at ${x.toFixed(1)}% travel</title><defs><marker id="flow-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#399f99"/></marker><pattern id="metal-hatch" width="7" height="7" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#e1e7da"/><path d="M0 7L7 0" stroke="#b4c0b1" stroke-width=".6"/></pattern></defs>
+    return `<svg viewBox="0 0 520 610" role="group" aria-label="Air-to-open spring-to-close globe valve at ${x.toFixed(1)} percent travel" class="${x === 0 ? 'no-flow' : ''}"><title>Representative globe valve cutaway at ${x.toFixed(1)}% travel</title><defs><marker id="flow-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#399f99"/></marker><pattern id="metal-hatch" width="7" height="7" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#e1e7da"/><path d="M0 7L7 0" stroke="#b4c0b1" stroke-width=".6"/></pattern></defs>
       ${part('diaphragm', `<path d="M157 184V130Q162 58 260 58Q358 58 363 130V211H157Z" fill="#679765" stroke="#365f3e" stroke-width="3"/><path d="M172 185V132Q182 78 260 78Q338 78 348 132V201H172Z" fill="#edf2e7"/><path d="M172 ${d}Q215 ${d + 8} 260 ${d}Q303 ${d + 8} 348 ${d}" stroke="#3a5545" stroke-width="6" fill="none"/><rect x="160" y="211" width="200" height="14" rx="5" fill="#59824f" stroke="#365f3e" stroke-width="2"/>`)}
       ${part('air', `<path d="M173 ${d + 5}H347V207H173Z" fill="#bee1db" opacity=".7"/><path d="M330 198H388V315H374" fill="none" stroke="#399f99" stroke-width="4"/><text x="181" y="${d + 22}" font-size="10" fill="#2e7167">AIR</text>`)}
       ${part('spring', `<path d="${springPath}" stroke="#67725f" fill="none" stroke-width="5" stroke-linejoin="round"/><path d="M235 84H285M237 ${d - 15}H283" stroke="#65775d" stroke-width="5"/>`)}
@@ -938,130 +3130,93 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
 
 (function (root) {
   'use strict';
+  // Shared lesson layout. Every lesson uses the same structure so learners only learn it once:
+  // a live view (view buttons, plot, key numbers, run controls) beside a guided activity and the controls.
   const $ = id => document.getElementById(id);
-  const observations = {
-    anatomy: [['valve-diagram', 'Valve cutaway']],
-    friction: [
-      ['friction-time', 'Command & travel'],
-      ['friction-signature', 'Response signature']
-    ],
-    flow: [
-      ['installed-chart', 'Installed flow'],
-      ['cv-chart', 'Inherent Cv']
-    ],
-    trim: [
-      ['pressure-profile', 'Pressure profile'],
-      ['style-diagram', 'Closure member']
-    ],
-    positioner: [
-      ['position-time', 'Travel response'],
-      ['position-pressure', 'Air pressure']
-    ],
-    diagnosis: [
-      ['case-travel-chart', 'Command & travel'],
-      ['case-pressure-chart', 'Pressure'],
-      ['case-flow-chart', 'Flow']
-    ],
-    pid: [
-      ['pid-trend', 'SP & measured PV'],
-      ['pid-valve-chart', 'OP & actual travel']
-    ]
-  };
-  const setupIds = new Set([
-    'flow-cvmax',
-    'flow-rangeability',
-    'flow-dp',
-    'flow-sg',
-    'flow-resistance',
-    'position-supply',
-    'position-load',
-    'position-aggressive',
-    'position-restricted',
-    'friction-speed',
-    'pid-gain',
-    'pid-tau',
-    'pid-delay',
-    'pid-kc',
-    'pid-ti',
-    'pid-td',
-    'pid-action',
-    'pid-speed',
-    'pid-lambda'
-  ]);
-  function mount(module) {
-    const main = $('main'),
-      head = main.querySelector('.page-head');
-    const original = document.createElement('div');
-    original.className = 'workspace-lessons';
-    while (main.firstChild) original.append(main.firstChild);
-    if (head) {
-      main.append(head);
-      head.querySelector('.eyebrow')?.remove();
-      head.querySelector('.page-number')?.remove();
-    }
-    const shell = document.createElement('div');
-    shell.className = 'lab-shell';
-    shell.innerHTML = `<div class="lab-toolbar"><button class="primary" data-action="demo">▶ Run demo</button><button data-action="custom" aria-pressed="true">Custom</button><span id="demo-status" role="status">Custom · change a control and watch the response.</span></div><div class="lab-observation" aria-label="Live observation"><label class="plot-picker" for="workspace-plot">Observe<select id="workspace-plot">${observations[module].map(([id, label], i) => `<option value="${i}">${label}</option>`).join('')}</select></label><div class="observation-plots"></div><div class="observation-metrics"></div></div><div class="lab-controls"><div class="control-tabs" aria-label="Control panels"><button data-panel="operate" aria-pressed="true">Operate</button><button data-panel="setup" aria-pressed="false">Setup</button><button data-panel="learn" aria-pressed="false">Learn</button></div><section data-control-panel="operate" aria-label="Operate controls"></section><section data-control-panel="setup" aria-label="Setup controls" hidden></section><section data-control-panel="learn" aria-label="Explanations and references" hidden></section></div>`;
-    main.append(shell);
-    const plots = shell.querySelector('.observation-plots'),
-      metrics = shell.querySelector('.observation-metrics');
-    observations[module].forEach(([id, label], i) => {
-      const node = original.querySelector('#' + id),
-        panel = document.createElement('div');
-      panel.className = 'observation-panel';
-      panel.dataset.observation = i;
-      panel.hidden = i !== 0;
-      panel.setAttribute('aria-label', label);
-      const next = node.nextElementSibling;
-      panel.append(node);
-      if (next?.matches('.legend')) panel.append(next);
-      plots.append(panel);
-    });
-    original.querySelectorAll('.kpi-grid').forEach(node => metrics.append(node));
-    const operate = shell.querySelector('[data-control-panel="operate"]'),
-      setup = shell.querySelector('[data-control-panel="setup"]');
-    // Keep explanations in Learn while relocating the actual controls, preserving IDs and listeners.
-    const signature = original.querySelector('#friction-view');
-    if (signature) {
-      const label = document.createElement('label');
-      label.className = 'control';
-      label.textContent = 'Signature axes';
-      label.append(signature);
-      operate.append(label);
-    }
-    const nodes = [
-      ...original.querySelectorAll(
-        '#friction-controls,.control,.btn-row,.tabs,.pills,.component-grid,.style-list,.check-row,.case-options,#friction-status,#position-status,#case-feedback,#pid-status,#pid-stage-controls,#pid-results,#pid-equation-note,#component-detail'
-      )
-    ];
-    for (const node of nodes) {
-      if (!original.contains(node)) continue;
-      if (node.closest('#friction-controls') && node.id !== 'friction-controls') continue;
-      if (node.querySelector('[data-action="glossary"]')) {
-        setup.append(node);
-        continue;
-      }
-      const isSetup =
-        node.id === 'friction-controls' || [...node.querySelectorAll('input,select')].some(el => setupIds.has(el.id));
-      (isSetup ? setup : operate).append(node);
-    }
-    const sourceIntro = document.createElement('p');
-    sourceIntro.className = 'workspace-intro';
-    sourceIntro.textContent = head?.querySelector('p')?.textContent || '';
-    shell.querySelector('[data-control-panel="learn"]').append(sourceIntro, original);
-    setPanel('operate');
-    syncSelections();
+  const C = root.ValveContent;
+  function lab(o) {
+    const views = o.views;
+    const switcher =
+      views.length > 1
+        ? `<div class="view-switch" role="group" aria-label="Choose what to show">${views
+            .map((v, i) => `<button type="button" data-view="${i}" aria-pressed="${i === 0}">${v.label}</button>`)
+            .join('')}</div>`
+        : `<p class="view-title">${views[0].label}</p>`;
+    return `<div class="lab">
+      <section class="lab-observation" aria-label="Live view">
+        <div class="live-head">${switcher}</div>
+        <div class="observation-plots">${views
+          .map(
+            (v, i) =>
+              `<div class="observation-panel" data-observation="${i}" aria-label="${v.label}"${i ? ' hidden' : ''}>${v.html}</div>`
+          )
+          .join('')}</div>
+        ${o.metrics ? `<div class="observation-metrics"><div class="kpi-grid">${o.metrics}</div>${o.extra ?? ''}</div>` : ''}
+        ${o.transport || o.status ? `<div class="live-foot">${o.transport ?? ''}${o.status ?? ''}</div>` : ''}
+      </section>
+      <div class="lab-side">
+        <section class="card guide" aria-labelledby="guide-title">
+          <div id="guide-step"></div>
+          <div class="demo-row">
+            <button type="button" data-action="demo">▶ Watch the full demo</button>
+            <button type="button" data-action="custom" hidden>■ Stop demo</button>
+            <span id="demo-status" role="status"></span>
+          </div>
+        </section>
+        <section class="card lab-controls" aria-labelledby="controls-title">
+          <h2 id="controls-title" class="section-label">Controls</h2>
+          ${o.controls}
+          ${
+            o.settings
+              ? `<details class="settings"><summary>More settings</summary><div class="settings-body">${o.settings}</div></details>`
+              : ''
+          }
+        </section>
+      </div>
+    </div>`;
   }
-  function setPanel(name) {
-    document.querySelectorAll('[data-control-panel]').forEach(el => (el.hidden = el.dataset.controlPanel !== name));
-    document
-      .querySelectorAll('[data-panel]')
-      .forEach(el => el.setAttribute('aria-pressed', String(el.dataset.panel === name)));
+  // One guided step: what to do, what to look for, and why it matters, with step navigation.
+  function guide(module, index, done, next) {
+    const steps = C.guides[module],
+      s = steps[index],
+      last = index === steps.length - 1;
+    const dots = steps
+      .map(
+        (step, i) =>
+          `<li><button type="button" data-guide-step="${i}" class="${done.includes(i) ? 'done' : ''}"${
+            i === index ? ' aria-current="step"' : ''
+          } aria-label="Step ${i + 1}: ${step.title}${done.includes(i) ? ' (done)' : ''}">${done.includes(i) ? '✓' : i + 1}</button></li>`
+      )
+      .join('');
+    const forward = last
+      ? next
+        ? `<a class="button" href="#${next}" data-module="${next}">Next lesson →</a>`
+        : `<a class="button" href="#home" data-module="home">All lessons →</a>`
+      : `<button type="button" data-action="guide-next">Next step →</button>`;
+    return `<div class="guide-top"><p class="kicker">Guided activity · step ${index + 1} of ${steps.length}</p><ol class="guide-dots" aria-label="Guided steps">${dots}</ol></div>
+      <h2 id="guide-title">${s.title}</h2>
+      <dl class="guide-body">
+        <div><dt>Try it</dt><dd>${s.do}</dd></div>
+        <div><dt>Look for</dt><dd>${s.look}</dd></div>
+        <div><dt>Why it matters</dt><dd>${s.why}</dd></div>
+      </dl>
+      <p id="guide-note" class="guide-note" role="status"></p>
+      <div class="guide-actions">
+        <button type="button" class="primary" data-action="guide-show">Show me</button>
+        <button type="button" data-action="guide-prev"${index === 0 ? ' disabled' : ''}>← Back</button>
+        ${forward}
+      </div>`;
   }
   function setPlot(index) {
     document
       .querySelectorAll('[data-observation]')
       .forEach(el => (el.hidden = el.dataset.observation !== String(index)));
+    document
+      .querySelectorAll('[data-view]')
+      .forEach(el => el.setAttribute('aria-pressed', String(el.dataset.view === String(index))));
+  }
+  function currentPlot() {
+    return Number(document.querySelector('[data-view][aria-pressed="true"]')?.dataset.view ?? 0);
   }
   function syncSelections() {
     document
@@ -1070,13 +3225,22 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       )
       .forEach(el => el.setAttribute('aria-pressed', String(el.classList.contains('selected'))));
   }
+  // Demo state: the Stop button only appears while a demo runs; the status line narrates it.
   function mode(demo, text) {
     const status = $('demo-status');
     if (status && status.textContent !== text) status.textContent = text;
-    document.querySelector('[data-action="custom"]')?.setAttribute('aria-pressed', String(!demo));
-    document.querySelector('[data-action="demo"]')?.setAttribute('aria-pressed', String(demo));
+    const play = document.querySelector('[data-action="demo"]'),
+      stop = document.querySelector('[data-action="custom"]');
+    if (play) {
+      play.hidden = demo;
+      play.setAttribute('aria-pressed', String(demo));
+    }
+    if (stop) {
+      stop.hidden = !demo;
+      stop.setAttribute('aria-pressed', String(!demo));
+    }
   }
-  root.ValveWorkspace = { mount, setPanel, setPlot, syncSelections, mode };
+  root.ValveWorkspace = { lab, guide, setPlot, currentPlot, syncSelections, mode };
 })(window);
 
 (function (root) {
@@ -1088,43 +3252,6 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     D = root.ValveDiagrams,
     $ = id => document.getElementById(id),
     e = D.esc;
-  const titles = {
-    pid: [
-      '07',
-      'Tune the whole loop.',
-      'Measure a step response, choose Honeywell-style A/B/C, and separate tuning from valve defects.'
-    ],
-    anatomy: [
-      '01',
-      'Inside the valve.',
-      'See how air becomes motion, and how motion opens a flow path. Start with a representative Fisher-style globe valve.'
-    ],
-    friction: [
-      '02',
-      'Why a valve sticks.',
-      'Separate breakaway friction, hysteresis, mechanical lost motion, and slow response. Watch the mechanism and its signature together.'
-    ],
-    flow: [
-      '03',
-      'Travel is not flow.',
-      'Follow the chain from actual travel to Cv to flow. Then add the piping and see the characteristic change.'
-    ],
-    trim: [
-      '04',
-      'The geometry matters.',
-      'Compare valve styles and the trim choices that shape capacity, pressure forces, shutoff, and service performance.'
-    ],
-    positioner: [
-      '05',
-      'The loop inside the loop.',
-      'A positioner controls travel by adjusting air pressure. The process controller works one level above it.'
-    ],
-    diagnosis: [
-      '06',
-      'Read the symptoms.',
-      'Use several measurements to build a diagnosis. These six simulated cases isolate mechanisms that often look alike in a process trend.'
-    ]
-  };
   const defaultF = () => ({
     mode: 'stiction',
     command: 50,
@@ -1172,7 +3299,8 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     },
     trim: { style: 'globe', travel: 50, trim: 'characterized', profile: 'cavitation' },
     positioner: defaultP(),
-    diagnosis: { case: 'packing', answered: null, revealed: false }
+    diagnosis: { case: 'packing', answered: null, revealed: false },
+    guide: {}
   };
   let frameId = null,
     lastFrame = 0,
@@ -1203,70 +3331,6 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
   }
   function number(id, label, val, min, max, step, unit = '') {
     return `<div class="control"><label for="${id}">${label} <span>${unit}</span></label><input type="number" id="${id}" value="${Number(val.toFixed(4))}" min="${min}" max="${max}" step="${step}" inputmode="decimal"></div>`;
-  }
-  function pidPage() {
-    const l = state.pid;
-    return (
-      header('pid') +
-      `<div class="grid-main"><section class="card"><h2>The process loop</h2><div id="pid-trend"></div>${legend([
-        ['SP', 'command', 'dashed'],
-        ['Measured PV', 'travel']
-      ])}<div id="pid-valve-chart"></div>${legend([
-        ['Controller OP', 'command'],
-        ['Actual travel', 'pressure']
-      ])}<div class="kpi-grid">${kpi('pid-pv', 'Measured PV', 'travel', '%')}${kpi('pid-sp-value', 'Setpoint', 'command', '%')}${kpi('pid-op-value', 'Controller OP', 'command', '%')}${kpi('pid-travel-value', 'Valve travel', 'pressure', '%')}</div><div id="pid-stage-controls" class="btn-row"><button data-action="pid-stage-step" aria-pressed="${l.stage === 'step'}">1 · Step test</button><button data-action="pid-stage-tune" aria-pressed="${l.stage === 'tune'}">2 · Apply tuning</button></div>${select(
-        'pid-defect',
-        'Include a defect',
-        l.defect,
-        [
-          ['none', 'Healthy valve'],
-          ['stiction', 'Stiction · 4 pp breakaway'],
-          ['backlash', 'Backlash · 6 pp reversal band'],
-          ['slow', 'Slow valve · 6 s lag'],
-          ['limited', 'Travel limited to 55%'],
-          ['noise', 'Measurement noise']
-        ]
-      )}<div class="btn-row"><button data-action="pid-manual">Manual</button><button data-action="pid-auto">Auto</button><button class="primary" data-action="pid-run">Run / resume</button><button data-action="pause">Pause</button>${resetButton()}</div><div id="pid-status" class="status"></div>${range('pid-op', 'Manual output OP', l.op, 0, 100, 1, '%')}${range('pid-sp', 'Setpoint SP', l.sp, 0, 100, 1, '%')}<div class="btn-row"><button data-action="pid-op-down">OP −1 pp</button><button data-action="pid-op-up">OP +1 pp</button><button data-action="pid-sp-down">SP −5 pp</button><button data-action="pid-sp-up">SP +5 pp</button><button data-action="pid-load">Add load +5 pp</button><button data-action="pid-load-clear">Clear load</button></div><div class="btn-row"><button data-action="pid-record">New step recording</button><button data-action="pid-step">OP step +10 pp</button><button data-action="pid-estimate">Estimate from record</button><button data-action="pid-apply">Use estimate → tuning</button></div><div id="pid-results"></div></section><section class="card"><h2>Model and controller setup</h2>${select(
-        'pid-equation',
-        'Honeywell-style equation',
-        l.cfg.equation,
-        [
-          ['A', 'A · P/I/D on error'],
-          ['B', 'B · P/I on error; D on PV'],
-          ['C', 'C · I on error; P/D on PV']
-        ]
-      )}<div class="btn-row"><button data-action="pid-preset-pi">PI starting point</button><button data-action="pid-preset-aggressive">Aggressive tuning</button><button data-action="pid-preset-derivative">Compare A/B/C with D</button></div><p id="pid-equation-note" class="plot-caption">A and B behave identically when Td = 0. Enable derivative to see A's SP kick; C has no proportional SP kick.</p>${select(
-        'pid-action',
-        'Controller action',
-        l.cfg.action,
-        [
-          ['reverse', 'Reverse · rising PV lowers OP'],
-          ['direct', 'Direct · rising PV raises OP']
-        ]
-      )}${number('pid-kc', 'Controller gain Kc', l.cfg.kc, 0.01, 20, 0.05, '%OP / %PV')}${number('pid-ti', 'Integral time Ti', l.cfg.ti, 0, 10, 0.01, 'min · 0 disables I')}${number('pid-td', 'Derivative time Td', l.cfg.td, 0, 2, 0.01, 'min · 0 disables D')}${number('pid-lambda', 'Desired response λ', l.lambda, 0.1, 120, 1, 's')}${number('pid-gain', 'Process gain', l.gain, -3, 3, 0.1, '%PV / %travel')}${number('pid-tau', 'Process time constant', l.tau, 2, 120, 1, 's')}${number('pid-delay', 'Transport delay', l.delay, 0, 30, 1, 's')}${select(
-        'pid-speed',
-        'Simulation speed',
-        String(l.speed),
-        [
-          ['1', '1× real time'],
-          ['4', '4×'],
-          ['8', '8×'],
-          ['16', '16×']
-        ]
-      )}<div class="hint">Setup values take effect immediately. Restart a step recording after changing the process or defect. In Auto, OP belongs to the controller; in Manual, you move OP yourself.</div></section></div>` +
-      detail(
-        'How to use the two stages',
-        `<p><strong>Step test:</strong> Run demo gives a steady baseline, steps OP from 50 to 60%, waits for settling, and estimates the response. Custom: start a new recording, wait for a steady baseline, step OP once, then estimate when settled. SP has no influence in Manual.</p><p><strong>Apply tuning:</strong> Use estimate copies a SIMC PI starting point to the controller. Choose A/B/C, change Kc/Ti/Td, switch Auto, then move SP or add a load. Run demo in this stage resets the process, preserves your tuning and defect, and tests SP then load.</p><p>Choose the defect independently in either stage. A defect can corrupt an OP-to-PV fit. Compare against a healthy valve and distinguish controller OP from actual travel. Tuning does not repair stiction.</p>`
-      ) +
-      detail(
-        'Controller mathematics and limits',
-        `<p><strong>Noninteractive (ideal) teaching form:</strong> OP = bias + Kc[βSP − PV + integral(SP − PV)/Ti + filtered derivative(γSP − PV)]. Reverse action is shown; Direct reverses the action sign. A: β=1, γ=1. B: β=1, γ=0. C: β=0, γ=0. Derivative filter time is Td/16. Ti and Td are entered in minutes and converted to seconds.</p><p>Output is limited to 0–100% with conditional integral anti-windup. Manual→Auto tracks bias for a bumpless initial transfer. SP does not track PV in Manual. Changes to equation/tuning track the current OP; subsequent SP changes reveal the A/B/C behavior. This is a reduced teaching model, not Honeywell firmware, an interactive/series controller, or a full cascade implementation.</p><p>PV is % of a normalized span. The process is self-regulating: target PV = 50 + process gain × (delayed actual travel − 50) + load; lag time constant τ. True PV can exceed the nominal span. Noise affects measured PV only. The valve and transport delay are separate.</p><p><a href="https://skoge.folk.ntnu.no/puublications_others/apc-papers/honeywell3000-AP09-600.pdf" target="_blank" rel="noopener">Honeywell AP09-600 §8.14.1 ↗</a></p>`
-      ) +
-      detail(
-        'What the step estimate means',
-        `<p>The app reads the measured baseline, final PV and 28.3%/63.2% crossing times. K = ΔPV/ΔOP, τ ≈ 1.5(t63 − t28), θ ≈ t28 − τ/3. Settling and single-step checks gate the estimate. Valve dynamics are included in the fitted OP-to-PV response; this is an effective local model, not the hidden process settings.</p><p>SIMC PI starting point: Kc = τ/[|K|(λ+θ)], Ti = min[τ, 4(λ+θ)], Td = 0. λ is held at least as large as the estimated delay. Negative gain selects Direct action. Noise, travel clipping and stiction can produce a misleading fit; the app reports caveats rather than claiming a unique plant model.</p><p><a href="https://skoge.folk.ntnu.no/publications/2003/tuningPID/mic-version/mic.pdf" target="_blank" rel="noopener">Skogestad SIMC tuning paper ↗</a></p><p>These are simulated experiments. Field step tests and tuning changes follow the site's operating procedures and process constraints.</p>`
-      )
-    );
   }
   function sampleL(dt) {
     const l = state.pid;
@@ -1326,8 +3390,17 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     value('pid-sp-value', l.sp, 1, '%');
     value('pid-op-value', l.op, 1, '%');
     value('pid-travel-value', l.plant.travel, 1, '%');
+    const defects = {
+      none: 'healthy valve',
+      stiction: 'sticky valve',
+      backlash: 'valve with backlash',
+      slow: 'slow valve',
+      limited: 'travel limited to 55%',
+      noise: 'noisy measurement'
+    };
     $('pid-status').textContent =
-      `${l.mode.toUpperCase()} · ${l.running ? 'running' : 'paused'} · ${l.plant.t.toFixed(1)} s · ${l.speed}× · load ${l.load} pp · ${l.defect === 'none' ? 'healthy valve' : l.defect}`;
+      `${l.mode === 'auto' ? 'Auto' : 'Manual'} · ${l.running ? 'running' : 'paused'} at ${l.plant.t.toFixed(0)} s (${l.speed}× speed) · ${defects[l.defect]}${l.load ? ` · load +${l.load} pp` : ''}`;
+    document.querySelectorAll('[data-stage]').forEach(el => (el.hidden = el.dataset.stage !== l.stage));
     for (const id of ['op', 'sp']) {
       const el = $('pid-' + id);
       el.value = l[id];
@@ -1345,7 +3418,7 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       ? est.ok
         ? `<div class="hint"><strong>Measured effective model</strong><br>K ${est.gain.toFixed(3)} %PV/%OP · τ ${est.tau.toFixed(1)} s · θ ${est.delay.toFixed(1)} s<br>SIMC PI: Kc ${P.suggestPI(est, l.lambda).kc.toFixed(2)} · Ti ${P.suggestPI(est, l.lambda).ti.toFixed(3)} min · Td 0 min</div>${l.defect !== 'none' ? '<div class="hint warning-note">Defect included: this fit can absorb valve dynamics, lost motion, clipping or measurement noise. Compare a healthy test before treating it as process tuning.</div>' : ''}`
         : `<div class="hint warning-note">${e(est.reason)}</div>`
-      : `<p class="plot-caption">${l.test ? 'Recording one OP step. Wait for a steady response, then estimate.' : 'Run a default demo or start a custom step recording. Estimates appear here.'}</p>`;
+      : `<p class="plot-caption">${l.test ? 'Step recorded. Wait until PV has settled, then press Estimate.' : 'Start a new recording, wait for a steady baseline, then step OP once. The estimate appears here.'}</p>`;
   }
   function pidAction(name) {
     const l = state.pid;
@@ -1520,8 +3593,7 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     }
     if (mod === 'positioner') state.positioner.running = true;
     if (mod === 'pid') state.pid.running = true;
-    W.setPanel('operate');
-    W.mode(true, 'Demo running · changes are automatic. Custom stops the demonstration.');
+    W.mode(true, 'Demo running. The controls move by themselves; Stop hands them back to you.');
     start();
   }
   function demoStep(dt) {
@@ -1550,7 +3622,8 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       $('flow-travel').value = state.flow.travel;
       output('flow-travel', state.flow.travel.toFixed(1) + ' %');
       updateFlow();
-      message = 'Sweeping travel: compare installed flow with constant-ΔP flow. Switch Observe to see inherent Cv.';
+      message =
+        'Sweeping travel: compare installed flow with constant-ΔP flow. Switch the view to Inherent Cv to see the trim curve.';
       done = t >= 16;
     }
     if (mod === 'trim') {
@@ -1596,8 +3669,8 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       }
       message =
         t < 5
-          ? 'Compare command, actual travel, pressure and flow. Change Observe for each trace.'
-          : 'Explanation revealed in Operate. A pattern supports a hypothesis, not a unique diagnosis.';
+          ? 'Compare command, actual travel, pressure and flow. Use the view buttons for each trace.'
+          : 'Explanation revealed under Controls. A pattern supports a hypothesis, not a unique diagnosis.';
       done = t >= 8;
     }
     if (mod === 'pid') {
@@ -1638,20 +3711,87 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       refresh();
     }
   }
-  function refresh() {
-    if (state.module === 'anatomy') updateAnatomy();
-    if (state.module === 'friction') updateFriction();
-    if (state.module === 'flow') updateFlow();
-    if (state.module === 'trim') updateTrim();
-    if (state.module === 'positioner') updatePositioner();
-    if (state.module === 'diagnosis') updateDiagnosis();
-    if (state.module === 'pid') updatePID();
-    W.syncSelections();
-  }
-
+  // ---- Page templates -------------------------------------------------------------------------
+  const MODULE_IDS = Object.keys(C.modules);
+  const FRICTION_LABELS = {
+    ideal: 'Ideal',
+    stiction: 'Stiction',
+    hysteresis: 'Hysteresis',
+    backlash: 'Backlash',
+    lag: 'Slow response'
+  };
   function header(id) {
-    const [num, title, sub] = titles[id];
-    return `<div class="page-head"><div><p class="eyebrow">MODULE ${num} / THE CONTROL VALVE LAB</p><h1>${title}</h1><p>${sub}</p></div><span class="page-number" aria-hidden="true">${num}</span></div><div class="btn-row" style="justify-content:flex-end;margin:-6px 0 18px"><button class="pill" data-action="glossary" style="flex:0 0 auto">Glossary</button><button class="pill" data-action="references" style="flex:0 0 auto">Sources & assumptions</button></div>`;
+    const m = C.modules[id];
+    return `<header class="page-head"><p class="eyebrow">Lesson ${m.num} of ${String(MODULE_IDS.length).padStart(2, '0')} · about ${m.minutes} min</p><h1>${m.title}</h1><p class="question">${m.question}</p><p class="key-idea"><strong>Key idea</strong>${m.keyIdea}</p><div class="head-tools"><button type="button" class="link-button" data-action="glossary">Glossary</button><button type="button" class="link-button" data-action="references">Sources & assumptions</button></div></header>`;
+  }
+  function lessonPage(id, labHtml, deeper) {
+    const i = MODULE_IDS.indexOf(id),
+      prev = MODULE_IDS[i - 1],
+      next = MODULE_IDS[i + 1];
+    const link = (m, dir) =>
+      m
+        ? `<a class="pager-link ${dir}" href="#${m}" data-module="${m}"><small>${dir === 'prev' ? '← Previous lesson' : 'Next lesson →'}</small><strong>${C.modules[m].num} · ${C.modules[m].title}</strong></a>`
+        : `<a class="pager-link ${dir}" href="#home" data-module="home"><small>${dir === 'prev' ? '← Back to' : 'You finished the lessons →'}</small><strong>${dir === 'prev' ? 'Start here' : 'All lessons'}</strong></a>`;
+    return (
+      header(id) +
+      labHtml +
+      `<section class="on-the-job" aria-labelledby="job-title"><h2 id="job-title">Why it matters on the job</h2><div class="role-grid">${C.roles
+        .map(
+          (r, k) => `<article class="role-card role-${r.id}"><h3>${r.name}</h3><p>${C.onTheJob[id][k]}</p></article>`
+        )
+        .join('')}</div></section>` +
+      `<section class="deeper" aria-labelledby="deeper-title"><h2 id="deeper-title">Go deeper</h2>${deeper}</section>` +
+      `<nav class="pager" aria-label="Lesson navigation">${link(prev, 'prev')}${link(next, 'next')}</nav>`
+    );
+  }
+  function homePage() {
+    const lessonsHtml = MODULE_IDS.map(id => {
+      const m = C.modules[id];
+      return `<a class="lesson-card" href="#${id}" data-module="${id}"><span class="lesson-num">${m.num}</span><strong>${m.title}</strong><span class="lesson-q">${m.question}</span><em>About ${m.minutes} min · ${C.guides[id].length} guided steps</em></a>`;
+    }).join('');
+    return `<section class="hero">
+      <p class="eyebrow">Control Valve Lab</p>
+      <h1>See what your control valve is really doing.</h1>
+      <p class="lede">Seven short, hands-on lessons that follow a control signal all the way to process flow. Each lesson is a live simulation with guided steps, written for operators, technicians, engineers and managers.</p>
+      <div class="hero-actions"><a class="button primary" href="#anatomy" data-module="anatomy">Start lesson 1 →</a><button type="button" data-scroll="paths">Choose a path for your role</button></div>
+    </section>
+    <section class="home-section" aria-labelledby="chain-title">
+      <h2 id="chain-title">From signal to flow</h2>
+      <p class="section-intro">Each lesson explains one link in this chain. A problem in any link shows up in the process trend.</p>
+      <ol class="chain">${C.chain
+        .map(
+          ([name, text, mod], i) =>
+            `<li><a href="#${mod}" data-module="${mod}"><span class="chain-num">${i + 1}</span><strong>${name}</strong><span class="chain-text">${text}</span><em>Lesson ${C.modules[mod].num} →</em></a></li>`
+        )
+        .join('')}</ol>
+    </section>
+    <section id="paths" class="home-section" aria-labelledby="paths-title">
+      <h2 id="paths-title">Choose your path</h2>
+      <p class="section-intro">Every lesson works on its own. These routes give each role the most useful starting order.</p>
+      <div class="role-grid">${C.roles
+        .map(
+          r =>
+            `<article class="role-card path-card role-${r.id}"><h3>${r.name}</h3><p class="who">${r.who}</p><p class="goal">${r.goal}</p><ol class="path">${r.path
+              .map(
+                m =>
+                  `<li><a href="#${m}" data-module="${m}"><span>${C.modules[m].num}</span>${C.modules[m].title}</a></li>`
+              )
+              .join('')}</ol><p class="remember"><strong>Remember</strong>${r.remember}</p></article>`
+        )
+        .join('')}</div>
+    </section>
+    <section class="home-section" aria-labelledby="all-title">
+      <h2 id="all-title">All lessons</h2>
+      <div class="lesson-grid">${lessonsHtml}</div>
+    </section>
+    <section class="home-section" aria-labelledby="ess-title">
+      <h2 id="ess-title">Five things everyone should know</h2>
+      <ol class="essentials">${C.essentials.map(([t, d]) => `<li><strong>${t}</strong><span>${d}</span></li>`).join('')}</ol>
+    </section>
+    <p class="disclaimer">All data are simulated for teaching and every drawing is conceptual. Nothing here connects to a plant. Field testing, tuning and maintenance follow your site's procedures.</p>`;
+  }
+  function transport(runAction, runLabel) {
+    return `<div class="transport"><button type="button" class="primary" data-action="${runAction}">▶ ${runLabel}</button><button type="button" data-action="pause">❚❚ Pause</button>${resetButton()}</div>`;
   }
   function range(id, label, value, min, max, step = 1, unit = '', ends = true) {
     return `<div class="control"><label for="${id}">${label}<output for="${id}" id="${id}-out">${e(value)} ${unit}</output></label><input id="${id}" type="range" min="${min}" max="${max}" step="${step}" value="${value}">${ends ? `<div class="range-ends"><span>${min} ${unit}</span><span>${max} ${unit}</span></div>` : ''}</div>`;
@@ -1669,7 +3809,7 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     return `<details class="detail"><summary>${title}</summary>${body}</details>`;
   }
   function resetButton() {
-    return '<button data-action="reset">Reset lab ↺</button>';
+    return '<button type="button" data-action="reset">↺ Reset</button>';
   }
   function lessons(rows) {
     return `<div class="lesson-strip">${rows.map(([title, text]) => `<article><h3>${title}</h3><p>${text}</p></article>`).join('')}</div>`;
@@ -1680,38 +3820,644 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
   }
   function anatomyPage() {
     const a = state.anatomy;
-    return (
-      header('anatomy') +
-      `<div class="grid-main"><section class="card"><div class="card-top"><h2>A moving cutaway</h2><span class="badge">AIR-TO-OPEN EXAMPLE</span></div><div class="diagram-stage" id="valve-diagram"></div><p class="diagram-note">Tap a part to inspect it. Flow path: left inlet → seat → right outlet. Original schematic; dimensions and forces are illustrative.</p><div class="kpi-grid">${kpi('anatomy-travel', 'Actual travel', 'travel', '%')}${kpi('anatomy-pressure', 'Chamber pressure', 'pressure', 'psi')}${kpi('anatomy-force', 'Air force', 'pressure', 'lbf')}${kpi('anatomy-lift', 'Plug lift', 'travel', 'in')}</div>${range('anatomy-command', 'Travel command', a.command, 0, 100, 1, '%')}<div class="btn-row"><button class="primary" data-action="air-fail">Remove air</button>${resetButton()}</div><div class="hint" id="anatomy-status">Air lifts the diaphragm, stem, and plug. The spring opposes motion.</div></section><div class="stack"><section class="card"><div class="card-top"><h2>Inspect the parts</h2><span class="badge">12 COMPONENTS</span></div><div class="component-grid">${Object.entries(
-        C.components
-      )
-        .map(
-          ([id, p]) =>
-            `<button data-component="${id}" class="${id === a.component ? 'selected' : ''}">${p.name.split(' / ')[0]}</button>`
+    return lessonPage(
+      'anatomy',
+      W.lab({
+        views: [
+          {
+            label: 'Valve cutaway',
+            html: `<div class="diagram-stage" id="valve-diagram"></div><p class="diagram-note">Air-to-open, spring-to-close example. Tap a part to inspect it. Conceptual drawing; dimensions and forces are illustrative.</p>`
+          }
+        ],
+        metrics:
+          kpi('anatomy-travel', 'Actual travel', 'travel', '%') +
+          kpi('anatomy-pressure', 'Actuator pressure', 'pressure', 'psi') +
+          kpi('anatomy-force', 'Air force', 'pressure', 'lbf') +
+          kpi('anatomy-lift', 'Plug lift', 'travel', 'in'),
+        status: '<p class="status" id="anatomy-status" aria-live="polite"></p>',
+        controls: `${range('anatomy-command', 'Travel command', a.command, 0, 100, 1, '%')}<div class="btn-row"><button type="button" data-action="air-fail">Remove air</button>${resetButton()}</div><h3 class="control-heading">Inspect a part</h3><div class="component-grid">${Object.entries(
+          C.components
         )
-        .join(
-          ''
-        )}</div><div id="component-detail" class="component-detail"></div></section><section class="card"><h2>What actually moves the stem?</h2><div class="formula">Air force − spring force<br>− opposing process force<br>− friction = net moving force<small>Direction signs depend on actuator and valve construction.</small></div><p>Pressure acts on an effective diaphragm area. In this example, a 20 in² area and a 3–15 psi unloaded spring range give 60–300 lbf across the stroke. Real assemblies have their own area, spring, loading, and friction.</p><p><strong>At rest, forces balance.</strong> Increasing command does not guarantee movement: force may first have to overcome static friction.</p>${sourceLink(0)}</section></div></div>` +
-      lessons([
+          .map(
+            ([id, p]) =>
+              `<button type="button" data-component="${id}" class="${id === a.component ? 'selected' : ''}">${p.name.split(' / ')[0]}</button>`
+          )
+          .join('')}</div><div id="component-detail" class="component-detail"></div>`
+      }),
+      `<div class="deeper-grid"><article class="card"><h3>What actually moves the stem?</h3><div class="formula">Air force − spring force<br>− opposing process force<br>− friction = net moving force<small>Direction signs depend on actuator and valve construction.</small></div><p>Pressure acts on an effective diaphragm area. In this example a 20 in² area and a 3–15 psi unloaded spring range give 60–300 lbf across the stroke. Real assemblies have their own area, spring, loading and friction.</p><p><strong>At rest, forces balance.</strong> Increasing the command does not guarantee movement: force may first have to overcome static friction.</p>${sourceLink(0)}</article><article class="card"><h3>Three things a trend cannot tell you</h3>${lessons(
         [
-          'Signal ≠ position',
-          'The command is a request. Actual stem travel is the mechanical result. A positioner helps make the two agree.'
-        ],
-        [
-          'Position ≠ flow',
-          'The plug exposes an opening. Actual flow also depends on process pressure drop and fluid properties.'
-        ],
-        [
-          'Color ≠ construction',
-          'Fisher is the likely brand you mean. The nameplate and trim records identify the actual design; the green paint does not.'
+          [
+            'Signal ≠ position',
+            'The command is a request. Actual stem travel is the mechanical result. A positioner helps make the two agree.'
+          ],
+          [
+            'Position ≠ flow',
+            'The plug exposes an opening. Actual flow also depends on process pressure drop and fluid properties.'
+          ],
+          [
+            'Paint ≠ construction',
+            'Brand and paint color do not identify the design or fail action. The nameplate, datasheet and trim records do.'
+          ]
         ]
-      ]) +
-      detail(
-        'Fail action: loss of air and loss of signal are different',
-        `<p>This example is spring-to-close: removing actuator air lets the spring seat the plug. Other assemblies are spring-to-open, double-acting, or use accessories that affect failure behavior.</p><p>Loss of electrical signal can cause the positioner to exhaust, fill, hold, or follow another configured response. A lock-up valve, solenoid, accumulator, or failed supply can change the result. Confirm the complete assembly and the specified failure.</p><p>The model uses an unloaded equilibrium and ideal shutoff. Actual flow forces, trapped air, friction, and seat leakage are not modeled here.</p>`
-      )
+      )}</article></div>` +
+        detail(
+          'Fail action: loss of air and loss of signal are different',
+          `<p>This example is spring-to-close: removing actuator air lets the spring seat the plug. Other assemblies are spring-to-open, double-acting, or use accessories that affect failure behavior.</p><p>Loss of electrical signal can cause the positioner to exhaust, fill, hold, or follow another configured response. A lock-up valve, solenoid, accumulator, or failed supply can change the result. Confirm the complete assembly and the specified failure.</p><p>The model uses an unloaded equilibrium and ideal shutoff. Actual flow forces, trapped air, friction, and seat leakage are not modeled here.</p>`
+        )
     );
   }
+  function frictionPage() {
+    const f = state.friction;
+    return lessonPage(
+      'friction',
+      W.lab({
+        views: [
+          {
+            label: 'Over time',
+            html: `<div id="friction-time"></div>${legend([
+              ['Command', 'command', 'dashed'],
+              ['Actual travel', 'travel']
+            ])}`
+          },
+          {
+            label: 'Response signature',
+            html: `<div id="friction-signature"></div><p class="plot-caption" id="signature-note"></p>`
+          }
+        ],
+        metrics:
+          kpi('friction-command-value', 'Command', 'command', '%') +
+          kpi('friction-travel', 'Actual travel', 'travel', '%') +
+          kpi('friction-pressure', 'Drive pressure (proxy)', 'pressure', 'psi') +
+          kpi('friction-error', 'Command − travel', 'command', 'pp'),
+        transport: transport('sweep', 'Run sweep'),
+        status: '<p id="friction-status" class="status" aria-live="polite"></p>',
+        controls: `<h3 class="control-heading">Choose a valve behavior</h3><div class="pills" role="group" aria-label="Valve behavior">${Object.keys(
+          C.friction
+        )
+          .map(
+            k =>
+              `<button type="button" class="pill ${k === f.mode ? 'selected' : ''}" data-friction="${k}">${FRICTION_LABELS[k]}</button>`
+          )
+          .join(
+            ''
+          )}</div><div class="mode-note"><strong id="friction-title"></strong><p id="friction-explain"></p><p class="look-for" id="friction-observe"></p></div>${range('friction-command', 'Drive command', f.command, 0, 100, 1, '%')}<div class="btn-row"><button type="button" data-action="step-down">−1% step</button><button type="button" data-action="step-up">+1% step</button><button type="button" data-action="settle">Hold & settle</button></div>`,
+        settings: `<div id="friction-controls"></div>${range('friction-speed', 'Sweep speed', f.speed, 1, 15, 1, 'pp/s')}<div class="control"><label for="friction-view">Signature axes</label><select id="friction-view"><option value="command" ${f.view === 'command' ? 'selected' : ''}>Travel vs command</option><option value="pressure" ${f.view === 'pressure' ? 'selected' : ''}>Pressure vs travel</option></select></div><p class="plot-caption">The sweep runs 10% → 90% → 10%. pp = percentage points of travel span.</p>`
+      }),
+      `<div class="deeper-grid"><article class="card"><h3>Separate the terms</h3><div class="facts"><div class="fact"><b>Stiction: a mechanism</b><p>Static resistance and lower sliding resistance can produce stick–slip.</p></div><div class="fact"><b>Hysteresis: a response</b><p>Different output at the same input, depending on the path taken.</p></div><div class="fact"><b>Deadband: a measured interval</b><p>An input change after reversal that produces no observable output change. State which input and output.</p></div><div class="fact"><b>Lag: a time effect</b><p>A delayed response can create a loop during a fast sweep, even without static lost motion.</p></div></div>${sourceLink(8)}</article><article class="card"><h3>Before you blame the packing</h3>${lessons(
+        [
+          [
+            'Packing is one candidate',
+            'Also consider stem damage, deposits, plug/cage contact, alignment, bearings, actuator seals, and thermal interference.'
+          ],
+          [
+            'Watch the pressure',
+            'Pressure changing while travel stays flat can show force building. Interpret it with supply, spring/load, and sensor location.'
+          ],
+          [
+            'A DVC is not a mechanical repair',
+            'Feedback may overcome some resistance, but cannot restore damaged surfaces or eliminate an unsuitable assembly.'
+          ]
+        ]
+      )}</article></div>` +
+        detail(
+          'What is this model assuming?',
+          `<p id="friction-model"></p><p>Both traces use % of travel span. Manual steps are sampled at 0.1 s; running traces use simulated elapsed time. For force-based views, a traditional 3–15 psi drive proxy maps to an unloaded spring span. No process-fluid forces are included. A real positioner changes output pressure using feedback; explore that in lesson 05.</p>`
+        )
+    );
+  }
+  function flowPage() {
+    const f = state.flow;
+    return lessonPage(
+      'flow',
+      W.lab({
+        views: [
+          {
+            label: 'Installed flow',
+            html: `<div id="installed-chart"></div>${legend([
+              ['Constant valve ΔP', 'command', 'dashed'],
+              ['Installed system', 'travel']
+            ])}`
+          },
+          {
+            label: 'Inherent Cv',
+            html: `<div id="cv-chart"></div>${legend([
+              ['Linear', 'command'],
+              ['Equal percentage', 'travel'],
+              ['Quick opening', 'pressure', 'dashed']
+            ])}`
+          }
+        ],
+        metrics:
+          kpi('flow-cv', 'Cv at this travel', 'travel') +
+          kpi('flow-q', 'Flow', 'flow', 'gpm') +
+          kpi('flow-valve-dp', 'Valve ΔP', 'pressure', 'psi') +
+          kpi('flow-gain', 'Flow per 1% travel', 'flow', 'gpm'),
+        extra:
+          '<div class="dp-split" id="flow-dp-bar" aria-hidden="true"><span class="dp-valve"></span><span class="dp-pipe"></span></div><div class="dp-legend"><span>Valve ΔP <b id="flow-authority"></b></span><span>Piping & other losses <b id="flow-pipe-dp"></b></span></div>',
+        status: '<p class="status" id="flow-insight" aria-live="polite"></p>',
+        controls: `${range('flow-travel', 'Valve travel', f.travel, 0, 100, 1, '%')}${select(
+          'flow-characteristic',
+          'Trim characteristic',
+          f.characteristic,
+          [
+            ['equal', 'Equal percentage'],
+            ['linear', 'Linear'],
+            ['quick', 'Quick opening · illustrative']
+          ]
+        )}${range('flow-resistance', 'Piping resistance K', f.resistance, 0, 0.02, 0.0005, 'psi/gpm²', false)}${range('flow-cvmax', 'Rated Cv (valve size)', f.cvMax, 10, 400, 5)}<div class="btn-row">${resetButton()}</div>`,
+        settings: `${select('flow-mode', 'System model', f.mode, [
+          ['installed', 'Installed · fixed total pressure budget'],
+          ['constant', 'Constant valve pressure drop']
+        ])}${range('flow-dp', 'Total pressure budget', f.dp, 0, 100, 1, 'psi')}${range('flow-rangeability', 'Equal-percentage rangeability R', f.rangeability, 10, 100, 5, ':1')}${range('flow-sg', 'Liquid specific gravity', f.sg, 0.5, 2, 0.05)}<p class="plot-caption">Piping and other losses = K × Q². This K belongs to this model only; it is not a dimensionless fitting-loss coefficient.</p>`
+      }),
+      `<div class="deeper-grid"><article class="card"><h3>Read the relationship</h3><div class="formula">Q = Cv × √(ΔP<sub>valve</sub> / SG)<small>Q: US gpm · ΔP: psi · SG: water = 1</small></div><p>At fixed ΔP and SG, flow follows Cv. In a real system, opening the valve usually increases flow and piping losses, leaving less pressure drop across the valve.</p><div class="hint warning-note">Educational turbulent, non-choked, single-phase liquid model. It does not size gas, steam, cavitating, flashing, viscous, or two-phase service.</div>${sourceLink(0)}</article><article class="card"><h3>What the curves mean</h3>${lessons(
+        [
+          [
+            'Linear means linear Cv',
+            'Equal travel increments give equal increments of Cv. Flow is linear only if the rest of the system allows it.'
+          ],
+          [
+            'Equal percentage means a ratio',
+            'Equal travel increments multiply Cv by the same factor. A 10 pp move with R = 50 multiplies Cv by about 1.48 above the near-seat region.'
+          ],
+          [
+            'Installed gain matters to tuning',
+            'A controller sees the process response, not the inherent trim curve. Oversizing and changing ΔP make loop gain vary across the range.'
+          ]
+        ]
+      )}</article></div>` +
+        detail(
+          'Equations, shutoff transition, and model boundaries',
+          `<p><strong>Linear:</strong> Cv = Cv<sub>max</sub> × x. <strong>Equal percentage:</strong> Cv = Cv<sub>max</sub> × R<sup>x−1</sup> from 5–100% travel, where x is fractional travel. Below 5%, this app uses an explicitly illustrative linear seating transition to zero. The pure exponential does not reach zero at x = 0.</p><p><strong>Quick opening:</strong> Cv/Cv<sub>max</sub> = (1 − e<sup>−4x</sup>)/(1 − e<sup>−4</sup>), an illustrative curve, not a manufacturer capacity table.</p><p><strong>Installed model:</strong> ΔP<sub>total</sub> = SG × (Q/Cv)² + K × Q². Therefore Q = √[ΔP<sub>total</sub> / (SG/Cv² + K)]. The pressure budget is fixed at each setting; real pumps and networks can behave differently.</p><p>Flow per 1% travel is the local slope in US gpm per percentage point of actual travel. The valve share is ΔP<sub>valve</sub>/ΔP<sub>total</sub> at the displayed point (valve authority). Rated rangeability and installed turndown are not interchangeable. Zero indicated travel does not guarantee leak-tight real equipment.</p>`
+        )
+    );
+  }
+  function trimPage() {
+    const t = state.trim;
+    return lessonPage(
+      'trim',
+      W.lab({
+        views: [
+          { label: 'Closure member', html: '<div class="diagram-stage" id="style-diagram"></div>' },
+          {
+            label: 'Pressure profile',
+            html: `<div id="pressure-profile"></div>${legend([
+              ['Local liquid pressure', 'command'],
+              ['Vapor pressure', 'flow', 'dashed']
+            ])}<p class="plot-caption">Illustrative absolute pressures (psia) along the flow path, upstream (0) to downstream (1). Not a sizing result.</p>`
+          }
+        ],
+        controls: `<h3 class="control-heading">Valve style</h3><div class="style-list">${Object.entries(C.styles)
+          .map(
+            ([id, s]) =>
+              `<button type="button" class="style-card ${id === t.style ? 'selected' : ''}" data-style="${id}">${D.styleIcon(id, 50)}<strong>${s.name}</strong><small>${s.tag}</small></button>`
+          )
+          .join(
+            ''
+          )}</div>${range('trim-travel', 'Travel / rotation', t.travel, 0, 100, 1, '%')}<div id="style-detail" class="selection-detail"></div><h3 class="control-heading">Pressure profile</h3><div class="pills" role="group" aria-label="Pressure profile">${[
+          ['normal', 'No vapor'],
+          ['cavitation', 'Cavitation'],
+          ['flashing', 'Flashing'],
+          ['staged', 'Staged pressure reduction']
+        ]
+          .map(
+            ([v, n]) =>
+              `<button type="button" class="pill ${v === t.profile ? 'selected' : ''}" data-profile="${v}">${n}</button>`
+          )
+          .join('')}</div><div id="profile-detail" class="selection-detail"></div>`
+      }),
+      `<div class="deeper-grid"><article class="card"><h3>What does “trim” change?</h3>${select(
+        'trim-type',
+        'Explore a trim choice',
+        t.trim,
+        Object.entries(C.trims).map(([id, tr]) => [id, tr.name])
+      )}<div id="trim-detail"></div></article><article class="card"><h3>Selection reminders</h3>${lessons([
+        [
+          'Severe service is a selection problem',
+          'Fluid properties, temperature, pressure recovery, solids, erosion, noise, and minimum/maximum flow all matter.'
+        ],
+        [
+          'Rotary does not mean friction-free',
+          'Shaft packing, bearings, seals, and couplings introduce different sources of friction and lost motion.'
+        ],
+        [
+          'Choking changes the equation',
+          'Once flow is choked, reducing downstream pressure further does not increase flow as the simple liquid equation predicts.'
+        ]
+      ])}</article></div>` +
+        detail(
+          'Construction choices are independent',
+          `<p>A valve can have an equal-percentage characteristic, reduced capacity, a balanced plug, hard-faced surfaces, and a particular leakage class at the same time. These describe different attributes.</p><p>The characteristic is not determined by paint color, a globe-shaped body, or whether the actuator is linear or rotary. Use the actual trim and capacity tables.</p>`
+        )
+    );
+  }
+  function positionerPage() {
+    const p = state.positioner;
+    return lessonPage(
+      'positioner',
+      W.lab({
+        views: [
+          {
+            label: 'Travel',
+            html: `<div id="position-time"></div>${legend([
+              ['Requested travel', 'command', 'dashed'],
+              ['Actual travel', 'travel']
+            ])}`
+          },
+          {
+            label: 'Air pressure',
+            html: `<div id="position-pressure"></div>${legend([
+              ['Actuator pressure', 'pressure'],
+              ['Supply ceiling', 'muted', 'dashed']
+            ])}`
+          }
+        ],
+        metrics:
+          kpi('position-setpoint', 'Requested travel', 'command', '%') +
+          kpi('position-travel', 'Actual travel', 'travel', '%') +
+          kpi('position-output', 'Actuator pressure', 'pressure', 'psi') +
+          kpi('position-deviation', 'Travel error', 'command', 'pp'),
+        transport: transport('position-run', 'Run'),
+        status: '<p id="position-status" class="status" aria-live="polite"></p>',
+        controls: `<h3 class="control-heading">What drives the actuator?</h3><div class="pills" role="group" aria-label="Positioning device">${[
+          ['ip', 'I/P alone'],
+          ['conventional', 'Conventional positioner'],
+          ['dvc', 'Digital valve controller']
+        ]
+          .map(
+            ([v, t]) =>
+              `<button type="button" class="pill ${v === p.type ? 'selected' : ''}" data-positioner="${v}">${t}</button>`
+          )
+          .join(
+            ''
+          )}</div>${range('position-command', 'Requested travel', p.command, 0, 100, 1, '%')}<div class="btn-row"><button type="button" data-action="position-step">Step to 70%</button></div><h3 class="control-heading">Add a problem</h3>${range('position-load', 'Opposing load', p.load, 0, 6, 0.5, 'psi')}${range('position-supply', 'Air supply', p.supply, 5, 30, 1, 'psi')}<label class="check-row"><input type="checkbox" id="position-restricted" ${p.restricted ? 'checked' : ''}>Restricted air delivery</label><label class="check-row"><input type="checkbox" id="position-aggressive" ${p.aggressive ? 'checked' : ''}>Excessive position-loop gain</label><p class="plot-caption">Changes start the simulation; it stops by itself once the valve settles. Load is an extra opposing force divided by actuator area.</p>`
+      }),
+      `<div class="deeper-grid"><article class="card"><h3>Trace the signal path</h3><div id="position-chain" class="signal-chain"></div><div class="hint" id="position-feedback"></div><p class="plot-caption">Each block uses the same live state. A 4–20 mA signal and a single-acting air-to-open assembly are example choices, not universal arrangements.</p></article><article class="card"><h3>What a DVC adds</h3><p>A digital valve controller measures travel, runs a position-control algorithm, and drives pneumatic output. Depending on model, configuration, and diagnostic level, it can report pressures, travel deviation, alerts, and diagnostic tests.</p><p><strong>FIELDVUE</strong> is Fisher’s family; <strong>DVC6200</strong> is one device example. Flowserve Logix and SAMSON digital positioners use the same broad feedback principle with different hardware and features.</p><p>HART communication can carry digital device information alongside an analog current request. The actuator energy still comes from instrument air.</p>${sourceLink(1)}</article></div>` +
+        detail(
+          'Configuration choices that can change the result',
+          `<div class="table-wrap"><table><thead><tr><th>Setting / concept</th><th>What it changes</th><th>What it does not establish</th></tr></thead><tbody><tr><td>Input characterization</td><td>Maps command to a travel setpoint, possibly with a nonlinear table.</td><td>The physical trim’s inherent Cv curve does not change.</td></tr><tr><td>Travel limits / cutoffs</td><td>Restrict target travel or force output toward an end condition near configured cutoffs.</td><td>They do not prove correct fail action or leak-tight shutoff.</td></tr><tr><td>Split range</td><td>Allocates portions of one control signal to different valves.</td><td>Overlap, gaps, process gain, and failure behavior still need evaluation.</td></tr><tr><td>Positioner tuning</td><td>Changes the inner loop’s response to travel error.</td><td>It is distinct from process PID tuning and does not fix mechanical damage.</td></tr><tr><td>Travel / pressure fallback</td><td>Some models can change control mode after specified feedback faults.</td><td>Availability and recovery behavior depend on exact hardware, firmware, and configuration.</td></tr></tbody></table></div>`
+        ) +
+        detail(
+          'What this simulation does and does not compare',
+          `<p>The conventional and digital positioners share the same feedback dynamics here. Digital does not automatically mean faster or better mechanics. The DVC view adds the concept of digital configuration and diagnostics.</p><p>The model includes spring load, an opposing load, pneumatic lag, small friction, actuator inertia/damping, output saturation, and anti-windup. Excessive gain with low damping intentionally produces hunting. These constants are illustrative, not manufacturer tuning values.</p><p>At zero supply, a real assembly responds according to spring action and accessories; this lesson focuses on positioning while air is available.</p>`
+        ) +
+        lessons([
+          [
+            'DCS output is not a travel measurement',
+            'A 60% controller output may map to another travel target through split-ranging, characterization, or limits.'
+          ],
+          [
+            'Feedback location matters',
+            'DVC travel can represent a stem, shaft, or actuator mechanism. Downstream lost motion can remain invisible.'
+          ],
+          [
+            'Full stroke is not a small-step test',
+            'Fast 0–100% motion does not guarantee response to a 0.5% correction around normal operating travel.'
+          ]
+        ])
+    );
+  }
+  function diagnosisPage() {
+    const d = state.diagnosis;
+    return lessonPage(
+      'diagnosis',
+      W.lab({
+        views: [
+          {
+            label: 'Command & travel',
+            html: `<div id="case-travel-chart"></div>${legend([
+              ['Command', 'command', 'dashed'],
+              ['Actual travel', 'travel']
+            ])}`
+          },
+          {
+            label: 'Pressure',
+            html: `<div id="case-pressure-chart"></div>${legend([['Actuator / proxy pressure', 'pressure']])}`
+          },
+          { label: 'Flow', html: `<div id="case-flow-chart"></div>${legend([['Flow', 'flow']])}` }
+        ],
+        controls: `${select(
+          'diagnosis-case',
+          'Case',
+          d.case,
+          Object.entries(C.cases).map(([id, c]) => [id, c.name])
+        )}<p class="tag-line">Make a working hypothesis</p><h3 id="case-question" class="case-question"></h3><div class="case-options">${C.answerOptions
+          .map(([id, name]) => `<button type="button" data-answer="${id}">${name}</button>`)
+          .join(
+            ''
+          )}</div><p id="case-feedback" class="case-feedback" aria-live="polite"></p><div class="btn-row"><button type="button" data-action="reveal">Show explanation</button><button type="button" class="primary" data-action="next-case">Next case →</button></div><div id="case-answer" class="answer"></div>`
+      }),
+      `<div class="deeper-grid"><article class="card"><h3>Before you blame the valve</h3><p>A cycling process variable does not prove stiction. Start with command and actual travel, add air pressures, and examine process-side changes.</p><p>A valve signature is evidence under a particular load and temperature. Comparing unlike test conditions can turn a normal load change into an apparent friction change.</p><div class="hint warning-note">These are simulated tests. Online stroking, calibration, fail testing, and disassembly require the site’s operating, isolation, and maintenance procedures.</div>${sourceLink(8)}</article><article class="card"><h3>About these traces</h3><p>Each 60 s case is generated by the app's models to isolate one mechanism. Every chart has its own y-axis with units.</p><p>Packing and backlash pressure is an upstream command proxy, not a feedback-positioner output. Real symptoms can have several causes at once.</p></article></div>`
+    );
+  }
+  function pidPage() {
+    const l = state.pid;
+    return lessonPage(
+      'pid',
+      W.lab({
+        views: [
+          {
+            label: 'Setpoint & PV',
+            html: `<div id="pid-trend"></div>${legend([
+              ['SP', 'command', 'dashed'],
+              ['Measured PV', 'travel']
+            ])}`
+          },
+          {
+            label: 'Output & valve travel',
+            html: `<div id="pid-valve-chart"></div>${legend([
+              ['Controller OP', 'command'],
+              ['Actual travel', 'pressure']
+            ])}`
+          }
+        ],
+        metrics:
+          kpi('pid-pv', 'Measured PV', 'travel', '%') +
+          kpi('pid-sp-value', 'Setpoint', 'command', '%') +
+          kpi('pid-op-value', 'Controller output', 'command', '%') +
+          kpi('pid-travel-value', 'Valve travel', 'pressure', '%'),
+        transport: transport('pid-run', 'Run'),
+        status: '<p id="pid-status" class="status" aria-live="off"></p>',
+        controls: `<div id="pid-stage-controls" class="segmented" role="group" aria-label="Stage"><button type="button" data-action="pid-stage-step" aria-pressed="${l.stage === 'step'}">1 · Step test</button><button type="button" data-action="pid-stage-tune" aria-pressed="${l.stage === 'tune'}">2 · Tune & test</button></div>${select(
+          'pid-defect',
+          'Valve condition',
+          l.defect,
+          [
+            ['none', 'Healthy valve'],
+            ['stiction', 'Stiction · 4 pp breakaway'],
+            ['backlash', 'Backlash · 6 pp reversal band'],
+            ['slow', 'Slow valve · 6 s lag'],
+            ['limited', 'Travel limited to 55%'],
+            ['noise', 'Measurement noise']
+          ]
+        )}<div data-stage="step"><p class="stage-note">Step tests run in Manual: you set the controller output (OP) directly and watch the process respond.</p><div class="btn-row numbered"><button type="button" data-action="pid-record">New recording</button><button type="button" data-action="pid-step">Step OP +10 pp</button><button type="button" data-action="pid-estimate">Estimate from record</button><button type="button" class="primary" data-action="pid-apply">Use estimate → tuning</button></div><div id="pid-results"></div></div><div data-stage="tune"><div class="segmented" role="group" aria-label="Controller mode"><button type="button" data-action="pid-manual">Manual</button><button type="button" data-action="pid-auto">Auto</button></div>${range('pid-sp', 'Setpoint SP', l.sp, 0, 100, 1, '%')}<div class="btn-row"><button type="button" data-action="pid-sp-down">SP −5</button><button type="button" data-action="pid-sp-up">SP +5</button><button type="button" data-action="pid-load">Add load +5</button><button type="button" data-action="pid-load-clear">Clear load</button></div>${select(
+          'pid-equation',
+          'Honeywell-style equation',
+          l.cfg.equation,
+          [
+            ['A', 'A · P/I/D on error'],
+            ['B', 'B · P/I on error; D on PV'],
+            ['C', 'C · I on error; P/D on PV']
+          ]
+        )}<div class="btn-row"><button type="button" data-action="pid-preset-pi">PI starting point</button><button type="button" data-action="pid-preset-aggressive">Aggressive tuning</button><button type="button" data-action="pid-preset-derivative">Add derivative</button></div><p id="pid-equation-note" class="plot-caption">A and B behave identically when Td = 0. Add derivative to see A's setpoint kick; C has no proportional setpoint kick.</p></div>${range('pid-op', 'Controller output OP (Manual only)', l.op, 0, 100, 1, '%')}<div class="btn-row"><button type="button" data-action="pid-op-down">OP −1</button><button type="button" data-action="pid-op-up">OP +1</button></div>`,
+        settings: `<h3 class="control-heading">Controller tuning</h3>${select(
+          'pid-action',
+          'Controller action',
+          l.cfg.action,
+          [
+            ['reverse', 'Reverse · rising PV lowers OP'],
+            ['direct', 'Direct · rising PV raises OP']
+          ]
+        )}${number('pid-kc', 'Controller gain Kc', l.cfg.kc, 0.01, 20, 0.05, '%OP / %PV')}${number('pid-ti', 'Integral time Ti', l.cfg.ti, 0, 10, 0.01, 'min · 0 disables I')}${number('pid-td', 'Derivative time Td', l.cfg.td, 0, 2, 0.01, 'min · 0 disables D')}${number('pid-lambda', 'Desired response λ', l.lambda, 0.1, 120, 1, 's')}<h3 class="control-heading">Hidden process</h3>${number('pid-gain', 'Process gain', l.gain, -3, 3, 0.1, '%PV / %travel')}${number('pid-tau', 'Process time constant', l.tau, 2, 120, 1, 's')}${number('pid-delay', 'Transport delay', l.delay, 0, 30, 1, 's')}${select(
+          'pid-speed',
+          'Simulation speed',
+          String(l.speed),
+          [
+            ['1', '1× real time'],
+            ['4', '4×'],
+            ['8', '8×'],
+            ['16', '16×']
+          ]
+        )}<p class="plot-caption">Process changes take effect immediately and discard the current step recording.</p>`
+      }),
+      detail(
+        'How to use the two stages',
+        `<p><strong>Step test:</strong> the demo records a steady baseline, steps OP from 50 to 60%, waits for settling, and estimates the response. To do it yourself: start a new recording, wait for a steady baseline, step OP once, then estimate when PV has settled. SP has no influence in Manual.</p><p><strong>Tune & test:</strong> Use estimate copies a SIMC PI starting point to the controller. Choose A/B/C, change Kc/Ti/Td, switch to Auto, then move SP or add a load. The demo in this stage restarts the process, keeps your tuning and valve condition, and tests SP then load.</p><p>Choose the valve condition independently in either stage. A defect can corrupt an OP-to-PV fit. Compare against a healthy valve and distinguish controller OP from actual travel. Tuning does not repair stiction.</p>`
+      ) +
+        detail(
+          'Controller mathematics and limits',
+          `<p><strong>Noninteractive (ideal) teaching form:</strong> OP = bias + Kc[βSP − PV + integral(SP − PV)/Ti + filtered derivative(γSP − PV)]. Reverse action is shown; Direct reverses the action sign. A: β=1, γ=1. B: β=1, γ=0. C: β=0, γ=0. Derivative filter time is Td/16. Ti and Td are entered in minutes and converted to seconds.</p><p>Output is limited to 0–100% with conditional integral anti-windup. Manual→Auto tracks bias for a bumpless initial transfer. SP does not track PV in Manual. Changes to equation/tuning track the current OP; subsequent SP changes reveal the A/B/C behavior. This is a reduced teaching model, not Honeywell firmware, an interactive/series controller, or a full cascade implementation.</p><p>PV is % of a normalized span. The process is self-regulating: target PV = 50 + process gain × (delayed actual travel − 50) + load; lag time constant τ. True PV can exceed the nominal span. Noise affects measured PV only. The valve and transport delay are separate.</p><p><a href="https://skoge.folk.ntnu.no/puublications_others/apc-papers/honeywell3000-AP09-600.pdf" target="_blank" rel="noopener">Honeywell AP09-600 §8.14.1 ↗</a></p>`
+        ) +
+        detail(
+          'What the step estimate means',
+          `<p>The app reads the measured baseline, final PV and 28.3%/63.2% crossing times. K = ΔPV/ΔOP, τ ≈ 1.5(t63 − t28), θ ≈ t28 − τ/3. Settling and single-step checks gate the estimate. Valve dynamics are included in the fitted OP-to-PV response; this is an effective local model, not the hidden process settings.</p><p>SIMC PI starting point: Kc = τ/[|K|(λ+θ)], Ti = min[τ, 4(λ+θ)], Td = 0. λ is held at least as large as the estimated delay. Negative gain selects Direct action. Noise, travel clipping and stiction can produce a misleading fit; the app reports caveats rather than claiming a unique plant model.</p><p><a href="https://skoge.folk.ntnu.no/publications/2003/tuningPID/mic-version/mic.pdf" target="_blank" rel="noopener">Skogestad SIMC tuning paper ↗</a></p><p>These are simulated experiments. Field step tests and tuning changes follow the site's operating procedures and process constraints.</p>`
+        )
+    );
+  }
+  // ---- Guided activities ----------------------------------------------------------------------
+  // "Show me" puts the lab into the state each step describes. Text lives in content.js (C.guides).
+  const defaultFlow = () => ({
+    travel: 50,
+    characteristic: 'equal',
+    cvMax: 80,
+    rangeability: 50,
+    dp: 25,
+    sg: 1,
+    resistance: 0.003,
+    mode: 'installed'
+  });
+  function guideState(mod = state.module) {
+    return (state.guide[mod] ??= { step: 0, done: [] });
+  }
+  function renderGuide() {
+    const el = $('guide-step');
+    if (!el) return;
+    const g = guideState(),
+      next = MODULE_IDS[MODULE_IDS.indexOf(state.module) + 1];
+    el.innerHTML = W.guide(state.module, g.step, g.done, next);
+  }
+  function guideNote(text) {
+    if ($('guide-note')) $('guide-note').textContent = text;
+  }
+  function rerender(view = 0) {
+    render(state.module);
+    W.setPlot(view);
+    refresh();
+  }
+  function setFrictionMode(mode) {
+    state.friction = { ...defaultF(), mode, speed: state.friction.speed };
+  }
+  function runPositioner(changes, view = 0) {
+    state.positioner = { ...defaultP(), ...changes };
+    rerender(view);
+    state.positioner.running = true;
+    start();
+  }
+  // Restart the PID process at a clean 50% operating point in Auto, keeping tuning and valve condition.
+  function freshAuto() {
+    const l = state.pid;
+    Object.assign(l, { stage: 'tune', plant: P.initial(), op: 50, sp: 50, load: 0, history: [], clock: 0 });
+    render('pid');
+    pidAction('pid-auto');
+  }
+  const guideActions = {
+    anatomy: [
+      () => {
+        state.anatomy = { ...state.anatomy, command: 80, airLost: false };
+        rerender();
+      },
+      () => {
+        state.anatomy.airLost = true;
+        rerender();
+      },
+      () => {
+        state.anatomy = { ...state.anatomy, airLost: false, component: 'packing' };
+        rerender();
+      },
+      () => {
+        state.anatomy = { ...state.anatomy, airLost: false, component: 'positioner' };
+        rerender();
+      }
+    ],
+    friction: [
+      () => {
+        setFrictionMode('stiction');
+        rerender(0);
+        for (let i = 0; i < 6; i++) action('step-up');
+      },
+      () => {
+        setFrictionMode('stiction');
+        rerender(1);
+        action('sweep');
+      },
+      () => {
+        setFrictionMode('backlash');
+        rerender(1);
+        action('sweep');
+      },
+      () => {
+        setFrictionMode('lag');
+        state.friction.speed = 15;
+        rerender(1);
+        action('sweep');
+      }
+    ],
+    flow: [
+      () => {
+        state.flow = { ...defaultFlow(), travel: 75 };
+        rerender(0);
+      },
+      () => {
+        state.flow = { ...defaultFlow(), travel: 75, resistance: 0.015 };
+        rerender(0);
+      },
+      () => {
+        state.flow = { ...defaultFlow(), characteristic: 'linear' };
+        rerender(1);
+      },
+      () => {
+        state.flow = { ...defaultFlow(), characteristic: 'linear', cvMax: 300, travel: 25 };
+        rerender(0);
+      }
+    ],
+    trim: [
+      () => {
+        state.trim = { ...state.trim, style: 'butterfly', travel: 40 };
+        rerender(0);
+      },
+      () => {
+        state.trim.profile = 'cavitation';
+        rerender(1);
+      },
+      () => {
+        state.trim.profile = 'flashing';
+        rerender(1);
+      },
+      () => {
+        state.trim.profile = 'staged';
+        rerender(1);
+      }
+    ],
+    positioner: [
+      () => runPositioner({ type: 'ip', load: 2 }),
+      () => runPositioner({ type: 'dvc', load: 2 }),
+      () => runPositioner({ type: 'dvc', supply: 10, command: 90 }, 1),
+      () => {
+        runPositioner({ type: 'dvc', aggressive: true });
+        action('position-step');
+      }
+    ],
+    diagnosis: [
+      () => {
+        state.diagnosis = { case: 'packing', answered: null, revealed: false };
+        rerender(0);
+      },
+      () => {
+        state.diagnosis = { ...state.diagnosis, case: 'packing' };
+        rerender(1);
+      },
+      () => {
+        const view = W.currentPlot();
+        state.diagnosis.revealed = true;
+        rerender(view);
+      },
+      () => {
+        action('next-case');
+        W.setPlot(0);
+        refresh();
+      }
+    ],
+    pid: [
+      () => {
+        state.pid.stage = 'step';
+        beginDemo();
+      },
+      () => {
+        const l = state.pid;
+        if (state.demo) return 'The step test is still running. It estimates automatically once PV settles.';
+        if (!l.test) {
+          l.stage = 'step';
+          beginDemo();
+          return 'No step has been recorded yet, so the step test is running first.';
+        }
+        pidAction('pid-estimate');
+      },
+      () => {
+        const l = state.pid;
+        if (!l.estimate?.ok) return 'Complete steps 1 and 2 first: the tuning must come from a measured step test.';
+        pidAction('pid-apply');
+        freshAuto();
+        pidAction('pid-sp-up');
+      },
+      () => {
+        const l = state.pid;
+        l.stage = 'tune';
+        l.defect = 'stiction';
+        l.test = null;
+        l.estimate = null;
+        freshAuto();
+        pidAction('pid-sp-up');
+      }
+    ]
+  };
+  function guideAction(name, index) {
+    const g = guideState(),
+      steps = C.guides[state.module];
+    if (name === 'guide-step') g.step = Math.max(0, Math.min(steps.length - 1, index));
+    if (name === 'guide-next') {
+      if (!g.done.includes(g.step)) g.done.push(g.step);
+      g.step = Math.min(steps.length - 1, g.step + 1);
+    }
+    if (name === 'guide-prev') g.step = Math.max(0, g.step - 1);
+    let note = '';
+    if (name === 'guide-show') {
+      if (state.demo) {
+        pause();
+        state.demo = null;
+      }
+      note = guideActions[state.module][g.step]() || '';
+      if (!note && !g.done.includes(g.step)) g.done.push(g.step);
+    }
+    renderGuide();
+    if (note) guideNote(note);
+    // Keep keyboard focus on the button just used (or the current step when it is disabled or gone).
+    const main = $('main'),
+      used = main.querySelector(`.guide-actions [data-action="${name}"]`);
+    (used && !used.disabled ? used : main.querySelector(`[data-guide-step="${g.step}"]`))?.focus({
+      preventScroll: true
+    });
+  }
+  function refresh() {
+    if (state.module === 'anatomy') updateAnatomy();
+    if (state.module === 'friction') updateFriction();
+    if (state.module === 'flow') updateFlow();
+    if (state.module === 'trim') updateTrim();
+    if (state.module === 'positioner') updatePositioner();
+    if (state.module === 'diagnosis') updateDiagnosis();
+    if (state.module === 'pid') updatePID();
+    W.syncSelections();
+  }
+
   function updateAnatomy() {
     const a = state.anatomy,
       x = a.airLost ? 0 : a.command;
@@ -1731,37 +4477,6 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       : 'Air lifts the diaphragm, stem, and plug. The spring opposes motion.';
     $('anatomy-command').disabled = a.airLost;
     document.querySelector('[data-action="air-fail"]').textContent = a.airLost ? 'Restore air' : 'Remove air';
-  }
-  function frictionPage() {
-    const f = state.friction;
-    return (
-      header('friction') +
-      `<div class="grid-main"><div class="stack"><section class="card"><div class="card-top"><h2>Command → actual travel</h2><span class="badge">SIMULATED ASSEMBLY</span></div><div class="tabs">${Object.entries(
-        C.friction
-      )
-        .map(
-          ([k, v]) =>
-            `<button class="pill ${k === f.mode ? 'selected' : ''}" data-friction="${k}">${v.title.split(' / ')[0]}</button>`
-        )
-        .join('')}</div><div id="friction-time"></div>${legend([
-        ['Command', 'command', 'dashed'],
-        ['Actual travel', 'travel']
-      ])}<p class="plot-caption">Both traces use % of travel span. Manual changes are sampled at 0.1 s; running traces use simulated elapsed time.</p><div class="kpi-grid">${kpi('friction-command-value', 'Command', 'command', '%')}${kpi('friction-travel', 'Actual travel', 'travel', '%')}${kpi('friction-pressure', 'Pressure proxy', 'pressure', 'psi')}${kpi('friction-error', 'Cmd − travel', 'command', 'pp')}</div><div id="friction-status" class="status" aria-live="polite"></div>${range('friction-command', 'Drive command', f.command, 0, 100, 1, '%')}<div class="btn-row"><button data-action="step-down">−1% step</button><button data-action="step-up">+1% step</button><button class="primary" data-action="sweep">Run sweep</button><button data-action="settle">Hold & settle</button><button data-action="pause">Pause</button>${resetButton()}</div></section><section class="card"><div class="card-top"><h2>A signature of the response</h2><select id="friction-view" aria-label="Signature view"><option value="command" ${f.view === 'command' ? 'selected' : ''}>Travel vs command</option><option value="pressure" ${f.view === 'pressure' ? 'selected' : ''}>Pressure vs travel</option></select></div><div id="friction-signature"></div><p class="plot-caption" id="signature-note"></p></section></div><div class="stack"><section class="card"><h2 id="friction-title"></h2><p id="friction-explain"></p><div class="hint" id="friction-observe"></div><div id="friction-controls"></div>${range('friction-speed', 'Sweep speed', f.speed, 1, 15, 1, 'pp/s')}<p class="plot-caption">Sweep reverses at 10% and 90%. A percentage point (pp) is an absolute increment of travel span.</p><details class="detail"><summary>What is this model assuming?</summary><p id="friction-model"></p><p>For force-based views, a traditional 3–15 psi drive proxy maps to an unloaded spring span. No process-fluid forces are included. A real positioner changes output pressure using feedback; explore that in Module 05.</p></details></section><section class="card"><h2>Separate the terms</h2><div class="facts"><div class="fact"><b>Stiction: a mechanism</b><p>Static resistance and lower sliding resistance can produce stick–slip.</p></div><div class="fact"><b>Hysteresis: a response</b><p>Different output at the same input, depending on the path taken.</p></div><div class="fact"><b>Deadband: a measured interval</b><p>An input change after reversal that produces no observable output change. State which input and output.</p></div><div class="fact"><b>Lag: a time effect</b><p>A delayed response can create a loop during a fast sweep, even without static lost motion.</p></div></div>${sourceLink(8)}</section></div></div>` +
-      lessons([
-        [
-          'Packing is one candidate',
-          'Also consider stem damage, deposits, plug/cage contact, alignment, bearings, actuator seals, and thermal interference.'
-        ],
-        [
-          'Watch the pressure',
-          'Pressure changing while travel stays flat can show force building. Interpret it with supply, spring/load, and sensor location.'
-        ],
-        [
-          'A DVC is not a mechanical repair',
-          'Feedback may overcome some resistance, but cannot restore damaged surfaces or eliminate an unsuitable assembly.'
-        ]
-      ])
-    );
   }
   function frictionControls() {
     const f = state.friction;
@@ -1874,64 +4589,18 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     st.textContent =
       (f.mode === 'stiction'
         ? f.motion.stuck
-          ? 'STUCK · below breakaway'
-          : 'SLIP · sliding resistance reached'
+          ? 'Stuck: force is below breakaway'
+          : 'Moving: breakaway force reached'
         : C.friction[f.mode].title) +
       (f.running
         ? ` · ${f.sweep ? 'sweeping' : 'holding command'}`
-        : f.mode === 'lag'
-          ? ' · paused · Hold & settle lets the lag evolve'
-          : ' · paused');
+        : f.settled
+          ? ' · settled'
+          : f.mode === 'lag'
+            ? ' · paused · Hold & settle lets the lag evolve'
+            : ' · paused');
     $('friction-command').value = f.command;
     output('friction-command', f.command.toFixed(1) + ' %');
-  }
-  function flowPage() {
-    const f = state.flow;
-    return (
-      header('flow') +
-      `<div class="grid-main"><div class="stack"><section class="card"><div class="card-top"><h2>Inherent capacity</h2><span class="badge">CONSTANT VALVE ΔP</span></div><div id="cv-chart"></div>${legend(
-        [
-          ['Linear', 'command'],
-          ['Equal percentage', 'travel'],
-          ['Quick opening', 'pressure', 'dashed']
-        ]
-      )}<p class="plot-caption">Absolute Cv versus actual travel. The marker follows the selected characteristic.</p></section><section class="card"><div class="card-top"><h2>Now put it in a system</h2><span class="badge">SINGLE-PHASE LIQUID</span></div><div id="installed-chart"></div>${legend(
-        [
-          ['Constant valve ΔP', 'command', 'dashed'],
-          ['Installed system', 'travel']
-        ]
-      )}<p class="plot-caption">Both curves use the same selected trim and pressure budget. The installed model assigns part of that budget to piping losses.</p><div class="kpi-grid">${kpi('flow-cv', 'Operating Cv', 'travel')}${kpi('flow-q', 'Actual flow', 'flow', 'gpm')}${kpi('flow-valve-dp', 'Valve ΔP', 'pressure', 'psi')}${kpi('flow-gain', 'Local flow gain', 'flow', 'gpm/pp')}</div><div class="hint" id="flow-insight"></div><div class="small-grid"><div class="fact"><b>Pipe / other losses</b><p id="flow-pipe-dp"></p></div><div class="fact"><b>Authority at this point</b><p id="flow-authority"></p></div></div></section></div><div class="stack"><section class="card"><h2>Change the operating point</h2>${select(
-        'flow-characteristic',
-        'Inherent characteristic',
-        f.characteristic,
-        [
-          ['equal', 'Equal percentage'],
-          ['linear', 'Linear'],
-          ['quick', 'Quick opening · illustrative']
-        ]
-      )}${select('flow-mode', 'System model', f.mode, [
-        ['installed', 'Installed · total pressure budget'],
-        ['constant', 'Constant valve pressure drop']
-      ])}${range('flow-travel', 'Actual valve travel', f.travel, 0, 100, 1, '%')}${range('flow-cvmax', 'Rated maximum Cv', f.cvMax, 10, 400, 5)}${range('flow-rangeability', 'Equal-percentage R', f.rangeability, 10, 100, 5, ':1')}${range('flow-dp', 'Pressure budget', f.dp, 0, 100, 1, 'psi')}${range('flow-sg', 'Liquid specific gravity', f.sg, 0.5, 2, 0.05)}${range('flow-resistance', 'Piping resistance K', f.resistance, 0, 0.02, 0.0005, 'psi/gpm²', false)}<p class="plot-caption">Other-system loss = K × Q². This K is for this model only; it is not a dimensionless fitting-loss coefficient.</p><div class="btn-row">${resetButton()}</div></section><section class="card"><h2>Read the relationship</h2><div class="formula">Q = Cv × √(ΔP<sub>valve</sub> / SG)<small>Q: US gpm · ΔP: psi · SG: water = 1</small></div><p>At fixed ΔP and SG, flow follows Cv. In a real system, opening the valve often increases flow and piping losses, leaving less pressure drop across the valve.</p><div class="hint warning-note">This calculator is an educational turbulent, non-choked, single-phase liquid model. It does not size gas, steam, cavitating, flashing, viscous, or two-phase service.</div>${sourceLink(0)}</section></div></div>` +
-      lessons([
-        [
-          'Linear means linear Cv',
-          'Equal travel increments give equal absolute increments of Cv. Flow is linear only if the remaining conditions support it.'
-        ],
-        [
-          'Equal percentage means a ratio',
-          'Equal travel increments multiply Cv by the same factor. A 10 pp move with R = 50 multiplies Cv by about 1.48 above the near-seat region.'
-        ],
-        [
-          'Installed gain matters to tuning',
-          'A controller sees process response, not an inherent trim curve. Oversizing and changing ΔP can make the loop gain vary across operation.'
-        ]
-      ]) +
-      detail(
-        'Equations, shutoff transition, and model boundaries',
-        `<p><strong>Linear:</strong> Cv = Cv<sub>max</sub> × x. <strong>Equal percentage:</strong> Cv = Cv<sub>max</sub> × R<sup>x−1</sup> from 5–100% travel, where x is fractional travel. Below 5%, this app uses an explicitly illustrative linear seating transition to zero. The pure exponential does not reach zero at x = 0.</p><p><strong>Quick opening:</strong> Cv/Cv<sub>max</sub> = (1 − e<sup>−4x</sup>)/(1 − e<sup>−4</sup>), an illustrative curve, not a manufacturer capacity table.</p><p><strong>Installed model:</strong> ΔP<sub>total</sub> = SG × (Q/Cv)² + K × Q². Therefore Q = √[ΔP<sub>total</sub> / (SG/Cv² + K)]. The pressure budget is fixed at each setting; real pumps and networks can behave differently.</p><p>Local gain is the finite-difference slope in US gpm per percentage point of actual travel. Authority here is ΔP<sub>valve</sub>/ΔP<sub>total</sub> at the displayed point. Rated rangeability and installed turndown are not interchangeable. Zero indicated travel also does not guarantee leak-tight real equipment.</p>`
-      )
-    );
   }
   function updateFlow() {
     const f = state.flow,
@@ -2000,7 +4669,13 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     value('flow-gain', gain, 2, 'gpm/pp');
     $('flow-pipe-dp').textContent = q.pipeDp.toFixed(2) + ' psi';
     $('flow-authority').textContent =
-      f.dp === 0 ? 'Undefined with zero pressure budget' : (q.authority * 100).toFixed(1) + '% of the pressure budget';
+      f.dp === 0 ? 'no pressure budget' : `${q.valveDp.toFixed(1)} psi · ${(q.authority * 100).toFixed(0)}% of budget`;
+    const bar = $('flow-dp-bar');
+    if (bar) {
+      const share = f.dp > 0 ? (q.valveDp / f.dp) * 100 : 0;
+      bar.children[0].style.width = share + '%';
+      bar.children[1].style.width = (f.dp > 0 ? 100 - share : 0) + '%';
+    }
     $('flow-insight').textContent =
       f.dp === 0
         ? 'No available differential pressure → no flow in this model.'
@@ -2013,49 +4688,6 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
               : 'The system shares its pressure budget between the valve and piping. Change K or rated Cv and watch the installed curve reshape.';
     $('flow-resistance').disabled = f.mode === 'constant';
     $('flow-rangeability').disabled = f.characteristic !== 'equal';
-  }
-  function trimPage() {
-    const t = state.trim;
-    return (
-      header('trim') +
-      `<div class="style-list">${Object.entries(C.styles)
-        .map(
-          ([id, s]) =>
-            `<button class="style-card ${id === t.style ? 'selected' : ''}" data-style="${id}">${D.styleIcon(id, 50)}<strong>${s.name}</strong><small>${s.tag}</small></button>`
-        )
-        .join(
-          ''
-        )}</div><div class="grid-equal"><section class="card"><div class="card-top"><h2>Move the closure member</h2><span class="badge">GEOMETRY EXPLORER</span></div><div class="diagram-stage" id="style-diagram"></div>${range('trim-travel', 'Travel / rotation fraction', t.travel, 0, 100, 1, '%')}<div id="style-detail"></div></section><section class="card"><h2>What does “trim” change?</h2>${select(
-        'trim-type',
-        'Explore a trim choice',
-        t.trim,
-        Object.entries(C.trims).map(([id, t]) => [id, t.name])
-      )}<div id="trim-detail"></div>${detail('Construction choices are independent', `<p>A valve can have an equal-percentage characteristic, reduced capacity, a balanced plug, hard-faced surfaces, and a particular leakage class at the same time. These describe different attributes.</p><p>The selected characteristic is not determined simply by green paint, a globe-shaped body, or whether the actuator is linear or rotary. Use the actual trim and capacity tables.</p>`)}</section></div><section class="card" style="margin-top:22px"><div class="card-top"><h2>Where the pressure goes</h2><span class="badge">LIQUID PRESSURE PROFILE</span></div><div class="pills">${[
-        ['normal', 'No vapor formation'],
-        ['cavitation', 'Cavitation'],
-        ['flashing', 'Flashing'],
-        ['staged', 'Staged pressure reduction']
-      ]
-        .map(([v, n]) => `<button class="pill ${v === t.profile ? 'selected' : ''}" data-profile="${v}">${n}</button>`)
-        .join('')}</div><div class="grid-equal"><div><div id="pressure-profile"></div>${legend([
-        ['Local liquid pressure', 'command'],
-        ['Vapor pressure', 'flow', 'dashed']
-      ])}<p class="plot-caption">Illustrative absolute pressures in psia, not sizing results. The horizontal axis is normalized distance along the flow path; x = 0 is upstream and x = 1 downstream.</p></div><div id="profile-detail"></div></div></section>` +
-      lessons([
-        [
-          'Severe service is a selection problem',
-          'Fluid properties, temperature, pressure recovery, solids, erosion, noise, and minimum/maximum flow all matter.'
-        ],
-        [
-          'Rotary does not mean friction-free',
-          'Shaft packing, bearings, seals, and couplings introduce different sources of friction and lost motion.'
-        ],
-        [
-          'Choking changes the equation',
-          'Once flow is choked, reducing downstream pressure further does not increase flow as the simple liquid equation predicts.'
-        ]
-      ])
-    );
   }
   function updateTrim() {
     const t = state.trim,
@@ -2153,43 +4785,6 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       .querySelectorAll('[data-profile]')
       .forEach(b => b.classList.toggle('selected', b.dataset.profile === t.profile));
   }
-  function positionerPage() {
-    const p = state.positioner;
-    return (
-      header('positioner') +
-      `<div class="grid-main"><div class="stack"><section class="card"><div class="card-top"><h2>Ask for position. Watch the air.</h2><span class="badge">REDUCED-ORDER MODEL</span></div><div class="pills">${[
-        ['ip', 'I/P alone'],
-        ['conventional', 'Conventional positioner'],
-        ['dvc', 'Digital valve controller']
-      ]
-        .map(([v, t]) => `<button class="pill ${v === p.type ? 'selected' : ''}" data-positioner="${v}">${t}</button>`)
-        .join('')}</div><div id="position-time"></div>${legend([
-        ['Travel setpoint', 'command', 'dashed'],
-        ['Actual travel', 'travel']
-      ])}<div id="position-pressure"></div>${legend([
-        ['Actuator pressure', 'pressure'],
-        ['Supply ceiling', 'muted', 'dashed']
-      ])}<div class="kpi-grid">${kpi('position-setpoint', 'Travel request', 'command', '%')}${kpi('position-travel', 'Actual travel', 'travel', '%')}${kpi('position-output', 'Actuator pressure', 'pressure', 'psi')}${kpi('position-deviation', 'Travel deviation', 'command', 'pp')}</div><div class="btn-row"><button class="primary" data-action="position-step">Step to 70%</button><button data-action="position-run">Run / resume</button><button data-action="pause">Pause</button>${resetButton()}</div><div id="position-status" class="status" style="margin-top:13px"></div></section><section class="card"><h2>Trace the signal path</h2><div id="position-chain" class="signal-chain"></div><div class="hint" id="position-feedback"></div><p class="plot-caption">Each block uses the same live state. A conventional 4–20 mA signal and a single-acting air-to-open assembly are example choices, not universal arrangements.</p></section></div><div class="stack"><section class="card"><h2>Add a challenge</h2>${range('position-command', 'Travel request', p.command, 0, 100, 1, '%')}${range('position-supply', 'Available air supply', p.supply, 5, 30, 1, 'psi')}${range('position-load', 'Opposing load equivalent', p.load, 0, 6, 0.5, 'psi')}<p class="plot-caption">Load is represented as an additional opposing force divided by actuator area. Real process forces vary with pressure, travel, geometry, and flow direction.</p><label class="check-row"><input type="checkbox" id="position-restricted" ${p.restricted ? 'checked' : ''}>Restrict air delivery</label><label class="check-row"><input type="checkbox" id="position-aggressive" ${p.aggressive ? 'checked' : ''}>Use excessive position-loop gain</label><div class="hint">Try 2 psi opposing load. The I/P-only valve loses travel. A feedback positioner raises actuator pressure to correct it—until supply or mechanical limits prevent correction.</div>${detail('What this simulation does and does not compare', `<p>The conventional and digital positioners share the same feedback dynamics here. Digital does not automatically mean faster or better mechanics. The DVC view adds the concept of digital configuration and diagnostics.</p><p>The model includes spring load, an opposing load, pneumatic lag, small friction, actuator inertia/damping, output saturation, and anti-windup. Excessive gain with low damping intentionally produces hunting. These constants are illustrative, not Fisher tuning values.</p><p>At zero supply, a real assembly responds according to spring action and accessories; this panel focuses on positioning while air is available.</p>`)}</section><section class="card"><h2>What a DVC adds</h2><p>A digital valve controller measures travel, runs a position-control algorithm, and drives pneumatic output. Depending on model, configuration, and diagnostic level, it can expose pressures, travel deviation, alerts, and diagnostic tests.</p><p><strong>FIELDVUE</strong> is Fisher’s family; <strong>DVC6200</strong> is a device example. Flowserve Logix and SAMSON digital positioners use the same broad feedback principle with different hardware and features.</p><p>HART communication can carry digital device information alongside an analog current request. The actuator energy still comes from instrument air.</p>${sourceLink(1)}</section></div></div>` +
-      detail(
-        'Configuration choices that can change the result',
-        `<div class="table-wrap"><table><thead><tr><th>Setting / concept</th><th>What it changes</th><th>What it does not establish</th></tr></thead><tbody><tr><td>Input characterization</td><td>Maps command to a travel setpoint, possibly with a nonlinear table.</td><td>The physical trim’s inherent Cv curve does not change.</td></tr><tr><td>Travel limits / cutoffs</td><td>Restrict target travel or force output toward an end condition near configured cutoffs.</td><td>They do not prove correct fail action or leak-tight shutoff.</td></tr><tr><td>Split range</td><td>Allocates portions of one control signal to different valves.</td><td>Overlap, gaps, process gain, and failure behavior still need evaluation.</td></tr><tr><td>Positioner tuning</td><td>Changes the inner loop’s response to travel error.</td><td>It is distinct from process PID tuning and does not fix mechanical damage.</td></tr><tr><td>Travel / pressure fallback</td><td>Some models can change control mode after specified feedback faults.</td><td>Availability and recovery behavior depend on exact hardware, firmware, and configuration.</td></tr></tbody></table></div>`
-      ) +
-      lessons([
-        [
-          'DCS output is not a travel measurement',
-          'A 60% controller output may map to another travel target through split-ranging, characterization, or limits.'
-        ],
-        [
-          'Feedback location matters',
-          'DVC travel can represent a stem, shaft, or actuator mechanism. Downstream lost motion can remain invisible.'
-        ],
-        [
-          'Full stroke is not a small-step test',
-          'Fast 0–100% motion does not guarantee response to a 0.5% correction around normal operating travel.'
-        ]
-      ])
-    );
-  }
   function sampleP(dt) {
     const p = state.positioner;
     p.motion = M.positionerStep(
@@ -2260,32 +4855,17 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     const limited = p.motion.pressure > p.supply - 0.25 && Math.abs(p.command - p.motion.position) > 2;
     $('position-status').textContent =
       (limited
-        ? 'OUTPUT NEAR SUPPLY LIMIT · travel error remains'
+        ? 'At the supply limit: travel error remains'
         : p.aggressive && p.type !== 'ip'
-          ? 'EXCESSIVE GAIN · inspect hunting after a step'
+          ? 'Excessive gain: watch for hunting'
           : p.type === 'ip'
-            ? 'OPEN LOOP · no automatic load correction'
-            : 'CLOSED POSITION LOOP · correcting travel error') +
-      (p.running ? ' · running' : ' · paused · Run / resume to evolve the response');
+            ? 'Open loop: nothing corrects a load'
+            : 'Feedback on: correcting travel error') +
+      (p.running ? ' · running' : p.settled ? ' · settled' : ' · paused');
     document
       .querySelectorAll('[data-positioner]')
       .forEach(b => b.classList.toggle('selected', b.dataset.positioner === p.type));
     $('position-aggressive').disabled = p.type === 'ip';
-  }
-  function diagnosisPage() {
-    const d = state.diagnosis;
-    return (
-      header('diagnosis') +
-      `<div class="grid-main"><section class="card"><div class="card-top"><h2>The evidence</h2><span class="badge">60 s SIMULATED TRACE</span></div>${select(
-        'diagnosis-case',
-        'Choose a case',
-        d.case,
-        Object.entries(C.cases).map(([id, c]) => [id, c.name])
-      )}<div id="case-travel-chart"></div>${legend([
-        ['Command', 'command', 'dashed'],
-        ['Actual travel', 'travel']
-      ])}<div id="case-pressure-chart"></div>${legend([['Actuator / proxy pressure', 'pressure']])}<div id="case-flow-chart"></div>${legend([['Flow', 'flow']])}<p class="plot-caption">Independent y-axes with explicit units. Packing/backlash pressure is an upstream command proxy, not a feedback-positioner output. All data are generated for teaching.</p></section><div class="stack"><section class="card"><p class="tag-line">MAKE A WORKING HYPOTHESIS</p><h2 id="case-question"></h2><div class="case-options">${C.answerOptions.map(([id, name]) => `<button data-answer="${id}">${name}</button>`).join('')}</div><p id="case-feedback" class="case-feedback" aria-live="polite"></p><div class="btn-row"><button data-action="reveal">Show explanation</button><button class="primary" data-action="next-case">Next case →</button></div><div id="case-answer" class="answer"></div></section><section class="card"><h2>Before you blame the valve</h2><p>A cycling process variable does not prove stiction. Start with command and actual travel, add air pressures, and examine process-side changes.</p><p>A valve signature is evidence under a particular load and temperature. Comparing unlike test conditions can turn a normal load change into an apparent friction change.</p><div class="hint warning-note">These are simulated tests. Online stroking, calibration, fail testing, and disassembly require the site’s operating, isolation, and maintenance procedures.</div>${sourceLink(8)}</section></div></div>`
-    );
   }
   function updateDiagnosis() {
     const d = state.diagnosis,
@@ -2342,8 +4922,18 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
   }
   function plot(id, lines, opts) {
     const width = $(id).clientWidth || Math.max(280, Math.min(600, (root.innerWidth ?? 1000) - 68));
+    // Wide screens use a fixed readable height. Tall phones pin the live view, so their plot stays
+    // short enough to leave room for the guide and controls underneath.
+    const w = root.innerWidth,
+      h = root.innerHeight;
     const height =
-      root.innerWidth <= 920 ? Math.max(140, Math.min(320, $(id).clientHeight || root.innerHeight * 0.29 - 50)) : 270;
+      w > 920
+        ? 280
+        : w >= 720
+          ? Math.round(Math.max(170, Math.min(240, h * 0.3)))
+          : h >= 700
+            ? Math.round(Math.min(185, h * 0.2))
+            : 190;
     return D.plot(lines, { ...opts, width, height });
   }
   function value(id, v, digits, unit = '') {
@@ -2388,9 +4978,26 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
             f.direction = 1;
           }
         }
+        const before = f.motion.position;
         sampleF(0.05);
+        if (!f.sweep && !state.demo && Math.abs(f.motion.position - before) < 1e-4) {
+          f.running = false;
+          f.settled = true;
+        }
       }
-      if (state.module === 'positioner' && state.positioner.running) sampleP(0.05);
+      if (state.module === 'positioner' && state.positioner.running) {
+        const p = state.positioner,
+          before = p.motion.pressure;
+        sampleP(0.05);
+        p.still =
+          Math.abs(p.motion.velocity) < 0.02 && Math.abs(p.motion.pressure - before) < 0.002
+            ? (p.still || 0) + 0.05
+            : 0;
+        if (p.still >= 2 && !state.demo) {
+          p.running = false;
+          p.settled = true;
+        }
+      }
       if (state.module === 'pid' && state.pid.running) {
         const l = state.pid;
         l.clock += 0.05 * l.speed;
@@ -2408,8 +5015,10 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     }
     if (active()) frameId = requestAnimationFrame(frame);
     else {
+      // Draw the final state when a simulation settles or a demo ends between redraws.
       lastFrame = 0;
       clock = 0;
+      refresh();
     }
   }
   function render(module, focus = false) {
@@ -2418,6 +5027,7 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     clock = 0;
     state.module = module;
     const pages = {
+      home: homePage,
       pid: pidPage,
       anatomy: anatomyPage,
       friction: frictionPage,
@@ -2427,7 +5037,10 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       diagnosis: diagnosisPage
     };
     $('main').innerHTML = pages[module]();
-    document.querySelectorAll('[data-module]').forEach(a => {
+    document.body.dataset.page = module;
+    document.title =
+      module === 'home' ? 'Control Valve Lab — From signal to flow' : `${C.modules[module].title} · Control Valve Lab`;
+    document.querySelectorAll('#module-nav [data-module]').forEach(a => {
       a.classList.toggle('active', a.dataset.module === module);
       if (a.dataset.module === module) a.setAttribute('aria-current', 'page');
       else a.removeAttribute('aria-current');
@@ -2446,15 +5059,23 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     if (module === 'positioner') updatePositioner();
     if (module === 'diagnosis') updateDiagnosis();
     if (module === 'pid') updatePID();
-    W.mount(module);
+    if (module !== 'home') {
+      renderGuide();
+      W.mode(false, '');
+    }
     refresh();
-    if (focus) $('main').focus({ preventScroll: true });
+    if (focus) {
+      $('main').focus({ preventScroll: true });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
   }
   function resources(type) {
     $('dialog-title').textContent = type === 'glossary' ? 'Engineering glossary' : 'References & model assumptions';
     $('dialog-content').innerHTML =
       type === 'glossary'
         ? Object.entries(C.glossary)
+            .sort(([a], [b]) => a.localeCompare(b))
             .map(
               ([term, definition]) => `<div class="glossary-item"><strong>${term}</strong><p>${definition}</p></div>`
             )
@@ -2470,13 +5091,17 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     if (name === 'custom') {
       pause();
       state.demo = null;
-      W.mode(false, 'Custom · press Run to evolve a dynamic simulation.');
+      W.mode(false, 'Demo stopped. The controls are yours.');
       refresh();
       return;
     }
+    if (name.startsWith('guide-')) {
+      guideAction(name);
+      return;
+    }
     if (name.startsWith('pid-')) {
+      if (state.demo) W.mode(false, 'Demo stopped. The controls are yours.');
       state.demo = null;
-      W.mode(false, 'Custom PID controls');
       pidAction(name);
       return;
     }
@@ -2522,7 +5147,7 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     if (name === 'pause') {
       pause();
       state.demo = null;
-      W.mode(false, 'Paused · Run / resume continues; Run demo restarts.');
+      W.mode(false, '');
       if (mod === 'pid') updatePID();
       if (mod === 'friction') updateFriction();
       if (mod === 'positioner') updatePositioner();
@@ -2531,6 +5156,7 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       pause();
       f.command = M.clamp(f.command + (name === 'step-up' ? 1 : -1));
       sampleF(0.1);
+      holdLag();
       updateFriction();
     }
     if (name === 'sweep') {
@@ -2543,12 +5169,14 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       sampleF(0);
       f.running = true;
       f.sweep = true;
+      f.settled = false;
       updateFriction();
       start();
     }
     if (name === 'settle') {
       f.sweep = false;
       f.running = true;
+      f.settled = false;
       updateFriction();
       start();
     }
@@ -2557,12 +5185,14 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       $('position-command').value = 70;
       output('position-command', '70 %');
       p.running = true;
+      p.settled = false;
       sampleP(0.02);
       updatePositioner();
       start();
     }
     if (name === 'position-run') {
       p.running = true;
+      p.settled = false;
       start();
     }
     if (name === 'reveal') {
@@ -2579,9 +5209,22 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     }
   }
   document.addEventListener('click', event => {
-    const panel = event.target.closest('[data-panel]');
-    if (panel) {
-      W.setPanel(panel.dataset.panel);
+    // View buttons only change what is shown; they never cancel a running demo.
+    const view = event.target.closest('[data-view]');
+    if (view) {
+      W.setPlot(view.dataset.view);
+      refresh();
+      return;
+    }
+    const step = event.target.closest('[data-guide-step]');
+    if (step) {
+      guideAction('guide-step', Number(step.dataset.guideStep));
+      return;
+    }
+    const scroll = event.target.closest('[data-scroll]');
+    if (scroll) {
+      const still = root.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      $(scroll.dataset.scroll)?.scrollIntoView?.({ behavior: still ? 'auto' : 'smooth', block: 'start' });
       return;
     }
     const el = event.target.closest(
@@ -2603,7 +5246,7 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     if (state.demo) {
       pause();
       state.demo = null;
-      W.mode(false, 'Custom · demonstration stopped.');
+      W.mode(false, 'Demo stopped. The controls are yours.');
     }
     if (el.dataset.component) {
       state.anatomy.component = el.dataset.component;
@@ -2635,7 +5278,7 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       p.history = [];
       p.time = 0;
       p.motion = { position: 50, pressure: 9, integral: 0, velocity: 0 };
-      updatePositioner();
+      runUntilSettled();
     }
     if (el.dataset.answer) {
       state.diagnosis.answered = el.dataset.answer;
@@ -2653,18 +5296,31 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       document.querySelector(`.svg-part[data-component="${c}"]`)?.focus();
     }
   });
+  // Positioner changes run the simulation until the valve settles, so every edit shows its response.
+  function runUntilSettled() {
+    const p = state.positioner;
+    p.running = true;
+    p.settled = false;
+    p.still = 0;
+    updatePositioner();
+    start();
+  }
+  // The lag model is time dependent, so a manual change in that mode holds the command and settles.
+  function holdLag() {
+    const f = state.friction;
+    if (f.mode !== 'lag') return;
+    f.sweep = false;
+    f.running = true;
+    f.settled = false;
+    start();
+  }
   function onInput(event) {
     const el = event.target,
       id = el.id;
-    if (id === 'workspace-plot') {
-      W.setPlot(el.value);
-      refresh();
-      return;
-    }
     if (state.demo) {
       pause();
       state.demo = null;
-      W.mode(false, 'Custom · demonstration stopped.');
+      W.mode(false, 'Demo stopped. The controls are yours.');
     }
     if (id?.startsWith('pid-')) {
       pidInput(el);
@@ -2715,6 +5371,7 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
       pause();
       f.command = n;
       sampleF(0.1);
+      holdLag();
       updateFriction();
     }
     if (id === 'friction-static') {
@@ -2764,7 +5421,7 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
     };
     if (posKeys[id]) {
       state.positioner[posKeys[id]] = el.type === 'checkbox' ? el.checked : n;
-      updatePositioner();
+      runUntilSettled();
     }
     if (id === 'diagnosis-case') {
       state.diagnosis.case = el.value;
@@ -2789,20 +5446,21 @@ button[aria-pressed=true]{background:#e9f1d7;border-color:#7ca459;color:#24452c}
   });
   root.addEventListener('hashchange', () => {
     const mod = location.hash.slice(1);
-    if (titles[mod]) render(mod, true);
+    if (mod === 'home' || C.modules[mod]) render(mod, true);
   });
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       pause();
       state.demo = null;
-      W.mode(false, 'Paused while app is in the background.');
+      W.mode(false, 'Paused while the app was in the background.');
       if (state.module === 'pid') updatePID();
       if (state.module === 'friction') updateFriction();
       if (state.module === 'positioner') updatePositioner();
     }
   });
   root.ValveLab = { getState: () => state, pause };
-  render(titles[location.hash.slice(1)] ? location.hash.slice(1) : 'anatomy');
+  const initial = location.hash.slice(1);
+  render(C.modules[initial] ? initial : 'home');
 })(window);
 
 </script>

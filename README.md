@@ -1,6 +1,12 @@
 # Control Valve Lab
 
-An interactive control-valve field guide for process control engineers, instrument technicians, and operations. Original schematics and simulated trends connect **command → actual travel → Cv → flow → process response**.
+An interactive control-valve learning lab for everyone who works with control valves: operations, maintenance and instrumentation, process and control engineering, and management. Original schematics and simulated trends connect **command → actual travel → Cv → flow → process response**.
+
+## How it works
+
+- **Start here** maps the signal-to-flow chain, suggests a lesson path for each role, and lists five essentials everyone should know.
+- Every lesson has the same layout: a question and **key idea**, a live view (view buttons, plot, key numbers, Run/Pause/Reset), a **guided activity** (Try it → Look for → Why it matters, with **Show me** to set it up), the controls (advanced options under **More settings**), **Why it matters on the job** for four roles, and **Go deeper** for equations, assumptions and references.
+- **Watch the full demo** plays a narrated, self-ending example; **Stop demo** hands the controls back. Changing the view never stops a demo. Positioner edits run the simulation until the valve settles.
 
 ## Explore
 
@@ -12,9 +18,9 @@ An interactive control-valve field guide for process control engineers, instrume
 6. **Read the symptoms:** six simulated cases with hypotheses, explanations, alternatives and discriminating evidence.
 7. **PID & step testing:** manual OP step recording, measured FOPDT fit, SIMC PI starting point, Honeywell-style A/B/C in ideal form, manual/auto, SP/load changes, tuning presets and six defect choices.
 
-On phones, one selected plot stays above a separately scrolling **Operate / Setup / Learn** panel. **Run demo** starts a scripted, self-ending example; **Custom** stops automation. The **Observe** selector changes plots without stopping the demonstration. In dynamic Custom mode, press Run/resume or a step action to evolve the simulation.
+On tall phones the live view stays pinned at the top while the guide and controls scroll underneath; short and landscape screens scroll normally.
 
-PID workflow: **Step test → Run demo → Use estimate → Apply tuning**. Choose a defect in either stage. In Apply tuning, use Auto and move SP, or run the SP/load demo. Kc is %OP/%PV; Ti and Td are minutes. With Td=0, A and B are PI-equivalent; the derivative preset exposes their SP-response difference.
+PID workflow: **1 · Step test** (record, step OP, estimate) → **Use estimate → tuning** → **2 · Tune & test** (Auto, SP and load changes). Choose a valve condition in either stage. Kc is %OP/%PV; Ti and Td are minutes. With Td=0, A and B are PI-equivalent; the derivative preset exposes their SP-response difference.
 
 ## Open it
 

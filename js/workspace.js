@@ -1,129 +1,92 @@
 (function (root) {
   'use strict';
+  // Shared lesson layout. Every lesson uses the same structure so learners only learn it once:
+  // a live view (view buttons, plot, key numbers, run controls) beside a guided activity and the controls.
   const $ = id => document.getElementById(id);
-  const observations = {
-    anatomy: [['valve-diagram', 'Valve cutaway']],
-    friction: [
-      ['friction-time', 'Command & travel'],
-      ['friction-signature', 'Response signature']
-    ],
-    flow: [
-      ['installed-chart', 'Installed flow'],
-      ['cv-chart', 'Inherent Cv']
-    ],
-    trim: [
-      ['pressure-profile', 'Pressure profile'],
-      ['style-diagram', 'Closure member']
-    ],
-    positioner: [
-      ['position-time', 'Travel response'],
-      ['position-pressure', 'Air pressure']
-    ],
-    diagnosis: [
-      ['case-travel-chart', 'Command & travel'],
-      ['case-pressure-chart', 'Pressure'],
-      ['case-flow-chart', 'Flow']
-    ],
-    pid: [
-      ['pid-trend', 'SP & measured PV'],
-      ['pid-valve-chart', 'OP & actual travel']
-    ]
-  };
-  const setupIds = new Set([
-    'flow-cvmax',
-    'flow-rangeability',
-    'flow-dp',
-    'flow-sg',
-    'flow-resistance',
-    'position-supply',
-    'position-load',
-    'position-aggressive',
-    'position-restricted',
-    'friction-speed',
-    'pid-gain',
-    'pid-tau',
-    'pid-delay',
-    'pid-kc',
-    'pid-ti',
-    'pid-td',
-    'pid-action',
-    'pid-speed',
-    'pid-lambda'
-  ]);
-  function mount(module) {
-    const main = $('main'),
-      head = main.querySelector('.page-head');
-    const original = document.createElement('div');
-    original.className = 'workspace-lessons';
-    while (main.firstChild) original.append(main.firstChild);
-    if (head) {
-      main.append(head);
-      head.querySelector('.eyebrow')?.remove();
-      head.querySelector('.page-number')?.remove();
-    }
-    const shell = document.createElement('div');
-    shell.className = 'lab-shell';
-    shell.innerHTML = `<div class="lab-toolbar"><button class="primary" data-action="demo">▶ Run demo</button><button data-action="custom" aria-pressed="true">Custom</button><span id="demo-status" role="status">Custom · change a control and watch the response.</span></div><div class="lab-observation" aria-label="Live observation"><label class="plot-picker" for="workspace-plot">Observe<select id="workspace-plot">${observations[module].map(([id, label], i) => `<option value="${i}">${label}</option>`).join('')}</select></label><div class="observation-plots"></div><div class="observation-metrics"></div></div><div class="lab-controls"><div class="control-tabs" aria-label="Control panels"><button data-panel="operate" aria-pressed="true">Operate</button><button data-panel="setup" aria-pressed="false">Setup</button><button data-panel="learn" aria-pressed="false">Learn</button></div><section data-control-panel="operate" aria-label="Operate controls"></section><section data-control-panel="setup" aria-label="Setup controls" hidden></section><section data-control-panel="learn" aria-label="Explanations and references" hidden></section></div>`;
-    main.append(shell);
-    const plots = shell.querySelector('.observation-plots'),
-      metrics = shell.querySelector('.observation-metrics');
-    observations[module].forEach(([id, label], i) => {
-      const node = original.querySelector('#' + id),
-        panel = document.createElement('div');
-      panel.className = 'observation-panel';
-      panel.dataset.observation = i;
-      panel.hidden = i !== 0;
-      panel.setAttribute('aria-label', label);
-      const next = node.nextElementSibling;
-      panel.append(node);
-      if (next?.matches('.legend')) panel.append(next);
-      plots.append(panel);
-    });
-    original.querySelectorAll('.kpi-grid').forEach(node => metrics.append(node));
-    const operate = shell.querySelector('[data-control-panel="operate"]'),
-      setup = shell.querySelector('[data-control-panel="setup"]');
-    // Keep explanations in Learn while relocating the actual controls, preserving IDs and listeners.
-    const signature = original.querySelector('#friction-view');
-    if (signature) {
-      const label = document.createElement('label');
-      label.className = 'control';
-      label.textContent = 'Signature axes';
-      label.append(signature);
-      operate.append(label);
-    }
-    const nodes = [
-      ...original.querySelectorAll(
-        '#friction-controls,.control,.btn-row,.tabs,.pills,.component-grid,.style-list,.check-row,.case-options,#friction-status,#position-status,#case-feedback,#pid-status,#pid-stage-controls,#pid-results,#pid-equation-note,#component-detail'
-      )
-    ];
-    for (const node of nodes) {
-      if (!original.contains(node)) continue;
-      if (node.closest('#friction-controls') && node.id !== 'friction-controls') continue;
-      if (node.querySelector('[data-action="glossary"]')) {
-        setup.append(node);
-        continue;
-      }
-      const isSetup =
-        node.id === 'friction-controls' || [...node.querySelectorAll('input,select')].some(el => setupIds.has(el.id));
-      (isSetup ? setup : operate).append(node);
-    }
-    const sourceIntro = document.createElement('p');
-    sourceIntro.className = 'workspace-intro';
-    sourceIntro.textContent = head?.querySelector('p')?.textContent || '';
-    shell.querySelector('[data-control-panel="learn"]').append(sourceIntro, original);
-    setPanel('operate');
-    syncSelections();
+  const C = root.ValveContent;
+  function lab(o) {
+    const views = o.views;
+    const switcher =
+      views.length > 1
+        ? `<div class="view-switch" role="group" aria-label="Choose what to show">${views
+            .map((v, i) => `<button type="button" data-view="${i}" aria-pressed="${i === 0}">${v.label}</button>`)
+            .join('')}</div>`
+        : `<p class="view-title">${views[0].label}</p>`;
+    return `<div class="lab">
+      <section class="lab-observation" aria-label="Live view">
+        <div class="live-head">${switcher}</div>
+        <div class="observation-plots">${views
+          .map(
+            (v, i) =>
+              `<div class="observation-panel" data-observation="${i}" aria-label="${v.label}"${i ? ' hidden' : ''}>${v.html}</div>`
+          )
+          .join('')}</div>
+        ${o.metrics ? `<div class="observation-metrics"><div class="kpi-grid">${o.metrics}</div>${o.extra ?? ''}</div>` : ''}
+        ${o.transport || o.status ? `<div class="live-foot">${o.transport ?? ''}${o.status ?? ''}</div>` : ''}
+      </section>
+      <div class="lab-side">
+        <section class="card guide" aria-labelledby="guide-title">
+          <div id="guide-step"></div>
+          <div class="demo-row">
+            <button type="button" data-action="demo">▶ Watch the full demo</button>
+            <button type="button" data-action="custom" hidden>■ Stop demo</button>
+            <span id="demo-status" role="status"></span>
+          </div>
+        </section>
+        <section class="card lab-controls" aria-labelledby="controls-title">
+          <h2 id="controls-title" class="section-label">Controls</h2>
+          ${o.controls}
+          ${
+            o.settings
+              ? `<details class="settings"><summary>More settings</summary><div class="settings-body">${o.settings}</div></details>`
+              : ''
+          }
+        </section>
+      </div>
+    </div>`;
   }
-  function setPanel(name) {
-    document.querySelectorAll('[data-control-panel]').forEach(el => (el.hidden = el.dataset.controlPanel !== name));
-    document
-      .querySelectorAll('[data-panel]')
-      .forEach(el => el.setAttribute('aria-pressed', String(el.dataset.panel === name)));
+  // One guided step: what to do, what to look for, and why it matters, with step navigation.
+  function guide(module, index, done, next) {
+    const steps = C.guides[module],
+      s = steps[index],
+      last = index === steps.length - 1;
+    const dots = steps
+      .map(
+        (step, i) =>
+          `<li><button type="button" data-guide-step="${i}" class="${done.includes(i) ? 'done' : ''}"${
+            i === index ? ' aria-current="step"' : ''
+          } aria-label="Step ${i + 1}: ${step.title}${done.includes(i) ? ' (done)' : ''}">${done.includes(i) ? '✓' : i + 1}</button></li>`
+      )
+      .join('');
+    const forward = last
+      ? next
+        ? `<a class="button" href="#${next}" data-module="${next}">Next lesson →</a>`
+        : `<a class="button" href="#home" data-module="home">All lessons →</a>`
+      : `<button type="button" data-action="guide-next">Next step →</button>`;
+    return `<div class="guide-top"><p class="kicker">Guided activity · step ${index + 1} of ${steps.length}</p><ol class="guide-dots" aria-label="Guided steps">${dots}</ol></div>
+      <h2 id="guide-title">${s.title}</h2>
+      <dl class="guide-body">
+        <div><dt>Try it</dt><dd>${s.do}</dd></div>
+        <div><dt>Look for</dt><dd>${s.look}</dd></div>
+        <div><dt>Why it matters</dt><dd>${s.why}</dd></div>
+      </dl>
+      <p id="guide-note" class="guide-note" role="status"></p>
+      <div class="guide-actions">
+        <button type="button" class="primary" data-action="guide-show">Show me</button>
+        <button type="button" data-action="guide-prev"${index === 0 ? ' disabled' : ''}>← Back</button>
+        ${forward}
+      </div>`;
   }
   function setPlot(index) {
     document
       .querySelectorAll('[data-observation]')
       .forEach(el => (el.hidden = el.dataset.observation !== String(index)));
+    document
+      .querySelectorAll('[data-view]')
+      .forEach(el => el.setAttribute('aria-pressed', String(el.dataset.view === String(index))));
+  }
+  function currentPlot() {
+    return Number(document.querySelector('[data-view][aria-pressed="true"]')?.dataset.view ?? 0);
   }
   function syncSelections() {
     document
@@ -132,11 +95,20 @@
       )
       .forEach(el => el.setAttribute('aria-pressed', String(el.classList.contains('selected'))));
   }
+  // Demo state: the Stop button only appears while a demo runs; the status line narrates it.
   function mode(demo, text) {
     const status = $('demo-status');
     if (status && status.textContent !== text) status.textContent = text;
-    document.querySelector('[data-action="custom"]')?.setAttribute('aria-pressed', String(!demo));
-    document.querySelector('[data-action="demo"]')?.setAttribute('aria-pressed', String(demo));
+    const play = document.querySelector('[data-action="demo"]'),
+      stop = document.querySelector('[data-action="custom"]');
+    if (play) {
+      play.hidden = demo;
+      play.setAttribute('aria-pressed', String(demo));
+    }
+    if (stop) {
+      stop.hidden = !demo;
+      stop.setAttribute('aria-pressed', String(!demo));
+    }
   }
-  root.ValveWorkspace = { mount, setPanel, setPlot, syncSelections, mode };
+  root.ValveWorkspace = { lab, guide, setPlot, currentPlot, syncSelections, mode };
 })(window);

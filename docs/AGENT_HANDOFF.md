@@ -16,6 +16,18 @@ The phone/PID pass supersedes the six-module application baseline reviewed on Oc
 - Fixed 0.05 s friction/positioner samples preserve slow sweeps across animation refresh rates; bounded 8,000-sample histories. PID records at 0.1 s with configurable acceleration and a 20,000-sample bound.
 - Paused positioner input edits change parameters without advancing time. Run/resume applies dynamics. Friction manual steps remain explicitly sampled; Hold & settle evolves lag.
 
+## Third pass (2026-10-10): guided-lab redesign for a broad industry audience
+
+User request: make the app intuitive, simple and educational at management-level quality for everyone who deals with control valves daily.
+
+- **Start here** home page (default route): signal-to-flow chain linked to lessons, role paths (operations, maintenance & instrumentation, process & control engineering, management & reliability), lesson cards, five essentials.
+- **One lesson template** (`ValveWorkspace.lab` + `lessonPage`): question + key idea; live view with view buttons, key numbers, Run/Pause/Reset and status; guided activity (4 steps each: Try it / Look for / Why it matters, Show me, Back/Next, progress dots, then next lesson); controls with advanced options in **More settings**; **Why it matters on the job** for four roles; **Go deeper**; previous/next pager. Replaces the Operate/Setup/Learn tabs and the relocated-DOM workspace.
+- Content in `content.js`: `modules`, `chain`, `roles`, `essentials`, `onTheJob`, `guides`, plus plain-language glossary terms. Audience-specific wording ("Fisher is the likely brand you mean") removed.
+- Behavior: positioner edits run until settled (auto-stop after 2 s still; hunting keeps running); lag-mode manual changes hold and settle; the loop always draws its final frame (fixed a stale "running" status). PID page shows only the current stage's controls. Guide PID tuning step refuses to run without a measured estimate; its Show me restarts at a clean 50% operating point in Auto.
+- Accessibility: axe-core 4.10.2 (WCAG 2 A/AA + best practice) in headless Chromium on all 8 pages at 1280×800 and 390×844: **zero serious/critical violations** after darkening secondary text, link, pressure-unit and tag colors and changing the interactive valve SVG from `role=img` to `role=group`. Remaining: moderate `skip-link` reports for hash-route links (`#flow` etc.), a false positive for this routing. Guide buttons keep keyboard focus.
+- Evidence: 58 tests pass (new `tests/guide.test.cjs` re-checks every number quoted in guide text against the models and runs every Show me step). Headless Chromium at 320×640, 375×667, 390×844, 768×1024, 1280×800, 844×390 for source and dist: no page overflow or script errors. Pinned live view is 358–393 px on 390×844; short/landscape screens do not pin. dist is ~214 KB.
+- Still unverified: real iPhone/Android devices, touch feel, zoom/large text, and an actual screen reader.
+
 ## Second pass (2026-10-10): browser QA, readability, formatting
 
 - `5331694` fixes from real Chromium checks: compact charts (<220 px tall) use tighter margins and three y ticks; every chart has a numeric `<desc>`; the active module tab scrolls into view in the phone nav; re-clicking the active module no longer duplicates history; paused positioner/lag statuses name the control that evolves the response.
@@ -35,11 +47,11 @@ Actual iPhone Safari, Android Chrome, desktop rendering, touch and screen-reader
 | --- | --- |
 | `js/models.js` | Existing Cv/liquid/motion/positioner numerical models |
 | `js/pid.js` | Pure controller, process delay/lag, measured step identification and SIMC PI suggestion |
-| `js/workspace.js` | Relocates live DOM into observation/control panels; panel/plot selection and toggle semantics |
+| `js/workspace.js` | Shared lesson layout (live view, guide card, controls, More settings), guide step markup, view and demo state |
 | `js/app.js` | Seven module pages, state, fixed-clock integration, demo scripting and inputs |
 | `js/content.js` | Educational explanations, cases, glossary, manufacturer/primary references |
 | `js/diagrams.js` | Original SVG schematics and container-size-aware plots |
-| `styles.css` | Persistent phone workspace, desktop panes and short-landscape fallback |
+| `styles.css` | Formatted design system: frame, lesson template, guide, home page, responsive pinning rules |
 | `tests/` | Numerical, DOM, fake-clock, SVG and generated single-file boot tests |
 | `scripts/package.mjs` | Embeds six scripts and CSS into `dist/index.html` |
 | `docs/model-notes.md` | Exact models, units, recording policy and identification rejection heuristics |
@@ -48,8 +60,8 @@ Actual iPhone Safari, Android Chrome, desktop rendering, touch and screen-reader
 ## Important invariants
 
 1. Preserve command/travel/Cv/flow/PV distinctions and the single-phase liquid pressure balance.
-2. Shared workspace moves nodes instead of cloning IDs. All required update targets must remain in the DOM even when their panel is hidden.
-3. Keep one animation loop. Pause/background/navigation/custom must cancel automation. Opening a second module must never leave a hidden simulation running.
+2. Each control ID exists once. All update targets stay in the DOM even when their view or More settings is hidden. Numbers quoted in guide text must stay covered by `tests/guide.test.cjs`.
+3. Keep one animation loop. Pause/background/navigation/Stop demo must cancel automation. Opening a second module must never leave a hidden simulation running.
 4. Fits come from recorded measured data, never the hidden process constants. Reject drifting baselines, no/small response, unsettled response, multiple OP moves and excessive end travel mismatch. Process/defect/load edits invalidate recordings and estimates. Defects/noise can still distort an accepted local fit; keep the caveat.
 5. Bumpless transfer means initial output continuity; subsequent integral response to nonzero error is expected. Do not assert that OP remains fixed for a whole second after Auto.
 6. A/B/C here refer to APM/Experion-style placement in **noninteractive/ideal** form. HC900 naming and series-form tuning are different. Do not silently convert or claim firmware equivalence.

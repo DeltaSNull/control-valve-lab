@@ -18,9 +18,10 @@
 <body>
   <a class="skip" href="#main">Skip to the lab</a>
   <aside class="sidebar" aria-label="Learning modules">
-    <a class="brand" href="#anatomy"><span class="brand-icon" aria-hidden="true">↗</span><span>Control Valve<span class="brand-sub">LAB / ENGINEERING</span></span></a>
+    <a class="brand" href="#home" data-module="home"><span class="brand-icon" aria-hidden="true">↗</span><span>Control Valve<span class="brand-sub">LEARNING LAB</span></span></a>
     <p class="nav-label">FROM SIGNAL TO FLOW</p>
-    <nav id="module-nav">
+    <nav id="module-nav" aria-label="Lessons">
+      <a href="#home" data-module="home"><span aria-hidden="true">⌂</span>Start here</a>
       <a href="#anatomy" data-module="anatomy"><span>01</span>Inside the valve</a>
       <a href="#friction" data-module="friction"><span>02</span>Stiction & hysteresis</a>
       <a href="#flow" data-module="flow"><span>03</span>Cv & installed flow</a>
@@ -29,15 +30,15 @@
       <a href="#diagnosis" data-module="diagnosis"><span>06</span>Read the symptoms</a>
       <a href="#pid" data-module="pid"><span>07</span>PID & step testing</a>
     </nav>
-    <div class="sidebar-note"><span class="small-dot"></span><strong>A working mental model.</strong><p>Change one thing.<br>Watch the mechanism.<br>Connect it to the trend.</p></div>
+    <div class="sidebar-note"><span class="small-dot"></span><strong>How each lesson works</strong><p>1. Read the key idea.<br>2. Follow the guided steps.<br>3. Explore the controls.</p></div>
     <button class="utility" data-action="references">References & model notes ↗</button>
     <button class="utility" data-action="glossary">Engineering glossary ↗</button>
     <a class="utility repo-link" href="https://github.com/DeltaSNull/control-valve-lab" target="_blank" rel="noopener">Source on GitHub ↗</a>
   </aside>
   <div class="workspace">
-    <header class="topbar"><span>THE CONTROL VALVE FIELD GUIDE</span><span class="top-tag">INTERACTIVE LEARNING</span></header>
+    <header class="topbar"><span>The control valve field guide</span><span class="top-tag">Simulated data · for training</span></header>
     <main id="main" tabindex="-1"></main>
-    <footer>Original educational schematics · Simulated data · Built for engineers, technicians & operations</footer>
+    <footer>Original educational schematics · Simulated data · Built for operations, maintenance, engineering and management</footer>
   </div>
   <dialog id="resource-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title">References</h2><button data-action="close-dialog" aria-label="Close dialog">×</button></div><div id="dialog-content"></div></dialog>
   <noscript><p class="noscript">Enable JavaScript to use the valve simulations. The source and model notes are available in the GitHub repository.</p></noscript>
