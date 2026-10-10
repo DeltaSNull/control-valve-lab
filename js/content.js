@@ -1,85 +1,419 @@
-(function(root){
+(function (root) {
   'use strict';
-  const components={
-    packing:{name:'Packing',role:'Seals the gap around the moving stem so process fluid stays inside the bonnet.',cause:'Compression creates contact force on the stem. Excessive loading, unsuitable packing, deposits, or a scored stem can increase friction. Tightening a leak away can trade leakage for poor control.',evidence:'Command changes and actuator pressure changes, but travel holds and then jumps. A pressure–travel signature may show increased friction; compare with a baseline under similar loading.',takeaway:'The same surface must seal and slide. That is why packing is a frequent place to investigate stiction.'},
-    stem:{name:'Stem',role:'Transfers actuator motion to the plug. Packing and guides must allow it to move along the intended axis.',cause:'Bending, corrosion, scoring, misalignment, or deposits can make resistance depend on position. A local bind may repeat at one travel location.',evidence:'Look for position-specific hesitation and inspect alignment and surfaces during an authorized outage.',takeaway:'A positioner reading at the actuator does not automatically prove every downstream mechanical connection is sound.'},
-    plug:{name:'Plug',role:'The moving closure member changes the restriction. Its geometry, or the openings it uncovers in a cage, establishes the inherent capacity characteristic.',cause:'Erosion, deposits, guide contact, and thermal interference can affect movement or shutoff. Fluid force also changes with pressure and travel.',evidence:'A repeatable restriction at one travel or changed flow at the same actual position can point toward trim or process conditions.',takeaway:'Plug movement sets a flow area. It does not set flow independently of pressure drop.'},
-    seat:{name:'Seat',role:'The plug contacts the seat ring at shutoff. The contact geometry and materials affect leakage performance.',cause:'Damage, trapped debris, erosion, and inadequate seating force can allow leakage. High seating force and cutoffs change behavior close to closure.',evidence:'Distinguish leakage through a closed valve from external leakage at packing. Verify shutoff requirements and test conditions.',takeaway:'Zero indicated travel is a position measurement, not a guarantee of zero leakage.'},
-    cage:{name:'Cage / guides',role:'Guides the plug in many globe designs. Characterized windows can meter flow as the plug uncovers them.',cause:'Fouling, damage, tight clearances, thermal expansion, and plug-to-cage contact can create friction or binding.',evidence:'A bind that appears hot but disappears cold deserves investigation of temperature, clearances, and service loading.',takeaway:'Not every globe valve is cage-guided. The exact internals depend on the valve and trim selection.'},
-    bonnet:{name:'Bonnet',role:'Closes the body above the trim and houses the stem passage and packing assembly.',cause:'Assembly alignment and the condition of stem guidance can affect movement. Bonnet extensions isolate packing from extreme process temperatures.',evidence:'Review the actual construction, temperature limits, assembly, and packing arrangement.',takeaway:'The bonnet is part of the pressure boundary; its geometry also supports the moving stem.'},
-    diaphragm:{name:'Diaphragm',role:'Converts air pressure acting over an effective area into actuator force. Here, air below the diaphragm lifts the plug.',cause:'A damaged diaphragm, leakage, inadequate air, or restricted tubing can reduce available force or slow response.',evidence:'Compare supply pressure, actuator pressure, and travel. Pressure reaching a limit while travel remains short indicates a force or load problem.',takeaway:'Air pressure × effective diaphragm area is a force. Required pressure depends on spring, process force, and friction.'},
-    spring:{name:'Spring',role:'Opposes air force and returns this example toward closure when air is removed.',cause:'Spring rate and preload affect force throughout travel. The bench-set range is established under defined bench conditions; process loading changes the installed requirement.',evidence:'Use actuator documentation to establish action and loading; do not infer fail position from paint or an output percentage.',takeaway:'This drawing is air-to-open and spring-to-close. Other assemblies reverse the action.'},
-    body:{name:'Body',role:'Contains process pressure and routes fluid through the restriction. Flow direction and pressure recovery depend on construction.',cause:'Erosion, cavitation, flashing, corrosion, and vibration can damage the flow path. A large body may contain reduced-capacity trim.',evidence:'Know fluid, pressures, temperature, actual trim, and flow direction before interpreting a symptom.',takeaway:'Body size and rated Cv are different specifications. A large pipe connection does not imply a large selected Cv.'},
-    yoke:{name:'Yoke',role:'Supports and aligns the actuator above the valve, carrying reaction loads into the assembly.',cause:'Misalignment or loose attachments can impair motion or feedback. Stem connectors also matter.',evidence:'Inspect mounting and mechanical connections when safely accessible and permitted.',takeaway:'An intact signal path is only useful if the mechanical path transmits the motion.'},
-    positioner:{name:'Positioner',role:'Compares requested travel with feedback and changes actuator air pressure to reduce the difference.',cause:'Feedback problems, supply restrictions, poor tuning, calibration, or configuration can impair travel control.',evidence:'Trend command, actual travel, supply, and output pressure together. Confirm what the feedback sensor physically measures.',takeaway:'It controls position. The process controller controls the process variable.'},
-    air:{name:'Air chamber',role:'Pressure beneath the diaphragm produces upward force in this example. The positioner fills or exhausts this chamber.',cause:'Restrictions and leakage affect how quickly pressure can change. Supply pressure limits the force available.',evidence:'Healthy static supply does not guarantee adequate air delivery during a move; compare dynamic pressures.',takeaway:'Supply pressure, output pressure, and a traditional 3–15 psi signal are not interchangeable.'}
+  const components = {
+    packing: {
+      name: 'Packing',
+      role: 'Seals the gap around the moving stem so process fluid stays inside the bonnet.',
+      cause:
+        'Compression creates contact force on the stem. Excessive loading, unsuitable packing, deposits, or a scored stem can increase friction. Tightening a leak away can trade leakage for poor control.',
+      evidence:
+        'Command changes and actuator pressure changes, but travel holds and then jumps. A pressure–travel signature may show increased friction; compare with a baseline under similar loading.',
+      takeaway: 'The same surface must seal and slide. That is why packing is a frequent place to investigate stiction.'
+    },
+    stem: {
+      name: 'Stem',
+      role: 'Transfers actuator motion to the plug. Packing and guides must allow it to move along the intended axis.',
+      cause:
+        'Bending, corrosion, scoring, misalignment, or deposits can make resistance depend on position. A local bind may repeat at one travel location.',
+      evidence: 'Look for position-specific hesitation and inspect alignment and surfaces during an authorized outage.',
+      takeaway:
+        'A positioner reading at the actuator does not automatically prove every downstream mechanical connection is sound.'
+    },
+    plug: {
+      name: 'Plug',
+      role: 'The moving closure member changes the restriction. Its geometry, or the openings it uncovers in a cage, establishes the inherent capacity characteristic.',
+      cause:
+        'Erosion, deposits, guide contact, and thermal interference can affect movement or shutoff. Fluid force also changes with pressure and travel.',
+      evidence:
+        'A repeatable restriction at one travel or changed flow at the same actual position can point toward trim or process conditions.',
+      takeaway: 'Plug movement sets a flow area. It does not set flow independently of pressure drop.'
+    },
+    seat: {
+      name: 'Seat',
+      role: 'The plug contacts the seat ring at shutoff. The contact geometry and materials affect leakage performance.',
+      cause:
+        'Damage, trapped debris, erosion, and inadequate seating force can allow leakage. High seating force and cutoffs change behavior close to closure.',
+      evidence:
+        'Distinguish leakage through a closed valve from external leakage at packing. Verify shutoff requirements and test conditions.',
+      takeaway: 'Zero indicated travel is a position measurement, not a guarantee of zero leakage.'
+    },
+    cage: {
+      name: 'Cage / guides',
+      role: 'Guides the plug in many globe designs. Characterized windows can meter flow as the plug uncovers them.',
+      cause:
+        'Fouling, damage, tight clearances, thermal expansion, and plug-to-cage contact can create friction or binding.',
+      evidence:
+        'A bind that appears hot but disappears cold deserves investigation of temperature, clearances, and service loading.',
+      takeaway: 'Not every globe valve is cage-guided. The exact internals depend on the valve and trim selection.'
+    },
+    bonnet: {
+      name: 'Bonnet',
+      role: 'Closes the body above the trim and houses the stem passage and packing assembly.',
+      cause:
+        'Assembly alignment and the condition of stem guidance can affect movement. Bonnet extensions isolate packing from extreme process temperatures.',
+      evidence: 'Review the actual construction, temperature limits, assembly, and packing arrangement.',
+      takeaway: 'The bonnet is part of the pressure boundary; its geometry also supports the moving stem.'
+    },
+    diaphragm: {
+      name: 'Diaphragm',
+      role: 'Converts air pressure acting over an effective area into actuator force. Here, air below the diaphragm lifts the plug.',
+      cause:
+        'A damaged diaphragm, leakage, inadequate air, or restricted tubing can reduce available force or slow response.',
+      evidence:
+        'Compare supply pressure, actuator pressure, and travel. Pressure reaching a limit while travel remains short indicates a force or load problem.',
+      takeaway:
+        'Air pressure × effective diaphragm area is a force. Required pressure depends on spring, process force, and friction.'
+    },
+    spring: {
+      name: 'Spring',
+      role: 'Opposes air force and returns this example toward closure when air is removed.',
+      cause:
+        'Spring rate and preload affect force throughout travel. The bench-set range is established under defined bench conditions; process loading changes the installed requirement.',
+      evidence:
+        'Use actuator documentation to establish action and loading; do not infer fail position from paint or an output percentage.',
+      takeaway: 'This drawing is air-to-open and spring-to-close. Other assemblies reverse the action.'
+    },
+    body: {
+      name: 'Body',
+      role: 'Contains process pressure and routes fluid through the restriction. Flow direction and pressure recovery depend on construction.',
+      cause:
+        'Erosion, cavitation, flashing, corrosion, and vibration can damage the flow path. A large body may contain reduced-capacity trim.',
+      evidence: 'Know fluid, pressures, temperature, actual trim, and flow direction before interpreting a symptom.',
+      takeaway:
+        'Body size and rated Cv are different specifications. A large pipe connection does not imply a large selected Cv.'
+    },
+    yoke: {
+      name: 'Yoke',
+      role: 'Supports and aligns the actuator above the valve, carrying reaction loads into the assembly.',
+      cause: 'Misalignment or loose attachments can impair motion or feedback. Stem connectors also matter.',
+      evidence: 'Inspect mounting and mechanical connections when safely accessible and permitted.',
+      takeaway: 'An intact signal path is only useful if the mechanical path transmits the motion.'
+    },
+    positioner: {
+      name: 'Positioner',
+      role: 'Compares requested travel with feedback and changes actuator air pressure to reduce the difference.',
+      cause:
+        'Feedback problems, supply restrictions, poor tuning, calibration, or configuration can impair travel control.',
+      evidence:
+        'Trend command, actual travel, supply, and output pressure together. Confirm what the feedback sensor physically measures.',
+      takeaway: 'It controls position. The process controller controls the process variable.'
+    },
+    air: {
+      name: 'Air chamber',
+      role: 'Pressure beneath the diaphragm produces upward force in this example. The positioner fills or exhausts this chamber.',
+      cause:
+        'Restrictions and leakage affect how quickly pressure can change. Supply pressure limits the force available.',
+      evidence:
+        'Healthy static supply does not guarantee adequate air delivery during a move; compare dynamic pressures.',
+      takeaway: 'Supply pressure, output pressure, and a traditional 3–15 psi signal are not interchangeable.'
+    }
   };
-  const friction={
-    ideal:{title:'Ideal tracking',explain:'Actual travel follows command exactly. This is the reference: every increment of command produces the same increment of travel.',observe:'Try reversing direction. There is no lost motion or fixed offset.',model:'No force dynamics or friction; ideal reference only.'},
-    stiction:{title:'Stiction / stick–slip',explain:'Static friction holds the stem until net drive force exceeds breakaway. Once it moves, sliding friction is lower, so the stem slips to a new position.',observe:'Sweep upward slowly. Pressure rises while travel is flat; then travel jumps. Reverse and watch the force build in the opposite direction.',model:'Quasi-static force balance with static and sliding thresholds. Thresholds are expressed as equivalent percentage points of spring-force span, not measured valve deadband.'},
-    hysteresis:{title:'Direction-dependent hysteresis',explain:'The same command can correspond to different travel depending on whether you approached it from above or below. Hysteresis describes the response, not a single mechanical defect.',observe:'Sweep up and down. The two branches form a loop. This simple model has continuous motion once the branch engages, without a stick–slip jump.',model:'Rate-independent play operator used to illustrate a hysteresis loop. Real friction, material effects, and mechanisms can produce different loop shapes.'},
-    backlash:{title:'Mechanical backlash',explain:'After a reversal, the input mechanism must take up clearance before it moves the output again. Linkage, couplings, and rotary connections can introduce lost motion.',observe:'Move up, then step down 1%. The output can remain still until the reversal band has been consumed.',model:'Rate-independent play operator. Command is an upstream mechanical drive and travel is downstream closure-member motion; the pressure trace is only an illustrative upstream command-pressure proxy.'},
-    lag:{title:'Pneumatic / dynamic lag',explain:'Travel follows a command with a delay in time. A restricted air path or actuator dynamics can slow movement even without a static lost-motion band.',observe:'Hold command steady. Travel keeps moving toward it. Slow the sweep and the dynamic loop shrinks.',model:'First-order lag with a time constant in seconds. This is a time-dependent response, not proof of mechanical hysteresis.'}
+  const friction = {
+    ideal: {
+      title: 'Ideal tracking',
+      explain:
+        'Actual travel follows command exactly. This is the reference: every increment of command produces the same increment of travel.',
+      observe: 'Try reversing direction. There is no lost motion or fixed offset.',
+      model: 'No force dynamics or friction; ideal reference only.'
+    },
+    stiction: {
+      title: 'Stiction / stick–slip',
+      explain:
+        'Static friction holds the stem until net drive force exceeds breakaway. Once it moves, sliding friction is lower, so the stem slips to a new position.',
+      observe:
+        'Sweep upward slowly. Pressure rises while travel is flat; then travel jumps. Reverse and watch the force build in the opposite direction.',
+      model:
+        'Quasi-static force balance with static and sliding thresholds. Thresholds are expressed as equivalent percentage points of spring-force span, not measured valve deadband.'
+    },
+    hysteresis: {
+      title: 'Direction-dependent hysteresis',
+      explain:
+        'The same command can correspond to different travel depending on whether you approached it from above or below. Hysteresis describes the response, not a single mechanical defect.',
+      observe:
+        'Sweep up and down. The two branches form a loop. This simple model has continuous motion once the branch engages, without a stick–slip jump.',
+      model:
+        'Rate-independent play operator used to illustrate a hysteresis loop. Real friction, material effects, and mechanisms can produce different loop shapes.'
+    },
+    backlash: {
+      title: 'Mechanical backlash',
+      explain:
+        'After a reversal, the input mechanism must take up clearance before it moves the output again. Linkage, couplings, and rotary connections can introduce lost motion.',
+      observe: 'Move up, then step down 1%. The output can remain still until the reversal band has been consumed.',
+      model:
+        'Rate-independent play operator. Command is an upstream mechanical drive and travel is downstream closure-member motion; the pressure trace is only an illustrative upstream command-pressure proxy.'
+    },
+    lag: {
+      title: 'Pneumatic / dynamic lag',
+      explain:
+        'Travel follows a command with a delay in time. A restricted air path or actuator dynamics can slow movement even without a static lost-motion band.',
+      observe: 'Hold command steady. Travel keeps moving toward it. Slow the sweep and the dynamic loop shrinks.',
+      model:
+        'First-order lag with a time constant in seconds. This is a time-dependent response, not proof of mechanical hysteresis.'
+    }
   };
-  const styles={
-    globe:{name:'Sliding-stem globe',tag:'Axial plug motion',description:'A plug moves toward or away from a seat. Contoured plugs or cage windows can create different capacity characteristics. Often chosen for precise throttling and adaptable trim.',watch:'Packing friction, stem alignment, plug/cage binding, process forces, and seating transitions.',examples:'Fisher easy-e ED/ET families are familiar examples; selected trim and actuator details vary.',lesson:'A typical green Fisher assembly may be a globe valve, but the brand and color do not identify its exact internals.'},
-    ball:{name:'Segmented ball',tag:'Rotary V-notch',description:'A ball segment rotates, progressively exposing an opening. A V-notch can provide useful throttling behavior, often with high capacity in a compact body.',watch:'Shaft packing, bearings, seal friction, coupling clearance, and torsional deflection. Actuator-side feedback may miss lost motion downstream.',examples:'Fisher Vee-Ball is one example. Use its selected characteristic and capacity tables rather than assuming every ball valve behaves alike.',lesson:'Rotation reported by a positioner is not always identical to rotation of the closure member under load.'},
-    butterfly:{name:'Butterfly',tag:'Rotary disk',description:'A disk rotates in the flow path. Compact construction can be useful in larger lines. Selected disk/seat geometry and installation influence capacity and pressure recovery.',watch:'Seat contact near closure, shaft packing, bearings, hydrodynamic torque, and use outside a suitable throttling range.',examples:'Concentric, eccentric, and high-performance constructions differ. Control-oriented designs are not interchangeable with every isolation butterfly valve.',lesson:'Degrees of rotation, effective flow area, and flow are different quantities.'},
-    eccentric:{name:'Eccentric plug',tag:'Cammed rotation',description:'An offset plug rotates and cams away from the seat. The mechanism can reduce seat contact during opening while retaining a robust throttling path.',watch:'Shaft/actuator alignment, bearings, packing, seat engagement, and lost motion in the drive train.',examples:'Fisher V500 is one example. Its cammed path is a construction-specific feature.',lesson:'Rotary valves can still suffer stiction. Their friction and backlash sources differ from a sliding stem.'}
+  const styles = {
+    globe: {
+      name: 'Sliding-stem globe',
+      tag: 'Axial plug motion',
+      description:
+        'A plug moves toward or away from a seat. Contoured plugs or cage windows can create different capacity characteristics. Often chosen for precise throttling and adaptable trim.',
+      watch: 'Packing friction, stem alignment, plug/cage binding, process forces, and seating transitions.',
+      examples: 'Fisher easy-e ED/ET families are familiar examples; selected trim and actuator details vary.',
+      lesson:
+        'A typical green Fisher assembly may be a globe valve, but the brand and color do not identify its exact internals.'
+    },
+    ball: {
+      name: 'Segmented ball',
+      tag: 'Rotary V-notch',
+      description:
+        'A ball segment rotates, progressively exposing an opening. A V-notch can provide useful throttling behavior, often with high capacity in a compact body.',
+      watch:
+        'Shaft packing, bearings, seal friction, coupling clearance, and torsional deflection. Actuator-side feedback may miss lost motion downstream.',
+      examples:
+        'Fisher Vee-Ball is one example. Use its selected characteristic and capacity tables rather than assuming every ball valve behaves alike.',
+      lesson: 'Rotation reported by a positioner is not always identical to rotation of the closure member under load.'
+    },
+    butterfly: {
+      name: 'Butterfly',
+      tag: 'Rotary disk',
+      description:
+        'A disk rotates in the flow path. Compact construction can be useful in larger lines. Selected disk/seat geometry and installation influence capacity and pressure recovery.',
+      watch:
+        'Seat contact near closure, shaft packing, bearings, hydrodynamic torque, and use outside a suitable throttling range.',
+      examples:
+        'Concentric, eccentric, and high-performance constructions differ. Control-oriented designs are not interchangeable with every isolation butterfly valve.',
+      lesson: 'Degrees of rotation, effective flow area, and flow are different quantities.'
+    },
+    eccentric: {
+      name: 'Eccentric plug',
+      tag: 'Cammed rotation',
+      description:
+        'An offset plug rotates and cams away from the seat. The mechanism can reduce seat contact during opening while retaining a robust throttling path.',
+      watch: 'Shaft/actuator alignment, bearings, packing, seat engagement, and lost motion in the drive train.',
+      examples: 'Fisher V500 is one example. Its cammed path is a construction-specific feature.',
+      lesson: 'Rotary valves can still suffer stiction. Their friction and backlash sources differ from a sliding stem.'
+    }
   };
-  const trims={
-    characterized:{name:'Characterized trim',purpose:'Shape the capacity-versus-travel relationship.',how:'A contoured plug changes annular opening geometry; a cage can meter flow by exposing shaped windows. Linear and equal-percentage are characteristic choices, not body styles.',tradeoff:'Installed behavior also depends on pressure drop, piping, and sizing. Input characterization in a DVC changes command-to-travel mapping; it does not reshape the physical trim.'},
-    balanced:{name:'Balanced / unbalanced',purpose:'Manage pressure-induced plug forces.',how:'An unbalanced plug can experience substantial force from differential pressure acting on its effective area. Balancing passages and seals reduce a pressure-force component.',tradeoff:'Balance adds sealing and construction details. Residual flow forces, friction, and required seating load remain; balanced does not mean force-free.'},
-    reduced:{name:'Reduced-capacity',purpose:'Use a smaller rated Cv within a suitable body.',how:'A smaller effective port or restricted cage reduces capacity. This can move normal operation out of a very low-travel region when a valve is oversized.',tradeoff:'Recheck maximum required flow, pressure/temperature ratings, noise, shutoff, and minimum controllable flow. Body size alone is insufficient.'},
-    cavitation:{name:'Anti-cavitation',purpose:'Manage liquid pressure reduction and vapor-bubble collapse.',how:'Multistage trims can distribute pressure reduction rather than concentrating it at one restriction. The design must fit liquid properties, pressure conditions, and service cleanliness.',tradeoff:'Small passages can be vulnerable to plugging. Anti-cavitation trim does not make downstream flashing disappear if downstream pressure remains below vapor pressure.'},
-    noise:{name:'Noise attenuation',purpose:'Reduce aerodynamic noise in gas, vapor, or steam service.',how:'Multiple flow passages and staged pressure reduction can control jet formation and energy dissipation. Fisher Whisper Trim and WhisperFlo are example product families.',tradeoff:'A noise-reduction cage and an anti-cavitation trim solve different service problems. Correct gas sizing and acoustic evaluation still matter.'},
-    seats:{name:'Seats & materials',purpose:'Meet shutoff, temperature, erosion, and compatibility requirements.',how:'Metal and soft-seat constructions offer different service capabilities. Hard-facing and material choices can improve wear resistance in an appropriate application.',tradeoff:'Leakage class specifies performance under defined test conditions. It is not a promise of bubble-tight service in every process condition, or permission to use a control valve as personnel isolation.'}
+  const trims = {
+    characterized: {
+      name: 'Characterized trim',
+      purpose: 'Shape the capacity-versus-travel relationship.',
+      how: 'A contoured plug changes annular opening geometry; a cage can meter flow by exposing shaped windows. Linear and equal-percentage are characteristic choices, not body styles.',
+      tradeoff:
+        'Installed behavior also depends on pressure drop, piping, and sizing. Input characterization in a DVC changes command-to-travel mapping; it does not reshape the physical trim.'
+    },
+    balanced: {
+      name: 'Balanced / unbalanced',
+      purpose: 'Manage pressure-induced plug forces.',
+      how: 'An unbalanced plug can experience substantial force from differential pressure acting on its effective area. Balancing passages and seals reduce a pressure-force component.',
+      tradeoff:
+        'Balance adds sealing and construction details. Residual flow forces, friction, and required seating load remain; balanced does not mean force-free.'
+    },
+    reduced: {
+      name: 'Reduced-capacity',
+      purpose: 'Use a smaller rated Cv within a suitable body.',
+      how: 'A smaller effective port or restricted cage reduces capacity. This can move normal operation out of a very low-travel region when a valve is oversized.',
+      tradeoff:
+        'Recheck maximum required flow, pressure/temperature ratings, noise, shutoff, and minimum controllable flow. Body size alone is insufficient.'
+    },
+    cavitation: {
+      name: 'Anti-cavitation',
+      purpose: 'Manage liquid pressure reduction and vapor-bubble collapse.',
+      how: 'Multistage trims can distribute pressure reduction rather than concentrating it at one restriction. The design must fit liquid properties, pressure conditions, and service cleanliness.',
+      tradeoff:
+        'Small passages can be vulnerable to plugging. Anti-cavitation trim does not make downstream flashing disappear if downstream pressure remains below vapor pressure.'
+    },
+    noise: {
+      name: 'Noise attenuation',
+      purpose: 'Reduce aerodynamic noise in gas, vapor, or steam service.',
+      how: 'Multiple flow passages and staged pressure reduction can control jet formation and energy dissipation. Fisher Whisper Trim and WhisperFlo are example product families.',
+      tradeoff:
+        'A noise-reduction cage and an anti-cavitation trim solve different service problems. Correct gas sizing and acoustic evaluation still matter.'
+    },
+    seats: {
+      name: 'Seats & materials',
+      purpose: 'Meet shutoff, temperature, erosion, and compatibility requirements.',
+      how: 'Metal and soft-seat constructions offer different service capabilities. Hard-facing and material choices can improve wear resistance in an appropriate application.',
+      tradeoff:
+        'Leakage class specifies performance under defined test conditions. It is not a promise of bubble-tight service in every process condition, or permission to use a control valve as personnel isolation.'
+    }
   };
-  const cases={
-    packing:{name:'Case 01 · Stair-step travel',question:'Command keeps moving. Travel stays flat, then jumps. What mechanism best fits?',answer:'packing',explanation:'This simulation uses static breakaway friction and lower sliding friction. The pressure proxy keeps changing while the stem sticks, then the plug slips.',alternatives:'Trim binding, actuator seal friction, deposits, or alignment can look similar. Packing is a candidate, not a diagnosis from the trend alone.',next:'Compare command, physical travel, and actuator pressure. Look for consistent breakaway behavior and compare a signature with an appropriate baseline.'},
-    backlash:{name:'Case 02 · Reversal delay',question:'Travel is smooth in one direction but pauses after every reversal. What fits best?',answer:'backlash',explanation:'The simulated drive takes up clearance before the closure member reverses. There is no stick–slip jump once the new branch engages.',alternatives:'Friction can also produce direction-dependent travel. Actuator-side feedback may hide a shaft or coupling problem.',next:'Compare upstream feedback with actual downstream movement and inspect the drive train during an authorized inspection.'},
-    air:{name:'Case 03 · Travel falls short',question:'After a large command step, pressure approaches its supply limit and travel stays below target. What fits?',answer:'air',explanation:'The model has restricted air delivery and an insufficient supply-pressure ceiling. The positioner requests more force but cannot obtain it.',alternatives:'High process load, an undersized actuator, leakage, or mechanical binding can also prevent full travel. A saturation symptom is not specific to the regulator.',next:'Compare supply and output pressures during movement, required force, and actual loading. Verify restrictions and leakage without assuming a static supply reading proves capacity.'},
-    oversized:{name:'Case 04 · Low-travel operation',question:'Travel tracks command, but normal flow occurs near the seat. What is the strongest design concern?',answer:'oversized',explanation:'This example uses a rated Cv of 400 instead of 80. A narrow, low-travel region supplies substantial flow, reducing useful operating travel.',alternatives:'High available pressure drop or a different selected characteristic can also place operation at low travel. Confirm actual trim and process conditions.',next:'Evaluate required Cv across operating cases and installed gain. Reduced-capacity trim is one possible solution after checking maximum-flow requirements.'},
-    tuning:{name:'Case 05 · Travel oscillates',question:'The travel setpoint is steady after the step, yet actual travel and air pressure oscillate. What fits?',answer:'tuning',explanation:'Excessive feedback gain with limited damping and pneumatic dynamics creates hunting in this reduced-order positioner model.',alternatives:'Feedback mounting, mechanical friction, changing load, or air problems can also cause cycling. This case isolates tuning; a real trend does not.',next:'Establish whether oscillation originates in the position loop or process loop. Review configuration and mechanical condition before changing tuning.'},
-    process:{name:'Case 06 · Flow moves on its own',question:'Command, travel, and actuator pressure are steady. Flow still changes. What fits best?',answer:'process',explanation:'Available process differential pressure changes while actual travel stays fixed. Cv is constant but flow changes because pressure drop changes.',alternatives:'Fluid properties, measurement faults, pump disturbances, or upstream/downstream process changes can alter a PV without a valve-position fault.',next:'Correlate upstream/downstream pressures and other process measurements. A cycling process variable alone does not prove valve stiction.'}
+  const cases = {
+    packing: {
+      name: 'Case 01 · Stair-step travel',
+      question: 'Command keeps moving. Travel stays flat, then jumps. What mechanism best fits?',
+      answer: 'packing',
+      explanation:
+        'This simulation uses static breakaway friction and lower sliding friction. The pressure proxy keeps changing while the stem sticks, then the plug slips.',
+      alternatives:
+        'Trim binding, actuator seal friction, deposits, or alignment can look similar. Packing is a candidate, not a diagnosis from the trend alone.',
+      next: 'Compare command, physical travel, and actuator pressure. Look for consistent breakaway behavior and compare a signature with an appropriate baseline.'
+    },
+    backlash: {
+      name: 'Case 02 · Reversal delay',
+      question: 'Travel is smooth in one direction but pauses after every reversal. What fits best?',
+      answer: 'backlash',
+      explanation:
+        'The simulated drive takes up clearance before the closure member reverses. There is no stick–slip jump once the new branch engages.',
+      alternatives:
+        'Friction can also produce direction-dependent travel. Actuator-side feedback may hide a shaft or coupling problem.',
+      next: 'Compare upstream feedback with actual downstream movement and inspect the drive train during an authorized inspection.'
+    },
+    air: {
+      name: 'Case 03 · Travel falls short',
+      question:
+        'After a large command step, pressure approaches its supply limit and travel stays below target. What fits?',
+      answer: 'air',
+      explanation:
+        'The model has restricted air delivery and an insufficient supply-pressure ceiling. The positioner requests more force but cannot obtain it.',
+      alternatives:
+        'High process load, an undersized actuator, leakage, or mechanical binding can also prevent full travel. A saturation symptom is not specific to the regulator.',
+      next: 'Compare supply and output pressures during movement, required force, and actual loading. Verify restrictions and leakage without assuming a static supply reading proves capacity.'
+    },
+    oversized: {
+      name: 'Case 04 · Low-travel operation',
+      question: 'Travel tracks command, but normal flow occurs near the seat. What is the strongest design concern?',
+      answer: 'oversized',
+      explanation:
+        'This example uses a rated Cv of 400 instead of 80. A narrow, low-travel region supplies substantial flow, reducing useful operating travel.',
+      alternatives:
+        'High available pressure drop or a different selected characteristic can also place operation at low travel. Confirm actual trim and process conditions.',
+      next: 'Evaluate required Cv across operating cases and installed gain. Reduced-capacity trim is one possible solution after checking maximum-flow requirements.'
+    },
+    tuning: {
+      name: 'Case 05 · Travel oscillates',
+      question:
+        'The travel setpoint is steady after the step, yet actual travel and air pressure oscillate. What fits?',
+      answer: 'tuning',
+      explanation:
+        'Excessive feedback gain with limited damping and pneumatic dynamics creates hunting in this reduced-order positioner model.',
+      alternatives:
+        'Feedback mounting, mechanical friction, changing load, or air problems can also cause cycling. This case isolates tuning; a real trend does not.',
+      next: 'Establish whether oscillation originates in the position loop or process loop. Review configuration and mechanical condition before changing tuning.'
+    },
+    process: {
+      name: 'Case 06 · Flow moves on its own',
+      question: 'Command, travel, and actuator pressure are steady. Flow still changes. What fits best?',
+      answer: 'process',
+      explanation:
+        'Available process differential pressure changes while actual travel stays fixed. Cv is constant but flow changes because pressure drop changes.',
+      alternatives:
+        'Fluid properties, measurement faults, pump disturbances, or upstream/downstream process changes can alter a PV without a valve-position fault.',
+      next: 'Correlate upstream/downstream pressures and other process measurements. A cycling process variable alone does not prove valve stiction.'
+    }
   };
-  const answerOptions=[['packing','Breakaway friction'],['backlash','Mechanical lost motion'],['air','Limited pneumatic force'],['oversized','Excessive valve capacity'],['tuning','Position loop hunting'],['process','Process-side disturbance']];
-  const glossary={
-    'Cv':'US-unit flow coefficient: the numerical flow in US gpm for water under the reference definition at 1 psi pressure drop. Operating flow requires the applicable sizing equation and correction factors.',
-    'Kv':'Metric flow coefficient, commonly defined using m³/h of water and 1 bar pressure drop. Do not substitute its numerical value into a Cv equation.',
-    'Stiction':'Static friction that must be overcome before motion begins; stick–slip results when static resistance exceeds sliding resistance.',
-    'Hysteresis':'Different output at the same input depending on the direction/history of approach. Specify input, output, loading, and test conditions.',
-    'Deadband':'An input interval after reversal with no observable output change. Identify which input and output are being measured.',
-    'Backlash':'Mechanical clearance that creates lost motion when direction reverses.',
-    'Resolution':'The smallest input change that produces a detectable output change under stated conditions; different from measurement display precision.',
-    'Inherent characteristic':'Travel versus flow capacity with constant valve differential pressure under defined test conditions.',
-    'Installed characteristic':'Travel versus actual flow in the installed system, where valve differential pressure and process conditions can change.',
-    'Equal percentage':'Equal increments of travel produce equal percentage changes in Cv within the characteristic’s applicable range.',
-    'Valve authority':'Here, valve pressure drop divided by total available pressure drop at the stated operating point. Other conventions may use a design condition; always state the definition.',
-    'Rangeability':'A ratio of maximum to minimum controllable capacity under specified conditions. Installed turndown also depends on the process and assembly.',
-    'Positioner':'A feedback controller that manipulates actuator air to achieve requested valve position.',
-    'I/P':'Current-to-pressure converter. By itself it does not measure valve travel or close a travel-feedback loop.',
-    'DVC':'Digital valve controller. FIELDVUE is Fisher’s product family; other manufacturers offer digital positioners too.',
-    'HART':'A communication protocol that can superimpose digital information on a conventional analog current signal in compatible devices.',
-    'Bench set':'A spring/pressure adjustment established under specified bench conditions. It is not automatically the installed actuator pressure requirement.',
-    'Cavitation':'Vapor bubbles form where liquid pressure becomes low enough, then collapse after pressure recovery.',
-    'Flashing':'Vapor formation persists downstream because pressure remains below the relevant vapor pressure.',
-    'Choked flow':'A regime where additional reduction of downstream pressure no longer increases flow as an unchoked equation predicts.',
-    'Fail action':'The intended assembly response to a specified failure, such as loss of air. Loss of electrical signal may have different behavior depending on configuration and accessories.',
-    'PID':'Proportional–integral–derivative control. Process-loop tuning and positioner-loop tuning address different dynamics.'
-  };
-  const sources=[
-    {title:'Control Valve Handbook, sixth edition',url:'https://www.emerson.com/en/final-control/catalog/products-and-software/valves/control-valves/control-valve-handbook',topic:'Terminology, capacity, installed behavior, actuator and valve selection.'},
-    {title:'FIELDVUE DVC6200 instruction manual · D103785X012',url:'https://www.emerson.com/is/content/emerson/en/final-control/flow-controls/documents/d103785x012.pdf',topic:'Position feedback, I/P and relay, configuration, travel/pressure control, tuning and alerts. Verify hardware and revision for an actual device.'},
-    {title:'Fisher easy-e ET',url:'https://www.emerson.com/en/final-control/products/fisher-et',topic:'A representative balanced, cage-guided globe construction.'},
-    {title:'Fisher Vee-Ball V150',url:'https://www.emerson.com/en/final-control/products/fisher-v150',topic:'Segmented-ball construction and application-specific options.'},
-    {title:'Fisher V500 eccentric plug',url:'https://www.emerson.com/en/final-control/products/fisher-v500',topic:'Cammed plug motion and reduced seat contact.'},
-    {title:'Fisher Cavitrol III',url:'https://www.emerson.com/en/final-control/products/fisher-cavitrol-iii',topic:'Liquid anti-cavitation trim and clean-service limitations.'},
-    {title:'Fisher Whisper Trim I',url:'https://www.emerson.com/en/final-control/products/fisher-whisper-trim-i',topic:'Aerodynamic noise control for gas, vapor and steam.'},
-    {title:'Control Valve Flashing',url:'https://www.emerson.com/en/final-control/catalog/products-and-software/valves/control-valves/severe-service-control-valves/valve-flashing',topic:'Persistent vapor formation and erosion considerations.'},
-    {title:'SAMSON valve signature / EXPERTplus',url:'https://www.samson.de/document/e8389ben.pdf',topic:'Signature analysis, friction and comparison with a reference.'},
-    {title:'Flowserve Logix',url:'https://www.flowserve.com/products/brands/logix/',topic:'An example of digital positioners beyond Fisher; capabilities vary by device.'}
+  const answerOptions = [
+    ['packing', 'Breakaway friction'],
+    ['backlash', 'Mechanical lost motion'],
+    ['air', 'Limited pneumatic force'],
+    ['oversized', 'Excessive valve capacity'],
+    ['tuning', 'Position loop hunting'],
+    ['process', 'Process-side disturbance']
   ];
-  sources.push({title:'Honeywell Advanced Process Manager · AP09-600 §8.14.1',url:'https://skoge.folk.ntnu.no/puublications_others/apc-papers/honeywell3000-AP09-600.pdf',topic:'Manufacturer manual hosted by NTNU: A/B/C term placement, ideal versus interactive forms, action and anti-windup. Lab implements an ideal teaching form.'},{title:'Skogestad · SIMC model reduction and tuning',url:'https://skoge.folk.ntnu.no/publications/2003/tuningPID/mic-version/mic.pdf',topic:'Primary paper: FOPDT-based PI tuning and desired closed-loop response time.'});
-  root.ValveContent={components,friction,styles,trims,cases,answerOptions,glossary,sources};
-})(typeof globalThis!=='undefined'?globalThis:this);
+  const glossary = {
+    'Cv': 'US-unit flow coefficient: the numerical flow in US gpm for water under the reference definition at 1 psi pressure drop. Operating flow requires the applicable sizing equation and correction factors.',
+    'Kv': 'Metric flow coefficient, commonly defined using m³/h of water and 1 bar pressure drop. Do not substitute its numerical value into a Cv equation.',
+    'Stiction':
+      'Static friction that must be overcome before motion begins; stick–slip results when static resistance exceeds sliding resistance.',
+    'Hysteresis':
+      'Different output at the same input depending on the direction/history of approach. Specify input, output, loading, and test conditions.',
+    'Deadband':
+      'An input interval after reversal with no observable output change. Identify which input and output are being measured.',
+    'Backlash': 'Mechanical clearance that creates lost motion when direction reverses.',
+    'Resolution':
+      'The smallest input change that produces a detectable output change under stated conditions; different from measurement display precision.',
+    'Inherent characteristic':
+      'Travel versus flow capacity with constant valve differential pressure under defined test conditions.',
+    'Installed characteristic':
+      'Travel versus actual flow in the installed system, where valve differential pressure and process conditions can change.',
+    'Equal percentage':
+      'Equal increments of travel produce equal percentage changes in Cv within the characteristic’s applicable range.',
+    'Valve authority':
+      'Here, valve pressure drop divided by total available pressure drop at the stated operating point. Other conventions may use a design condition; always state the definition.',
+    'Rangeability':
+      'A ratio of maximum to minimum controllable capacity under specified conditions. Installed turndown also depends on the process and assembly.',
+    'Positioner': 'A feedback controller that manipulates actuator air to achieve requested valve position.',
+    'I/P': 'Current-to-pressure converter. By itself it does not measure valve travel or close a travel-feedback loop.',
+    'DVC':
+      'Digital valve controller. FIELDVUE is Fisher’s product family; other manufacturers offer digital positioners too.',
+    'HART':
+      'A communication protocol that can superimpose digital information on a conventional analog current signal in compatible devices.',
+    'Bench set':
+      'A spring/pressure adjustment established under specified bench conditions. It is not automatically the installed actuator pressure requirement.',
+    'Cavitation': 'Vapor bubbles form where liquid pressure becomes low enough, then collapse after pressure recovery.',
+    'Flashing': 'Vapor formation persists downstream because pressure remains below the relevant vapor pressure.',
+    'Choked flow':
+      'A regime where additional reduction of downstream pressure no longer increases flow as an unchoked equation predicts.',
+    'Fail action':
+      'The intended assembly response to a specified failure, such as loss of air. Loss of electrical signal may have different behavior depending on configuration and accessories.',
+    'PID':
+      'Proportional–integral–derivative control. Process-loop tuning and positioner-loop tuning address different dynamics.'
+  };
+  const sources = [
+    {
+      title: 'Control Valve Handbook, sixth edition',
+      url: 'https://www.emerson.com/en/final-control/catalog/products-and-software/valves/control-valves/control-valve-handbook',
+      topic: 'Terminology, capacity, installed behavior, actuator and valve selection.'
+    },
+    {
+      title: 'FIELDVUE DVC6200 instruction manual · D103785X012',
+      url: 'https://www.emerson.com/is/content/emerson/en/final-control/flow-controls/documents/d103785x012.pdf',
+      topic:
+        'Position feedback, I/P and relay, configuration, travel/pressure control, tuning and alerts. Verify hardware and revision for an actual device.'
+    },
+    {
+      title: 'Fisher easy-e ET',
+      url: 'https://www.emerson.com/en/final-control/products/fisher-et',
+      topic: 'A representative balanced, cage-guided globe construction.'
+    },
+    {
+      title: 'Fisher Vee-Ball V150',
+      url: 'https://www.emerson.com/en/final-control/products/fisher-v150',
+      topic: 'Segmented-ball construction and application-specific options.'
+    },
+    {
+      title: 'Fisher V500 eccentric plug',
+      url: 'https://www.emerson.com/en/final-control/products/fisher-v500',
+      topic: 'Cammed plug motion and reduced seat contact.'
+    },
+    {
+      title: 'Fisher Cavitrol III',
+      url: 'https://www.emerson.com/en/final-control/products/fisher-cavitrol-iii',
+      topic: 'Liquid anti-cavitation trim and clean-service limitations.'
+    },
+    {
+      title: 'Fisher Whisper Trim I',
+      url: 'https://www.emerson.com/en/final-control/products/fisher-whisper-trim-i',
+      topic: 'Aerodynamic noise control for gas, vapor and steam.'
+    },
+    {
+      title: 'Control Valve Flashing',
+      url: 'https://www.emerson.com/en/final-control/catalog/products-and-software/valves/control-valves/severe-service-control-valves/valve-flashing',
+      topic: 'Persistent vapor formation and erosion considerations.'
+    },
+    {
+      title: 'SAMSON valve signature / EXPERTplus',
+      url: 'https://www.samson.de/document/e8389ben.pdf',
+      topic: 'Signature analysis, friction and comparison with a reference.'
+    },
+    {
+      title: 'Flowserve Logix',
+      url: 'https://www.flowserve.com/products/brands/logix/',
+      topic: 'An example of digital positioners beyond Fisher; capabilities vary by device.'
+    }
+  ];
+  sources.push(
+    {
+      title: 'Honeywell Advanced Process Manager · AP09-600 §8.14.1',
+      url: 'https://skoge.folk.ntnu.no/puublications_others/apc-papers/honeywell3000-AP09-600.pdf',
+      topic:
+        'Manufacturer manual hosted by NTNU: A/B/C term placement, ideal versus interactive forms, action and anti-windup. Lab implements an ideal teaching form.'
+    },
+    {
+      title: 'Skogestad · SIMC model reduction and tuning',
+      url: 'https://skoge.folk.ntnu.no/publications/2003/tuningPID/mic-version/mic.pdf',
+      topic: 'Primary paper: FOPDT-based PI tuning and desired closed-loop response time.'
+    }
+  );
+  root.ValveContent = { components, friction, styles, trims, cases, answerOptions, glossary, sources };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
