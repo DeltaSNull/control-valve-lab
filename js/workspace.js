@@ -4,6 +4,17 @@
   // a live view (view buttons, plot, key numbers, run controls) beside a guided activity and the controls.
   const $ = id => document.getElementById(id);
   const C = root.ValveContent;
+  const learningModes = {};
+  function learning(mode = learningModes[document.body.dataset.page] || 'guided') {
+    learningModes[document.body.dataset.page] = mode;
+    document
+      .querySelectorAll('[data-learning]')
+      .forEach(el => el.setAttribute('aria-pressed', String(el.dataset.learning === mode)));
+    const guide = document.querySelector('.guide');
+    if (guide) guide.hidden = mode !== 'guided';
+    const controls = document.querySelector('.lab-controls');
+    if (controls) controls.hidden = mode !== 'explore';
+  }
   function lab(o) {
     const views = o.views;
     const switcher =
@@ -25,14 +36,21 @@
         ${o.transport || o.status ? `<div class="live-foot">${o.transport ?? ''}${o.status ?? ''}</div>` : ''}
       </section>
       <div class="lab-side">
+        <div class="learning-switch segmented" role="group" aria-label="How would you like to learn?">
+          <button type="button" data-learning="guided" aria-pressed="true">Learn step by step</button>
+          <button type="button" data-learning="explore" aria-pressed="false">Explore controls</button>
+        </div>
+        <div class="demo-row card" aria-label="Automated demonstration">
+          <button type="button" data-action="demo">▶ Watch the full demo</button>
+          <button type="button" data-action="demo-toggle" hidden>❚❚ Pause demo</button>
+          <button type="button" data-action="custom" hidden>■ Stop demo</button>
+          <progress id="demo-progress" max="100" value="0" aria-label="Demo progress" hidden></progress>
+          <span id="demo-status" role="status"></span>
+        </div>
         <section class="card guide" aria-labelledby="guide-title">
           <div id="guide-step"></div>
-          <div class="demo-row">
-            <button type="button" data-action="demo">▶ Watch the full demo</button>
-            <button type="button" data-action="custom" hidden>■ Stop demo</button>
-            <span id="demo-status" role="status"></span>
-          </div>
         </section>
+        ${o.feedback || ''}
         <section class="card lab-controls" aria-labelledby="controls-title">
           <h2 id="controls-title" class="section-label">Controls</h2>
           ${o.controls}
@@ -96,7 +114,18 @@
       .forEach(el => el.setAttribute('aria-pressed', String(el.classList.contains('selected'))));
   }
   // Demo state: the Stop button only appears while a demo runs; the status line narrates it.
-  function mode(demo, text) {
+  function mode(demo, text, progress = 0, paused = false) {
+    const focused = document.activeElement;
+    const bar = $('demo-progress');
+    if (bar) {
+      bar.hidden = !demo;
+      bar.value = progress;
+    }
+    const toggle = document.querySelector('[data-action="demo-toggle"]');
+    if (toggle) {
+      toggle.hidden = !demo;
+      toggle.textContent = paused ? '▶ Resume demo' : '❚❚ Pause demo';
+    }
     const status = $('demo-status');
     if (status && status.textContent !== text) status.textContent = text;
     const play = document.querySelector('[data-action="demo"]'),
@@ -109,6 +138,8 @@
       stop.hidden = !demo;
       stop.setAttribute('aria-pressed', String(!demo));
     }
+    if (focused?.hidden && [play, stop, toggle].includes(focused))
+      (demo ? toggle : play)?.focus({ preventScroll: true });
   }
-  root.ValveWorkspace = { lab, guide, setPlot, currentPlot, syncSelections, mode };
+  root.ValveWorkspace = { lab, guide, setPlot, currentPlot, syncSelections, mode, learning };
 })(window);

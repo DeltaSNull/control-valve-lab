@@ -2,7 +2,19 @@
 
 Current pass: 2026-10-10, America/Chicago. User fully authorized app changes and pushing/publishing.
 
-## Current implementation
+## Current refinement — 11 October 2026 · v2.1.0
+
+This section supersedes older descriptions of workspace and demo behavior below. Based on GitHub `ab2369feaee8af6b4e692181505ffaa857e21d20`; preserve the six prior passes and existing engineering models.
+
+- **Learn step by step / Explore controls** replaces stacked guide-plus-controls with a two-choice learning mode. Both share the live plot, demo controls and measured/explanatory feedback. Selection survives rerenders and lesson navigation in the current session. It does not reset simulations or recorded data.
+- **Demo progress and Pause/Resume** preserve time, phase, valve state and PID recording. Stop and manual input cancel automation; normal transport buttons take over cleanly. Backgrounding/navigation still cancel activity. No second animation loop.
+- **Stiction Show me:** six 1 pp command increments, one per simulated second. First five hold travel at 50%; sixth breaks free to 54.5%. The full sweep demo remains available.
+- **PID next action** in Explore guides baseline → one OP step → measured readiness checks → estimate → transfer → Auto. Readiness uses `identifyStep` on recorded samples; it does not peek at process constants. Fit rejection reasons stay visible. Existing independent controls remain available.
+- Diagnosis explanations and PID fit results stay outside hidden learning panels. Asking for the guided estimate while its recording runs no longer cancels/restarts the recording.
+- v2.1.0 release label matches package metadata. No model changes, offline cache, plant connection or analytics.
+- Verification for this pass: **80 tests passed, zero failures/skips**; independent reviewer ran all 15 guide tests and found no remaining blockers after two fixes. Formatting, syntax, packaging and diff checks passed. Actual phone/browser visual QA was unavailable in this managed environment. Historical Chromium checks below were **not rerun**. Real iOS/Android touch, keyboard and screen-reader checks remain open; retain the owner's documented zoom exception.
+
+## Historical phone/PID implementation
 
 The phone/PID pass supersedes the six-module application baseline reviewed on October 9. GitHub is the maintained source; read current main before changes. The spec/plan are `docs/superpowers/specs/2026-10-10-phone-pid-design.md` and `docs/superpowers/plans/2026-10-10-phone-pid.md`.
 

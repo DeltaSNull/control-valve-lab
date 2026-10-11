@@ -1060,7 +1060,7 @@
       'For our critical valves, do we know the fail action from the datasheet rather than from memory?'
     ]
   };
-  const release = { version: '2.0.0', date: '10 October 2026' };
+  const release = { version: '2.1.0', date: '11 October 2026' };
   root.ValveContent = {
     components,
     friction,

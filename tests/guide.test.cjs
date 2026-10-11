@@ -121,6 +121,7 @@ test('anatomy and friction guide numbers match the models', () => {
   assert.equal(b.num('anatomy-travel'), 0);
   b.click('#module-nav [data-module="friction"]');
   b.show(0);
+  b.tick(6.5);
   assert.equal(b.state().friction.command, 56);
   assert.equal(b.num('friction-travel'), 54.5);
   const rows = b.state().friction.history;
@@ -229,5 +230,85 @@ test('guide buttons keep keyboard focus after use', () => {
   assert.equal(b.doc.activeElement?.dataset.action, 'guide-next');
   b.click('[data-action="guide-prev"]');
   assert.equal(b.doc.activeElement?.dataset.guideStep, '0', 'disabled Back hands focus to the current step');
+  b.d.window.close();
+});
+
+test('learning mode switches preserve the demo, and pause/resume preserves its progress', () => {
+  const b = boot('#flow');
+  b.click('[data-action="demo"]');
+  b.tick(2);
+  b.click('[data-learning="explore"]');
+  assert.equal(b.doc.querySelector('.guide').hidden, true);
+  assert.equal(b.doc.querySelector('.lab-controls').hidden, false);
+  const t = b.state().demo.time;
+  b.click('[data-action="demo-toggle"]');
+  b.tick(2);
+  assert.equal(b.state().demo.time, t);
+  assert.match(b.doc.querySelector('[data-action="demo-toggle"]').textContent, /Resume/);
+  b.click('[data-action="demo-toggle"]');
+  b.tick(1);
+  assert.ok(b.state().demo.time > t);
+  assert.ok(b.doc.getElementById('demo-progress').value > 0);
+  b.d.window.close();
+});
+
+test('guided breakaway exposes each held command before the slip', () => {
+  const b = boot('#friction');
+  b.show(0);
+  b.tick(5.2);
+  assert.equal(b.state().friction.command, 55);
+  assert.equal(b.state().friction.motion.position, 50);
+  b.tick(1.1);
+  assert.equal(b.state().friction.command, 56);
+  assert.equal(b.state().friction.motion.position, 54.5);
+  b.d.window.close();
+});
+
+test('requesting a PID estimate during the guided recording does not stop it', () => {
+  const b = boot('#pid');
+  b.show(0);
+  b.tick(1);
+  const demo = b.state().demo;
+  b.show(1);
+  assert.equal(b.state().demo, demo);
+  assert.equal(b.state().pid.running, true);
+  assert.match(b.doc.getElementById('guide-note').textContent, /still running/);
+  b.d.window.close();
+});
+
+test('PID next action walks a measured recording into Auto and preserves exploration through rerender', () => {
+  const b = boot('#pid');
+  b.click('[data-learning="explore"]');
+  b.click('#pid-next');
+  assert.equal(b.state().pid.running, true);
+  assert.equal(b.doc.getElementById('pid-next').disabled, true);
+  b.tick(1);
+  assert.match(b.doc.getElementById('pid-next').textContent, /Step OP/);
+  b.click('#pid-next');
+  assert.ok(b.state().pid.test);
+  b.tick(20);
+  assert.match(b.doc.getElementById('pid-next').textContent, /Estimate from/);
+  b.click('#pid-next');
+  assert.ok(b.state().pid.estimate.ok);
+  b.click('#pid-next');
+  assert.equal(b.state().pid.stage, 'tune');
+  assert.equal(b.doc.querySelector('.lab-controls').hidden, false);
+  b.click('#pid-next');
+  assert.equal(b.state().pid.mode, 'auto');
+  b.d.window.close();
+});
+
+test('manual button changes end automation and revealed feedback is visible in guided mode', () => {
+  const b = boot('#friction');
+  b.show(0);
+  b.tick(2);
+  b.click('[data-learning="explore"]');
+  b.click('[data-action="step-up"]');
+  assert.equal(b.state().demo, null);
+  b.click('#module-nav [data-module="diagnosis"]');
+  b.show(2);
+  const answer = b.doc.getElementById('case-answer');
+  assert.ok(answer.textContent.length > 30);
+  assert.equal(answer.closest('[hidden]'), null);
   b.d.window.close();
 });

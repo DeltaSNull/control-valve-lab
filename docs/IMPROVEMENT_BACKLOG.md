@@ -24,6 +24,10 @@ Application changes are authorized by the user's 2026-10-10 phone/PID request. S
 
 Priority means work order: **P1** = next pass; **P2** = next quality/learning pass; **P3** = optional expansion. It does not mean every recommendation is a production defect. Evidence classes distinguish a reproduced behavior, a source observation, a validation gap, and a proposed feature.
 
+## CVL-014 · UI learning-flow refinement · Implemented in v2.1.0
+
+11 October 2026: separate Guided/Explore choices, shared results, demo progress and resumable pause, timed breakaway walkthrough, and measured PID next-action guidance. Regression coverage in `tests/guide.test.cjs` exercises state preservation, held increments, PID demo continuity, full measured recording-to-Auto workflow and visible diagnosis feedback. The implementing commit is the v2.1.0 refinement commit containing this entry; publication IDs are recorded in Git history. Remaining acceptance: real phone screen/scroll/touch and screen-reader checks (CVL-003/004); this pass did not rerun historical browser QA.
+
 ## CVL-001 · P1 · Retain a complete hysteresis sweep
 
 **Evidence: reproduced behavior.** `js/app.js` → `sampleF`, `sampleP`, `frame`, `updateFriction`. Each animation frame creates a sample; friction history is capped at 1,600 samples. At 60 Hz that retains roughly 26.7 seconds, regardless of selected sweep speed. A 10→90→10% sweep requires 32 seconds at the default 5 pp/s and 160 seconds at 1 pp/s.

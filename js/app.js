@@ -105,6 +105,61 @@
     l.history.push({ t: l.plant.t, pv: l.plant.measured, sp: l.sp, op: l.op, travel: l.plant.travel });
     if (l.history.length > 20000) l.history.shift();
   }
+  function pidNext() {
+    const l = state.pid;
+    if (state.demo)
+      return {
+        label: state.demo.paused ? 'Resume demo' : 'Pause demo',
+        action: 'demo-toggle',
+        text: 'The demo handles the sequence. Pause to inspect the traces; resume to continue the same recording.'
+      };
+    if (l.stage === 'tune')
+      return l.mode === 'manual'
+        ? { label: 'Switch to Auto', action: 'pid-auto', text: 'Auto lets the controller move OP to bring PV to SP.' }
+        : {
+            label: l.running ? 'Step SP +5 pp' : 'Run controller',
+            action: l.running ? 'pid-sp-up' : 'pid-run',
+            text: 'Compare SP and PV, then switch to Output & valve travel to see what the valve contributes.'
+          };
+    if (l.estimate?.ok)
+      return {
+        label: 'Use estimated tuning',
+        action: 'pid-apply',
+        text: 'The measured response passed the fit checks. Transfer this PI starting point, then test it in Auto.'
+      };
+    if (!l.history.length)
+      return {
+        label: 'Start recording',
+        action: 'pid-record',
+        text: 'First collect a steady baseline in Manual. Next, make one OP step.'
+      };
+    if (!l.test) {
+      const ready = l.history.at(-1).t - l.history[0].t >= 5;
+      return {
+        label: ready ? 'Step OP +10 pp' : l.running ? 'Collecting baseline…' : 'Continue recording',
+        action: ready ? 'pid-step' : 'pid-run',
+        disabled: !ready && l.running,
+        text: ready
+          ? 'Baseline recorded. Make one OP step, then allow PV to settle.'
+          : 'Collect at least 5 simulated seconds before stepping OP.'
+      };
+    }
+    const fit = P.identifyStep(l.history, l.test.time, l.test.before, l.test.after);
+    return fit.ok
+      ? {
+          label: 'Estimate from recording',
+          action: 'pid-estimate',
+          text: 'The recorded response now passes the fit checks. Estimate gain, time constant and delay.'
+        }
+      : {
+          label: l.running ? 'Recording response…' : 'Continue recording',
+          action: 'pid-run',
+          disabled: l.running,
+          text:
+            fit.reason +
+            ' Keep OP steady. If the trace cannot settle, compare a healthy valve or start a new recording.'
+        };
+  }
   function updatePID() {
     const l = state.pid,
       rows = l.history.length
@@ -169,6 +224,13 @@
     document.querySelector('[data-action="pid-manual"]').setAttribute('aria-pressed', String(l.mode === 'manual'));
     document.querySelector('[data-action="pid-auto"]').setAttribute('aria-pressed', String(l.mode === 'auto'));
     document.querySelector('[data-action="pid-apply"]').disabled = !l.estimate?.ok;
+    const next = pidNext();
+    const nextButton = $('pid-next');
+    if (nextButton) {
+      nextButton.textContent = next.label;
+      nextButton.disabled = Boolean(next.disabled);
+      $('pid-next-note').textContent = next.text;
+    }
     const est = l.estimate;
     $('pid-results').innerHTML = est
       ? est.ok
@@ -349,12 +411,28 @@
     }
     if (mod === 'positioner') state.positioner.running = true;
     if (mod === 'pid') state.pid.running = true;
-    W.mode(true, 'Demo running. The controls move by themselves; Stop hands them back to you.');
+    W.mode(true, 'Demo running. Pause to inspect; Stop hands the controls back to you.');
+    document.querySelector('[data-action="demo-toggle"]')?.focus({ preventScroll: true });
     start();
+  }
+  function toggleDemo() {
+    const d = state.demo;
+    if (!d) return;
+    if (!d.paused) {
+      d.running = { friction: state.friction.running, positioner: state.positioner.running, pid: state.pid.running };
+      pause();
+      d.paused = true;
+    } else {
+      d.paused = false;
+      for (const mod of ['friction', 'positioner', 'pid']) state[mod].running = Boolean(d.running[mod]);
+      start();
+    }
+    W.mode(true, (d.paused ? 'Paused · ' : '') + (d.message || 'Demonstration'), d.progress || 0, d.paused);
+    refresh();
   }
   function demoStep(dt) {
     const demo = state.demo;
-    if (!demo) return;
+    if (!demo || demo.paused) return;
     demo.time += dt;
     const mod = demo.module,
       t = mod === 'pid' ? state.pid.plant.t : demo.time;
@@ -398,7 +476,22 @@
       ][phase];
       done = t >= 16;
     }
-    if (mod === 'friction') {
+    if (mod === 'friction' && demo.kind === 'breakaway') {
+      const step = Math.min(6, Math.floor(t));
+      if (step > demo.phase) {
+        demo.phase = step;
+        state.friction.command = 50 + step;
+        sampleF(0.1);
+        frictionControls();
+        updateFriction();
+      }
+      message =
+        step < 6
+          ? `Command +${step} pp: travel holds at 50%. Static friction has not been overcome.`
+          : 'Command +6 pp: travel jumps to 54.5%. Stored drive overcomes static friction.';
+      done = t >= 7;
+    }
+    if (mod === 'friction' && demo.kind !== 'breakaway') {
       message =
         t < 16
           ? 'Opening sweep: compare drive command with actual travel.'
@@ -426,7 +519,7 @@
       message =
         t < 5
           ? 'Compare command, actual travel, pressure and flow. Use the view buttons for each trace.'
-          : 'Explanation revealed under Controls. A pattern supports a hypothesis, not a unique diagnosis.';
+          : 'Explanation revealed below the learning panel. A pattern supports a hypothesis, not a unique diagnosis.';
       done = t >= 8;
     }
     if (mod === 'pid') {
@@ -459,7 +552,21 @@
         done = t >= 160;
       }
     }
-    W.mode(true, message);
+    const duration =
+      demo.kind === 'breakaway'
+        ? 7
+        : {
+            anatomy: 10,
+            flow: 16,
+            trim: 16,
+            friction: 32.1,
+            positioner: 14,
+            diagnosis: 8,
+            pid: state.pid.stage === 'step' ? 10 + state.pid.delay + 7 * state.pid.tau : 160
+          }[mod];
+    demo.progress = Math.min(100, (t / duration) * 100);
+    demo.message = message;
+    W.mode(true, message, demo.progress);
     if (done) {
       pause();
       state.demo = null;
@@ -1044,6 +1151,7 @@
           },
           { label: 'Flow', html: `<div id="case-flow-chart"></div>${legend([['Flow', 'flow']])}` }
         ],
+        feedback: '<div id="case-answer" class="answer"></div>',
         controls: `${select(
           'diagnosis-case',
           'Case',
@@ -1053,7 +1161,7 @@
           .map(([id, name]) => `<button type="button" data-answer="${id}">${name}</button>`)
           .join(
             ''
-          )}</div><p id="case-feedback" class="case-feedback" aria-live="polite"></p><div class="btn-row"><button type="button" data-action="reveal">Show explanation</button><button type="button" class="primary" data-action="next-case">Next case →</button></div><div id="case-answer" class="answer"></div>`
+          )}</div><p id="case-feedback" class="case-feedback" aria-live="polite"></p><div class="btn-row"><button type="button" data-action="reveal">Show explanation</button><button type="button" class="primary" data-action="next-case">Next case →</button></div>`
       }),
       `<div class="deeper-grid"><article class="card"><h3>Before you blame the valve</h3><p>A cycling process variable does not prove stiction. Start with command and actual travel, add air pressures, and examine process-side changes.</p><p>A valve signature is evidence under a particular load and temperature. Comparing unlike test conditions can turn a normal load change into an apparent friction change.</p><div class="hint warning-note">These are simulated tests. Online stroking, calibration, fail testing, and disassembly require the site’s operating, isolation, and maintenance procedures.</div>${sourceLink(8)}</article><article class="card"><h3>About these traces</h3><p>Each 60 s case is generated by the app's models to isolate one mechanism. Every chart has its own y-axis with units.</p><p>Packing and backlash pressure is an upstream command proxy, not a feedback-positioner output. Real symptoms can have several causes at once.</p></article></div>`
     );
@@ -1086,7 +1194,8 @@
           kpi('pid-travel-value', 'Valve travel', 'pressure', '%'),
         transport: transport('pid-run', 'Run'),
         status: '<p id="pid-status" class="status" aria-live="off"></p>',
-        controls: `<div id="pid-stage-controls" class="segmented" role="group" aria-label="Stage"><button type="button" data-action="pid-stage-step" aria-pressed="${l.stage === 'step'}">1 · Step test</button><button type="button" data-action="pid-stage-tune" aria-pressed="${l.stage === 'tune'}">2 · Tune & test</button></div>${select(
+        feedback: '<div data-stage="step" id="pid-results"></div>',
+        controls: `<div class="next-action"><p class="kicker">Your next action</p><p id="pid-next-note"></p><button type="button" class="primary" id="pid-next" data-action="pid-next"></button></div><div id="pid-stage-controls" class="segmented" role="group" aria-label="Stage"><button type="button" data-action="pid-stage-step" aria-pressed="${l.stage === 'step'}">1 · Step test</button><button type="button" data-action="pid-stage-tune" aria-pressed="${l.stage === 'tune'}">2 · Tune & test</button></div>${select(
           'pid-defect',
           'Valve condition',
           l.defect,
@@ -1098,7 +1207,7 @@
             ['limited', 'Travel limited to 55%'],
             ['noise', 'Measurement noise']
           ]
-        )}<div data-stage="step"><p class="stage-note">Step tests run in Manual: you set the controller output (OP) directly and watch the process respond.</p><div class="btn-row numbered"><button type="button" data-action="pid-record">New recording</button><button type="button" data-action="pid-step">Step OP +10 pp</button><button type="button" data-action="pid-estimate">Estimate from record</button><button type="button" class="primary" data-action="pid-apply">Use estimate → tuning</button></div><div id="pid-results"></div></div><div data-stage="tune"><div class="segmented" role="group" aria-label="Controller mode"><button type="button" data-action="pid-manual">Manual</button><button type="button" data-action="pid-auto">Auto</button></div>${range('pid-sp', 'Setpoint SP', l.sp, 0, 100, 1, '%')}<div class="btn-row"><button type="button" data-action="pid-sp-down">SP −5</button><button type="button" data-action="pid-sp-up">SP +5</button><button type="button" data-action="pid-load">Add load +5</button><button type="button" data-action="pid-load-clear">Clear load</button></div>${select(
+        )}<div data-stage="step"><p class="stage-note">Step tests run in Manual: you set the controller output (OP) directly and watch the process respond.</p><div class="btn-row numbered"><button type="button" data-action="pid-record">New recording</button><button type="button" data-action="pid-step">Step OP +10 pp</button><button type="button" data-action="pid-estimate">Estimate from record</button><button type="button" class="primary" data-action="pid-apply">Use estimate → tuning</button></div></div><div data-stage="tune"><div class="segmented" role="group" aria-label="Controller mode"><button type="button" data-action="pid-manual">Manual</button><button type="button" data-action="pid-auto">Auto</button></div>${range('pid-sp', 'Setpoint SP', l.sp, 0, 100, 1, '%')}<div class="btn-row"><button type="button" data-action="pid-sp-down">SP −5</button><button type="button" data-action="pid-sp-up">SP +5</button><button type="button" data-action="pid-load">Add load +5</button><button type="button" data-action="pid-load-clear">Clear load</button></div>${select(
           'pid-equation',
           'Honeywell-style equation',
           l.cfg.equation,
@@ -1213,7 +1322,9 @@
       () => {
         setFrictionMode('stiction');
         rerender(0);
-        for (let i = 0; i < 6; i++) action('step-up');
+        state.demo = { module: 'friction', kind: 'breakaway', time: 0, phase: -1 };
+        demoStep(0);
+        start();
       },
       () => {
         setFrictionMode('stiction');
@@ -1304,7 +1415,10 @@
       },
       () => {
         const l = state.pid;
-        if (state.demo) return 'The step test is still running. It estimates automatically once PV settles.';
+        if (state.demo)
+          return state.demo.paused
+            ? 'The step test is paused. Resume demo to continue this recording.'
+            : 'The step test is still running. It estimates automatically once PV settles.';
         if (!l.test) {
           l.stage = 'step';
           beginDemo();
@@ -1341,7 +1455,7 @@
     if (name === 'guide-prev') g.step = Math.max(0, g.step - 1);
     let note = '';
     if (name === 'guide-show') {
-      if (state.demo) {
+      if (state.demo && !(state.module === 'pid' && g.step === 1)) {
         pause();
         state.demo = null;
       }
@@ -1875,7 +1989,10 @@
     frameId = null;
     const dt = lastFrame ? Math.min(0.1, (now - lastFrame) / 1000) : 0;
     lastFrame = now;
-    const active = () => Boolean(state.demo || state.friction.running || state.positioner.running || state.pid.running);
+    const active = () =>
+      Boolean(
+        (state.demo && !state.demo.paused) || state.friction.running || state.positioner.running || state.pid.running
+      );
     clock += dt;
     while (clock >= 0.05 && active()) {
       clock -= 0.05;
@@ -1980,6 +2097,7 @@
       renderGuide();
       updateQuiz();
       W.mode(false, '');
+      W.learning();
     }
     recordLine();
     refresh();
@@ -2008,6 +2126,10 @@
       beginDemo();
       return;
     }
+    if (name === 'demo-toggle' || (name === 'pause' && state.demo)) {
+      if (name === 'demo-toggle' || !state.demo.paused) toggleDemo();
+      return;
+    }
     if (name === 'custom') {
       pause();
       state.demo = null;
@@ -2019,11 +2141,34 @@
       guideAction(name);
       return;
     }
+    if (name === 'pid-next') {
+      const next = pidNext();
+      if (!next.disabled) action(next.action);
+      return;
+    }
     if (name.startsWith('pid-')) {
       if (state.demo) W.mode(false, 'Demo stopped. The controls are yours.');
       state.demo = null;
       pidAction(name);
       return;
+    }
+    if (
+      state.demo &&
+      [
+        'air-fail',
+        'step-up',
+        'step-down',
+        'sweep',
+        'settle',
+        'position-step',
+        'position-run',
+        'reveal',
+        'next-case'
+      ].includes(name)
+    ) {
+      pause();
+      state.demo = null;
+      W.mode(false, 'Demo stopped. The controls are yours.');
     }
     const mod = state.module,
       f = state.friction,
@@ -2148,6 +2293,12 @@
     }
   }
   document.addEventListener('click', event => {
+    const learning = event.target.closest('[data-learning]');
+    if (learning) {
+      W.learning(learning.dataset.learning);
+      updatePinnedOffset();
+      return;
+    }
     // View buttons only change what is shown; they never cancel a running demo.
     const view = event.target.closest('[data-view]');
     if (view) {
